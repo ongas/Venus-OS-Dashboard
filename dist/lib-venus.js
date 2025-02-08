@@ -962,47 +962,7 @@ export const getFirstEntityName = (entities) => {
 
 
 export function getDefaultConfig(hass) {
-    
-  /*function checkStrings(entiyId: string, testStrings: string[]): boolean {
-    const firstId = getFirstEntityName(entiyId);
-    const friendlyName = hass.states[firstId].attributes.friendly_name;
-    return testStrings.some((str) => firstId.includes(str) || friendlyName?.includes(str));
-  }
-  
-  const powerEntities = Object.keys(hass.states).filter((entityId) => {
-    const stateObj = hass.states[getFirstEntityName(entityId)];
-    const isAvailable =
-      (stateObj.state && stateObj.attributes && stateObj.attributes.device_class === "power") || stateObj.entity_id.includes("power");
-    return isAvailable;
-  });
-
-  const gridPowerTestString = ["grid", "utility", "net", "meter"];
-  const solarTests = ["solar", "pv", "photovoltaic", "inverter"];
-  const batteryTests = ["battery"];
-  const batteryPercentTests = ["battery_percent", "battery_level", "state_of_charge", "soc", "percentage"];
-  const firstGridPowerEntity = powerEntities.filter((entityId) => checkStrings(entityId, gridPowerTestString))[0];
-  const firstSolarPowerEntity = powerEntities.filter((entityId) => checkStrings(entityId, solarTests))[0];
-  const firstBatteryPowerEntity = powerEntities.filter((entityId) => checkStrings(entityId, batteryTests))[0];
-
-  const percentageEntities = Object.keys(hass.states).filter((entityId) => {
-    const stateObj = hass.states[entityId];
-    const isAvailable = stateObj && stateObj.state && stateObj.attributes && stateObj.attributes.unit_of_measurement === "%";
-    return isAvailable;
-  });*/
-
-  /*const firstBatteryPercentageEntity = percentageEntities.filter((entityId) => checkStrings(entityId, batteryPercentTests))[0];
-  return {
-    entities: {
-      battery: {
-        entity: firstBatteryPowerEntity ?? "",
-        state_of_charge: firstBatteryPercentageEntity ?? "",
-      },
-      grid: firstGridPowerEntity ? { entity: firstGridPowerEntity } : undefined,
-      solar: firstSolarPowerEntity ? { entity: firstSolarPowerEntity, display_zero_state: true } : undefined,
-    }
-  };*/
-  
-  
+      
     const powerEntities = Object.keys(hass.states).filter((entityId) => {
         const stateObj = hass.states[getFirstEntityName(entityId)];
         const isAvailable =
@@ -1106,55 +1066,6 @@ export function getDefaultConfig(hass) {
                 },
             },
         },
-        
-        
-        /*
-        
-        devices:
-  1-1:
-    icon: mdi:transmission-tower
-    name: Grid
-    anchors: R-1
-    link:
-      "1":
-        start: R-1
-        end: 2-1_L-1
-  1-2:
-    icon: mdi:battery-charging
-    name: Battery
-    anchors: R-1
-    link:
-      "1":
-        start: R-1
-        end: 2-1_B-1
-  2-1:
-    icon: mdi:cellphone-charging
-    name: Multiplus
-    anchors: L-1, B-2, R-1
-  3-1:
-    icon: mdi:home-lightning-bolt
-    name: Home
-    anchors: L-1
-    link:
-      "1":
-        start: L-1
-        end: 2-1_R-1
-  3-2:
-    icon: mdi:weather-sunny
-    name: Solar
-    anchors: L-1
-    link:
-      "1":
-        start: L-1
-        end: 2-1_B-2
-        
-        */
-  }
-  
-  
-  
-  
-  
-  
+    }
 }
 
