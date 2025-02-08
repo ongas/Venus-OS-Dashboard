@@ -1,6 +1,5 @@
 export default {
   tab1Render: {
-    demo_mode: "Mode Démo",
     theme_choice: "Choix du thème de la carte :",
     light: "Clair",
     dark: "Sombre",
