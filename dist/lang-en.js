@@ -1,6 +1,5 @@
 export default {
   tab1Render: {
-    demo_mode: "Demo Mode",
     theme_choice: "Select card theme:",
     light: "Light",
     dark: "Dark",
