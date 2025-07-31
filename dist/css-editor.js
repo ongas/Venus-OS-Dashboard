@@ -1,11 +1,10 @@
 export function css(user) {
     var css =`
     
-        .link-container {
-                display: flex;
-                background-color: var(--card-background-color);
-                border-bottom: 1px solid var(--divider-color);
-                position: relative; /* Nécessaire pour positionner l'indicateur */
+        #sl-tab-content {
+              display: flex;
+              flex-direction: column;
+              height: 100%;
             }
     
             .content {
@@ -22,7 +21,7 @@ export function css(user) {
             .devices-editor {
                 display: flex;
                 flex-direction: column;
-                padding: 20px 0px;
+                padding: 0px 0px;
             }
             
             .subTab-content {
