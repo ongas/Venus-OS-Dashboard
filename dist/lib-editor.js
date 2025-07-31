@@ -216,18 +216,20 @@ export function tabColRender(col, appendTo) {
 
     let tabsHTML = ''; // Initialise une variable pour stocker les onglets
     for (let i = 1; i <= boxCol; i++) {
-        tabsHTML += `<mwc-tab label="1-${i}" data-tab="${i - 1}"></mwc-tab>`;
+        tabsHTML += `<sl-tab slot="nav" panel="anchor" label="1-${i}" data-tab="${i - 1}">${col}-${i}</sl-tab>`;
     }
             
     tabContent.innerHTML = `
         <div class="devices-editor">
-            <mwc-tab-bar id="subLink-container">
+            <sl-tab-group id="subTab-group">
                 ${tabsHTML}
-            </mwc-tab-bar>
+            </sl-tab-group>
         
-            <div id="subTab-content" class="subTab-content">
+            <sl-tab-panel id="sl-subTab-content" name="anchor">
+              <div id="subTab-content" class="subTab-content">
                 <!-- Le contenu de la section active sera affiché ici -->
-            </div>
+              </div>
+            </sl-tab-panel>
         </div>
     `;
             
@@ -1088,13 +1090,13 @@ export function notifyConfigChange(appendTo) {
     event.detail = { config: appendTo._config };
     appendTo.dispatchEvent(event);
 }
-    
+
 /********************************/
 /* fonction de gestion du click */
 /* dans les onglets principaux  */
 /********************************/
 export function attachLinkClick(renderTabContent, appendTo) {
-    appendTo.shadowRoot.querySelectorAll('#link-container mwc-tab').forEach((link) => {
+    appendTo.shadowRoot.querySelectorAll('#tab-group sl-tab').forEach((link) => {
         if (eventHandlers.has(link)) {
             console.log("Événement déjà attaché à cet élément #link-container mwc-tab :", link);
             return;
@@ -1117,7 +1119,7 @@ export function attachLinkClick(renderTabContent, appendTo) {
 /* dans les onglets secondaires */
 /********************************/
 export function attachSubLinkClick(appendTo) {
-    appendTo.shadowRoot.querySelectorAll('#subLink-container mwc-tab').forEach((sublink) => {
+    appendTo.shadowRoot.querySelectorAll('#subTab-group sl-tab').forEach((sublink) => {
         if (eventHandlers.has(sublink)) {
             console.log("Événement déjà attaché à cet élément #sublink-container mwc-tab :", sublink);
             return;
@@ -1133,4 +1135,4 @@ export function attachSubLinkClick(appendTo) {
         eventHandlers.set(sublink, handleClick);
     });
 }
-
+    
