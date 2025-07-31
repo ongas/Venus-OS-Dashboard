@@ -39,7 +39,6 @@ class venusOsDashboardCard extends HTMLElement {
       libVenus.razDashboardOldWidth();
     });
 
-    /*this._initializeTheme(); // Appel de la fonction une seule fois lors de l'instanciation*/
   }
 
   setConfig(config) {
