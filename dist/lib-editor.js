@@ -24,7 +24,7 @@ export async function loadTranslations(appendTo) {
     } catch (error) {
         console.error("Erreur de chargement de la langue :", error);
         const response = await import(`./lang-en.js`);
-        translations = {};
+        translations = response.default;
     }
 }
 
