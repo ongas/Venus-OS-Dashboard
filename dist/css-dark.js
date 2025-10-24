@@ -1,5 +1,5 @@
 export function cssDataDark(user) {
-    var css =`
+  var css =`
     
         ha-card {
             --box-background-color: #1f2a3c;  	/* Couleur de fond de la box */
@@ -256,7 +256,7 @@ export function cssDataDark(user) {
 		}
 		
   `
-    return css;
+  return css;
 
 }
   

@@ -1,5 +1,5 @@
 export function cssDataLight(user) {
-    var css =`
+  var css =`
     
         ha-card {
             --box-background-color: #ffffff;  	/* Couleur de fond de la box */
@@ -256,7 +256,7 @@ export function cssDataLight(user) {
 		}
 		
   `
-    return css;
+  return css;
 
 }
   
