@@ -111,8 +111,8 @@ export function css(user) {
             }
 
             sl-tab[slot="nav"][active] {
-                background-color: var(--primary-color);
-                color: var(--text-primary-color);
+                background-color: var(--primary-color) !important;
+                color: var(--text-primary-color) !important;
                 border-bottom: 2px solid var(--primary-color);
             }
             
