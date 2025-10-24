@@ -6,12 +6,11 @@ import * as libEditor from './lib-editor.js';
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
     super();
-    console.log('venusOsDashBoardEditor constructor called');
+    
   }
     
   async setConfig(config) {
-    console.log('setConfig called');
-    console.log('config:', JSON.stringify(config));
+    
     this._config = { ...config, entities: { ...(config.entities || {}) } };
         
     await libEditor.loadTranslations(this);
@@ -75,6 +74,10 @@ class venusOsDashBoardEditor extends HTMLElement {
       }
             
       libEditor.attachLinkClick(this.renderTabContent.bind(this), this);
+      const tabGroup = this.shadowRoot.querySelector('#tab-group');
+      if (tabGroup) {
+        tabGroup.value = `conf-${this._currentTab}`;
+      }
 
     }
         
