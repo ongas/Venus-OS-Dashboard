@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Home Assistant Lovelace custom card for Venus OS Dashboard (ongas)",
   "scripts": {
-    "build": "for f in dist/*.js; do gzip -f "$f"; done"
+    "build": "for f in dist/*.js; do gzip -c \"$f\" > \"$f\".gz; done"
   },
   "keywords": [
     "home-assistant",
