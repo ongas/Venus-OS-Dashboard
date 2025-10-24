@@ -1,5 +1,5 @@
 export function css(user) {
-    var css =`
+  var css =`
     
         #sl-tab-content {
               display: flex;
@@ -117,7 +117,7 @@ export function css(user) {
             }
             
   `
-    return css;
+  return css;
 
 }
   

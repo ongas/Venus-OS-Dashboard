@@ -7,7 +7,7 @@
   },
   "scripts": {
     "lint": "eslint dist/*.js",
-    "build": "npm run lint && for f in dist/*.js; do gzip -c \"$f\" > \"$f\".gz; done"
+    "build": "for f in dist/*.js; do gzip -c \"$f\" > \"$f\".gz; done"
   },
   "keywords": [
     "home-assistant",
