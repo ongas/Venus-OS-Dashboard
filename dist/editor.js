@@ -67,15 +67,13 @@ class venusOsDashBoardEditor extends HTMLElement {
       tabGroup.appendChild(style);
             
       this._currentTab = this._config.currentTab || 0;
-      if (tabGroup) {
-        tabGroup.value = `conf-${this._currentTab}`;
-      }
             
       libEditor.attachLinkClick(this.renderTabContent.bind(this), this);
-      if (tabGroup) {
-        tabGroup.value = `conf-${this._currentTab}`;
-      }
 
+    }
+    const tabGroup = this.shadowRoot.querySelector('#tab-group');
+    if (tabGroup) {
+      tabGroup.value = `conf-${this._currentTab}`;
     }
         
     
