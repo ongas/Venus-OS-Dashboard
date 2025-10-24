@@ -94,6 +94,27 @@ export function css(user) {
             .noGap {
                 gap: 0;
             }
+
+            sl-tab[slot="nav"] {
+                background-color: var(--secondary-background-color);
+                border: 1px solid var(--divider-color);
+                border-radius: 4px;
+                margin: 0 2px;
+                padding: 8px 12px;
+                cursor: pointer;
+                transition: background-color 0.2s;
+            }
+
+            sl-tab[slot="nav"]:hover {
+                background-color: var(--primary-color);
+                color: var(--text-primary-color);
+            }
+
+            sl-tab[slot="nav"][active] {
+                background-color: var(--primary-color);
+                color: var(--text-primary-color);
+                border-bottom: 2px solid var(--primary-color);
+            }
             
   `
     return css;
