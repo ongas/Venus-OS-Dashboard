@@ -17,7 +17,13 @@ export const eventHandlers = new WeakMap();
 let translations = {}; // Stocke les traductions chargées
 
 export async function loadTranslations(appendTo) {
-    const lang = appendTo._hass?.language || "en"; // Langue HA, ou "en" par défaut
+    let lang = appendTo._hass?.language || "en"; // HA language, or "en" by default
+    const supportedLanguages = ["en", "fr"]; // List of supported languages
+
+    if (!supportedLanguages.includes(lang)) {
+        lang = "en"; // Default to English if language is not supported
+    }
+
     try {
         const response = await import(`./lang-${lang}.js`);
         translations = response.default;
