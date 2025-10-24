@@ -179,12 +179,12 @@ class venusOsDashboardCard extends HTMLElement {
   }
 
 }
-customElements.define('venus-os-dashboard', venusOsDashboardCard);
+customElements.define('venus-os-dashboard-ongas', venusOsDashboardCard);
 
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: 'venus-os-dashboard',
-  name: 'Venus OS Dashboard',
+  type: 'venus-os-dashboard-ongas',
+  name: 'Venus OS Dashboard (ongas)',
   preview: true,
   description: 'A DashBoard that looklike Venos OS gui-v2 from Victron.',
 });
