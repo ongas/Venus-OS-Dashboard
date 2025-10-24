@@ -4,6 +4,10 @@ import {css} from './css-editor.js?v=0.1';
 import * as libEditor from './lib-editor.js';
 
 class venusOsDashBoardEditor extends HTMLElement {
+  constructor() {
+    super();
+    console.log('venusOsDashBoardEditor constructor called');
+  }
     
   async setConfig(config) {
     console.log('setConfig called');
