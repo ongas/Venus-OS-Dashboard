@@ -15,6 +15,7 @@ class venusOsDashBoardEditor extends HTMLElement {
         
     await libEditor.loadTranslations(this);
     
+    let tabGroup;
     if (!this.shadowRoot) {
             
       this.attachShadow({ mode: 'open' });
@@ -51,7 +52,7 @@ class venusOsDashBoardEditor extends HTMLElement {
               </sl-tab-group>
             `;
             
-      const tabGroup = this.shadowRoot.querySelector('#tab-group');
+      tabGroup = this.shadowRoot.querySelector('#tab-group');
             
       tabGroup.addEventListener('sl-tab-show', (event) => {
         const clickedTab = event.detail.tab;
@@ -70,8 +71,9 @@ class venusOsDashBoardEditor extends HTMLElement {
             
       libEditor.attachLinkClick(this.renderTabContent.bind(this), this);
 
+    } else {
+      tabGroup = this.shadowRoot.querySelector('#tab-group');
     }
-    const tabGroup = this.shadowRoot.querySelector('#tab-group');
     if (tabGroup) {
       tabGroup.value = `conf-${this._currentTab}`;
     }
