@@ -50,7 +50,7 @@ class venusOsDashBoardEditor extends HTMLElement {
         const dataTab = parseInt(clickedTab.dataset.tab, 10);
         this._currentTab = dataTab;
         this._config.currentTab = dataTab;
-        this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: this._config } }));
+        
         
         this.renderTabContent();
       });
