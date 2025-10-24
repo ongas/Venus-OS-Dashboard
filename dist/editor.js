@@ -26,7 +26,10 @@ class venusOsDashBoardEditor extends HTMLElement {
               </style>
             
               <sl-tab-group id="tab-group">
-                ${this.renderTabs()}
+                <sl-tab slot="nav" panel="conf" data-tab="0" id="main-tab">Main</sl-tab>
+                <sl-tab slot="nav" panel="conf" data-tab="1" id="col1-tab">Col. 1</sl-tab>
+                <sl-tab slot="nav" panel="conf" data-tab="2" id="col2-tab">Col. 2</sl-tab>
+                <sl-tab slot="nav" panel="conf" data-tab="3" id="col3-tab">Col. 3</sl-tab>
             
                 <sl-tab-panel id="sl-tab-content" name="conf">
                   <div id="tab-content" class="content"></div>
@@ -40,7 +43,7 @@ class venusOsDashBoardEditor extends HTMLElement {
         const clickedTab = event.detail.tab;
         const dataTab = parseInt(clickedTab.dataset.tab, 10);
         this._currentTab = dataTab;
-        this.renderTabs(); // Re-render tabs to update active state
+        this.updateActiveTab(); // Update active tab property
         this.renderTabContent();
       });
             
@@ -55,18 +58,16 @@ class venusOsDashBoardEditor extends HTMLElement {
 
     }
         
-    this.renderTabs(); // Initial render of tabs
+    this.updateActiveTab(); // Initial update of active tab
     this.renderTabContent();
   }
     
-  renderTabs() {
-    let tabsHTML = `
-            <sl-tab slot="nav" panel="conf" data-tab="0" ${this._currentTab === 0 ? 'active' : ''}>Main</sl-tab>
-            <sl-tab slot="nav" panel="conf" data-tab="1" ${this._currentTab === 1 ? 'active' : ''}>Col. 1</sl-tab>
-            <sl-tab slot="nav" panel="conf" data-tab="2" ${this._currentTab === 2 ? 'active' : ''}>Col. 2</sl-tab>
-            <sl-tab slot="nav" panel="conf" data-tab="3" ${this._currentTab === 3 ? 'active' : ''}>Col. 3</sl-tab>
-        `;
-    return tabsHTML;
+  updateActiveTab() {
+    const tabs = this.shadowRoot.querySelectorAll('sl-tab[slot="nav"]');
+    tabs.forEach((tab) => {
+      const dataTab = parseInt(tab.dataset.tab, 10);
+      tab.active = (dataTab === this._currentTab);
+    });
   }
     
   renderTabContent() {
