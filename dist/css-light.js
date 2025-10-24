@@ -1,4 +1,4 @@
-export function cssDataLight(user) {
+export function cssDataLight() {
   var css =`
     
         ha-card {
