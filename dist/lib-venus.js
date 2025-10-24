@@ -178,7 +178,7 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
             
     const device = devices[boxId];
             
-    const divGraph = appendTo.querySelector(`#dashboard > #column-${boxId[0]} > #box_${boxId} > #graph_${boxId}`);
+
     const divGauge = appendTo.querySelector(`#dashboard > #column-${boxId[0]} > #box_${boxId} > #gauge_${boxId}`);
     const innerContent = appendTo.querySelector(`#dashboard > #column-${boxId[0]} > #box_${boxId} > #content_${boxId}`);
                 
@@ -186,7 +186,7 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     let value = state ? state.state : 'N/C';
     let unit = state && state.attributes.unit_of_measurement ? state.attributes.unit_of_measurement : '';
             
-    let addGauge = "";
+
     let addHeaderEntity = "";
     let addEntity2 = "";
     let addFooter = "";
@@ -395,59 +395,7 @@ function generatePath(data, svgWidth = 500, svgHeight = 100) {
   return path;
 }
 
-function simplifyPath(points, tolerance) {
-  if (points.length <= 2) return points; // Pas besoin de simplification si 2 points ou moins
 
-  const sqTolerance = tolerance * tolerance;
-
-  // Fonction pour calculer la distance au carré d'un point à une ligne
-  function getSqSegmentDistance(p, p1, p2) {
-    let x = p1.x, y = p1.y;
-    let dx = p2.x - x, dy = p2.y - y;
-
-    if (dx !== 0 || dy !== 0) {
-      const t = ((p.x - x) * dx + (p.y - y) * dy) / (dx * dx + dy * dy);
-      if (t > 1) {
-        x = p2.x;
-        y = p2.y;
-      } else if (t > 0) {
-        x += dx * t;
-        y += dy * t;
-      }
-    }
-
-    dx = p.x - x;
-    dy = p.y - y;
-
-    return dx * dx + dy * dy;
-  }
-
-  // Fonction récursive principale
-  function simplifyRecursive(start, end, sqTolerance, simplified) {
-    let maxSqDist = sqTolerance;
-    let index;
-
-    for (let i = start + 1; i < end; i++) {
-      const sqDist = getSqSegmentDistance(points[i], points[start], points[end]);
-      if (sqDist > maxSqDist) {
-        index = i;
-        maxSqDist = sqDist;
-      }
-    }
-
-    if (maxSqDist > sqTolerance) {
-      if (index - start > 1) simplifyRecursive(start, index, sqTolerance, simplified);
-      simplified.push(points[index]);
-      if (end - index > 1) simplifyRecursive(index, end, sqTolerance, simplified);
-    }
-  }
-
-  const simplified = [points[0]];
-  simplifyRecursive(0, points.length - 1, sqTolerance, simplified);
-  simplified.push(points[points.length - 1]);
-
-  return simplified;
-}
 
 /******************************************************/
 /* fonction d'ajout des liens entre les box :     */
@@ -606,15 +554,10 @@ function creatLine(anchorId1, anchorId2, direction_init, isDarkTheme, appendTo) 
           C ${midX} ${coords1.y}, ${midX} ${coords1.y}, ${midX} ${(coords1.y + coords2.y) / 2}
           C ${midX} ${coords2.y}, ${midX} ${coords2.y}, ${coords2.x} ${coords2.y}
         `;
-    } else if (!anchor1isH && !anchor2isH) {
-      const midY = (coords1.y + coords2.y) / 2;
+
       // Définition du chemin avec deux courbes : vertical -> horizontal -> vertical
-      pathData = `
-          M ${coords1.x} ${coords1.y} 
-          C ${coords1.x} ${midY}, ${coords1.x} ${midY}, ${(coords1.x + coords2.x)/2} ${midY} 
-          C ${coords2.x} ${midY}, ${coords2.x} ${midY}, ${coords2.x} ${coords2.y}
-        `;
-    } else {
+      const midY = (coords1.y + coords2.y) / 2;
+      pathData = `M${coords1.x},${coords1.y} C${coords1.x},${midY} ${coords2.x},${midY} ${coords2.x},${coords2.y}`;    } else {
       if (anchor1isH) {
         coords1 = getAnchorCoordinates(anchorId2, appendTo);
         coords2 = getAnchorCoordinates(anchorId1, appendTo);
@@ -832,9 +775,9 @@ export async function startPeriodicTask(config, hass) {
   return true;
 }
 
-export function clearAllIntervals(appendTo) {
+export function clearAllIntervals() {
   // Arrêter toutes les tâches en cours
-  intervals.forEach((intervalId, id) => {
+  intervals.forEach((intervalId) => {
     clearInterval(intervalId);
     //console.log(`Tâche pour l'entité "${id}" arrêtée.`);
   });

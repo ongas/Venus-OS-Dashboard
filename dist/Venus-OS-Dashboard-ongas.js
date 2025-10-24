@@ -34,7 +34,7 @@ class venusOsDashboardCard extends HTMLElement {
     super();
 
     // Écouter l'événement personnalisé
-    document.addEventListener('config-changed', (event) => {
+    document.addEventListener('config-changed', () => {
       // if(event.detail.redrawRequired) libVenus.razDashboardOldWidth();
       libVenus.razDashboardOldWidth();
     });

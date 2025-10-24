@@ -254,8 +254,8 @@ export function tabColRender(col, appendTo) {
 /* me demandez pas pourquoi j'ai fait deux      */
 /* foncions, je ne saisplus                     */
 /************************************************/
+
 export function renderSubTabContent(col, appendTo) {
-  const subTabContent = appendTo.shadowRoot.querySelector('#subTab-content');
   const boxId = `${col}-${appendTo._currentSubTab+1}`;
   subtabRender(boxId, appendTo._config, appendTo._hass, appendTo);
   attachInputs(appendTo); // Appeler la fonction attachInputs déjà présente
@@ -518,13 +518,13 @@ export function subtabRender(box, config, hass, appendTo) {
   const linkContainer = subTabContent.querySelector('#link-container');
   const addLinkButton = subTabContent.querySelector('#add-link-button');
     
-  Object.entries(config.devices?.[box]?.link || {}).forEach(([linkKey, link]) => {
+  Object.entries(config.devices?.[box]?.link || {}).forEach(([linkKey]) => {
         
     addLink(linkKey, box, hass, thisAllAnchors, OtherAllAnchors, appendTo);
 
   });
     
-  addLinkButton.addEventListener('click', (e) => {
+  addLinkButton.addEventListener('click', () => {
     addLink(linkContainer.children.length+1, box, hass, thisAllAnchors, OtherAllAnchors, appendTo);
   });
     
@@ -570,7 +570,6 @@ export function addLink(index, box, hass, thisAllAnchors, OtherAllAnchors, appen
     
   const subTabContent = appendTo.shadowRoot.querySelector('#subTab-content');
   const linkContainer = subTabContent.querySelector('#link-container');
-  const addLinkButton = subTabContent.querySelector('#add-link-button');
     
   const panel = document.createElement('ha-expansion-panel');
   panel.setAttribute('outlined', '');
@@ -836,7 +835,7 @@ export function attachInputs(appendTo) {
     }
         
     // Créer un nouveau gestionnaire d'événements
-    const handleChange = (e) => {
+    const handleChange = () => {
       const key = textField.dataset.path;
     
       // Récupérer les valeurs des champs "left", "top", "bottom", "right"

@@ -1,4 +1,4 @@
-export function cssDataDark(user) {
+export function cssDataDark() {
   var css =`
     
         ha-card {

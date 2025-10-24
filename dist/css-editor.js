@@ -1,4 +1,4 @@
-export function css(user) {
+export function css() {
   var css =`
     
         #sl-tab-content {
