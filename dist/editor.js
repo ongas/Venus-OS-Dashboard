@@ -26,7 +26,7 @@ class venusOsDashBoardEditor extends HTMLElement {
               </style>
             
               <sl-tab-group id="tab-group">
-                <div id="dynamic-tabs"></div>
+                ${this.renderTabs()}
             
                 <sl-tab-panel id="sl-tab-content" name="conf">
                   <div id="tab-content" class="content"></div>
@@ -60,14 +60,13 @@ class venusOsDashBoardEditor extends HTMLElement {
     }
     
     renderTabs() {
-        const dynamicTabsDiv = this.shadowRoot.querySelector('#dynamic-tabs');
         let tabsHTML = `
             <sl-tab slot="nav" panel="conf" data-tab="0" ${this._currentTab === 0 ? 'active' : ''}>Main</sl-tab>
             <sl-tab slot="nav" panel="conf" data-tab="1" ${this._currentTab === 1 ? 'active' : ''}>Col. 1</sl-tab>
             <sl-tab slot="nav" panel="conf" data-tab="2" ${this._currentTab === 2 ? 'active' : ''}>Col. 2</sl-tab>
             <sl-tab slot="nav" panel="conf" data-tab="3" ${this._currentTab === 3 ? 'active' : ''}>Col. 3</sl-tab>
         `;
-        dynamicTabsDiv.innerHTML = tabsHTML;
+        return tabsHTML;
     }
         
         // No need to call renderTabs() here
