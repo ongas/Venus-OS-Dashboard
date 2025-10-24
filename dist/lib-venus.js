@@ -172,9 +172,9 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     const boxIdmax = parseInt(config.param[`boxCol${boxId[0]}`], 10);
         
     if(boxIdtest > boxIdmax )  {
-        console.error(`Boîte avec l'ID "${boxIdtest}" introuvable.`);
-        return;
-      }
+      console.error(`Boîte avec l'ID "${boxIdtest}" introuvable.`);
+      return;
+    }
             
     const device = devices[boxId];
             
@@ -557,7 +557,7 @@ function addLine(devices, isDarkTheme, appendTo) {
         if (link.start && link.end) creatLine(`${boxId}_${link.start}`, link.end, inv, isDarkTheme, appendTo);
                                 
       }
-      }
+    }
   }
 }
 
@@ -595,37 +595,37 @@ function creatLine(anchorId1, anchorId2, direction_init, isDarkTheme, appendTo) 
     pathData = `M ${coords1.x} ${coords1.y} L ${coords2.x} ${coords2.y}`;
   } else {
   
-      const anchor1isH = anchorId1.includes("L") || anchorId1.includes("R");
-      const anchor2isH = anchorId2.includes("L") || anchorId2.includes("R");
+    const anchor1isH = anchorId1.includes("L") || anchorId1.includes("R");
+    const anchor2isH = anchorId2.includes("L") || anchorId2.includes("R");
 
-      if (anchor1isH && anchor2isH) {
-        const midX = (coords1.x + coords2.x) / 2;
-        // Définition du chemin avec deux courbes symétriques
-        pathData = `
+    if (anchor1isH && anchor2isH) {
+      const midX = (coords1.x + coords2.x) / 2;
+      // Définition du chemin avec deux courbes symétriques
+      pathData = `
           M ${coords1.x} ${coords1.y}
           C ${midX} ${coords1.y}, ${midX} ${coords1.y}, ${midX} ${(coords1.y + coords2.y) / 2}
           C ${midX} ${coords2.y}, ${midX} ${coords2.y}, ${coords2.x} ${coords2.y}
         `;
-      } else if (!anchor1isH && !anchor2isH) {
-        const midY = (coords1.y + coords2.y) / 2;
-        // Définition du chemin avec deux courbes : vertical -> horizontal -> vertical
-        pathData = `
+    } else if (!anchor1isH && !anchor2isH) {
+      const midY = (coords1.y + coords2.y) / 2;
+      // Définition du chemin avec deux courbes : vertical -> horizontal -> vertical
+      pathData = `
           M ${coords1.x} ${coords1.y} 
           C ${coords1.x} ${midY}, ${coords1.x} ${midY}, ${(coords1.x + coords2.x)/2} ${midY} 
           C ${coords2.x} ${midY}, ${coords2.x} ${midY}, ${coords2.x} ${coords2.y}
         `;
-      } else {
-        if (anchor1isH) {
-          coords1 = getAnchorCoordinates(anchorId2, appendTo);
-          coords2 = getAnchorCoordinates(anchorId1, appendTo);
-        }
-        const midY = (coords1.y + coords2.y) / 2;
-        // Définition du chemin avec un seul virage
-        pathData = `
+    } else {
+      if (anchor1isH) {
+        coords1 = getAnchorCoordinates(anchorId2, appendTo);
+        coords2 = getAnchorCoordinates(anchorId1, appendTo);
+      }
+      const midY = (coords1.y + coords2.y) / 2;
+      // Définition du chemin avec un seul virage
+      pathData = `
           M ${coords1.x} ${coords1.y} 
           C ${coords1.x} ${coords2.y}, ${coords1.x} ${coords2.y}, ${coords2.x} ${coords2.y}
         `;
-      }
+    }
   }
     
   // Création de l'élément SVG <path>
@@ -719,7 +719,7 @@ function animateBallAlongPath(anchorId1, path, circle, appendTo) {
   let startTime;
   
   function reverseDirection(cmd) {
-      const directionInit = directionControls.get(anchorId1);
+    const directionInit = directionControls.get(anchorId1);
     direction = directionInit*cmd; // Inverser la direction
   }
   
@@ -784,7 +784,7 @@ export function checkForReverse(devices, hass) {
           else pathControls.get(`${boxId}_${link.start}`).reverse(0); 
         } 
       }
-          }
+    }
   }
 }
 

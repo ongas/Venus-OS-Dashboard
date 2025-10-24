@@ -55,11 +55,11 @@ class venusOsDashBoardEditor extends HTMLElement {
             
       tabGroup.addEventListener('sl-tab-show', (event) => {
         const clickedTab = event.detail.tab;
-                const dataTab = parseInt(clickedTab.dataset.tab, 10);
-                this._currentTab = dataTab;
-                this._config.currentTab = dataTab;
-                tabGroup.value = `conf-${dataTab}`;
-                this.renderTabContent();
+        const dataTab = parseInt(clickedTab.dataset.tab, 10);
+        this._currentTab = dataTab;
+        this._config.currentTab = dataTab;
+        tabGroup.value = `conf-${dataTab}`;
+        this.renderTabContent();
       });
             
       const style = document.createElement('style');
@@ -67,14 +67,11 @@ class venusOsDashBoardEditor extends HTMLElement {
       tabGroup.appendChild(style);
             
       this._currentTab = this._config.currentTab || 0;
-      this._currentSubTab = 0;
-      const tabGroup = this.shadowRoot.querySelector('#tab-group');
       if (tabGroup) {
         tabGroup.value = `conf-${this._currentTab}`;
       }
             
       libEditor.attachLinkClick(this.renderTabContent.bind(this), this);
-      const tabGroup = this.shadowRoot.querySelector('#tab-group');
       if (tabGroup) {
         tabGroup.value = `conf-${this._currentTab}`;
       }
