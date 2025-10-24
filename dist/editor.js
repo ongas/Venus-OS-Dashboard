@@ -68,10 +68,6 @@ class venusOsDashBoardEditor extends HTMLElement {
         `;
         return tabsHTML;
     }
-        
-        // No need to call renderTabs() here
-        this.renderTabContent();
-    }
     
     renderTabContent() {
         
