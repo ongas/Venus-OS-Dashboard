@@ -6,6 +6,8 @@ import * as libEditor from './lib-editor.js';
 class venusOsDashBoardEditor extends HTMLElement {
     
   async setConfig(config) {
+    console.log('setConfig called');
+    console.log('config:', JSON.stringify(config));
     this._config = { ...config, entities: { ...(config.entities || {}) } };
         
     await libEditor.loadTranslations(this);
