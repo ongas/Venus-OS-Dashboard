@@ -32,12 +32,21 @@ class venusOsDashBoardEditor extends HTMLElement {
               </style>
             
               <sl-tab-group id="tab-group">
-                <sl-tab slot="nav" panel="conf" data-tab="0" id="main-tab">Main</sl-tab>
-                <sl-tab slot="nav" panel="conf" data-tab="1" id="col1-tab">Col. 1</sl-tab>
-                <sl-tab slot="nav" panel="conf" data-tab="2" id="col2-tab">Col. 2</sl-tab>
-                <sl-tab slot="nav" panel="conf" data-tab="3" id="col3-tab">Col. 3</sl-tab>
+                <sl-tab slot="nav" panel="conf-0" data-tab="0" id="main-tab">Main</sl-tab>
+                <sl-tab slot="nav" panel="conf-1" data-tab="1" id="col1-tab">Col. 1</sl-tab>
+                <sl-tab slot="nav" panel="conf-2" data-tab="2" id="col2-tab">Col. 2</sl-tab>
+                <sl-tab slot="nav" panel="conf-3" data-tab="3" id="col3-tab">Col. 3</sl-tab>
             
-                <sl-tab-panel id="sl-tab-content" name="conf">
+                <sl-tab-panel id="sl-tab-content-0" name="conf-0">
+                  <div id="tab-content" class="content"></div>
+                </sl-tab-panel>
+                <sl-tab-panel id="sl-tab-content-1" name="conf-1">
+                  <div id="tab-content" class="content"></div>
+                </sl-tab-panel>
+                <sl-tab-panel id="sl-tab-content-2" name="conf-2">
+                  <div id="tab-content" class="content"></div>
+                </sl-tab-panel>
+                <sl-tab-panel id="sl-tab-content-3" name="conf-3">
                   <div id="tab-content" class="content"></div>
                 </sl-tab-panel>
               </sl-tab-group>
@@ -47,12 +56,11 @@ class venusOsDashBoardEditor extends HTMLElement {
             
       tabGroup.addEventListener('sl-tab-show', (event) => {
         const clickedTab = event.detail.tab;
-        const dataTab = parseInt(clickedTab.dataset.tab, 10);
-        this._currentTab = dataTab;
-        this._config.currentTab = dataTab;
-        
-        
-        this.renderTabContent();
+                const dataTab = parseInt(clickedTab.dataset.tab, 10);
+                this._currentTab = dataTab;
+                this._config.currentTab = dataTab;
+                tabGroup.value = `conf-${dataTab}`;
+                this.renderTabContent();
       });
             
       const style = document.createElement('style');
@@ -61,9 +69,9 @@ class venusOsDashBoardEditor extends HTMLElement {
             
       this._currentTab = this._config.currentTab || 0;
       this._currentSubTab = 0;
-      const tabToSelect = this.shadowRoot.querySelector(`sl-tab[data-tab="${this._currentTab}"]`);
-      if (tabToSelect) {
-        tabToSelect.active = true;
+      const tabGroup = this.shadowRoot.querySelector('#tab-group');
+      if (tabGroup) {
+        tabGroup.value = `conf-${this._currentTab}`;
       }
             
       libEditor.attachLinkClick(this.renderTabContent.bind(this), this);
