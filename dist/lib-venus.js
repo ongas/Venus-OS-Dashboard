@@ -562,8 +562,7 @@ function creatLine(anchorId1, anchorId2, direction_init, isDarkTheme, appendTo) 
         coords1 = getAnchorCoordinates(anchorId2, appendTo);
         coords2 = getAnchorCoordinates(anchorId1, appendTo);
       }
-      const midY = (coords1.y + coords2.y) / 2;
-      // Définition du chemin avec un seul virage
+
       pathData = `
           M ${coords1.x} ${coords1.y} 
           C ${coords1.x} ${coords2.y}, ${coords1.x} ${coords2.y}, ${coords2.x} ${coords2.y}
