@@ -222,7 +222,7 @@ export function tabColRender(col, appendTo) {
 
     let tabsHTML = ''; // Initialise une variable pour stocker les onglets
     for (let i = 1; i <= boxCol; i++) {
-        tabsHTML += `<sl-tab slot="nav" panel="anchor" label="1-${i}" data-tab="${i - 1}">${col}-${i}</sl-tab>`;
+        tabsHTML += `<sl-tab slot="nav" panel="anchor" label="1-${i}" data-tab="${i - 1}">${col}-${i} is col ${col}, row ${i}</sl-tab>`;
     }
             
     tabContent.innerHTML = `
