@@ -1,0 +1,16 @@
+{
+  "name": "venus-os-dashboard-ongas",
+  "version": "0.1.0",
+  "description": "Home Assistant Lovelace custom card for Venus OS Dashboard (ongas)",
+  "scripts": {
+    "build": "for f in dist/*.js; do gzip -f "$f"; done"
+  },
+  "keywords": [
+    "home-assistant",
+    "lovelace",
+    "custom-card",
+    "venus-os"
+  ],
+  "author": "ongas",
+  "license": "MIT"
+}
