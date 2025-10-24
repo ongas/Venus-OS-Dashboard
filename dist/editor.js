@@ -40,7 +40,7 @@ class venusOsDashBoardEditor extends HTMLElement {
                 const clickedTab = event.detail.tab;
                 const dataTab = parseInt(clickedTab.dataset.tab, 10);
                 this._currentTab = dataTab;
-                this.renderTabs(); // Re-render tabs to update active state
+                // No need to call renderTabs() here, as sl-tab-group handles active state
                 this.renderTabContent();
             });
             
@@ -53,21 +53,21 @@ class venusOsDashBoardEditor extends HTMLElement {
             
             libEditor.attachLinkClick(this.renderTabContent.bind(this), this);
 
+            // Initial rendering of tabs
+            const dynamicTabsDiv = this.shadowRoot.querySelector('#dynamic-tabs');
+            dynamicTabsDiv.innerHTML = `
+                <sl-tab slot="nav" panel="conf" data-tab="0">Main</sl-tab>
+                <sl-tab slot="nav" panel="conf" data-tab="1">Col. 1</sl-tab>
+                <sl-tab slot="nav" panel="conf" data-tab="2">Col. 2</sl-tab>
+                <sl-tab slot="nav" panel="conf" data-tab="3">Col. 3</sl-tab>
+            `;
+            // Set the initial active tab using the sl-tab-group's value attribute
+            tabGroup.value = dynamicTabsDiv.querySelector(`[data-tab="${this._currentTab}"]`).panel;
+            
         }
         
-        this.renderTabs(); // Initial render of tabs
+        // No need to call renderTabs() here
         this.renderTabContent();
-    }
-    
-    renderTabs() {
-        const dynamicTabsDiv = this.shadowRoot.querySelector('#dynamic-tabs');
-        let tabsHTML = `
-            <sl-tab slot="nav" panel="conf" data-tab="0" ${this._currentTab === 0 ? 'active' : ''}>Main</sl-tab>
-            <sl-tab slot="nav" panel="conf" data-tab="1" ${this._currentTab === 1 ? 'active' : ''}>Col. 1</sl-tab>
-            <sl-tab slot="nav" panel="conf" data-tab="2" ${this._currentTab === 2 ? 'active' : ''}>Col. 2</sl-tab>
-            <sl-tab slot="nav" panel="conf" data-tab="3" ${this._currentTab === 3 ? 'active' : ''}>Col. 3</sl-tab>
-        `;
-        dynamicTabsDiv.innerHTML = tabsHTML;
     }
     
     renderTabContent() {
