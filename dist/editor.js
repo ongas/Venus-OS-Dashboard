@@ -45,7 +45,7 @@ class venusOsDashBoardEditor extends HTMLElement {
         this._currentTab = dataTab;
         this._config.currentTab = dataTab;
         this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: this._config } }));
-        this.updateActiveTab(); // Update active tab property
+        
         this.renderTabContent();
       });
             
@@ -55,22 +55,20 @@ class venusOsDashBoardEditor extends HTMLElement {
             
       this._currentTab = this._config.currentTab || 0;
       this._currentSubTab = 0;
+      const tabToSelect = this.shadowRoot.querySelector(`sl-tab[data-tab="${this._currentTab}"]`);
+      if (tabToSelect) {
+        tabToSelect.active = true;
+      }
             
       libEditor.attachLinkClick(this.renderTabContent.bind(this), this);
 
     }
         
-    this.updateActiveTab(); // Initial update of active tab
+    
     this.renderTabContent();
   }
     
-  updateActiveTab() {
-    const tabs = this.shadowRoot.querySelectorAll('sl-tab[slot="nav"]');
-    tabs.forEach((tab) => {
-      const dataTab = parseInt(tab.dataset.tab, 10);
-      tab.active = (dataTab === this._currentTab);
-    });
-  }
+  
     
   renderTabContent() {
         
