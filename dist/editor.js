@@ -43,6 +43,8 @@ class venusOsDashBoardEditor extends HTMLElement {
         const clickedTab = event.detail.tab;
         const dataTab = parseInt(clickedTab.dataset.tab, 10);
         this._currentTab = dataTab;
+        this._config.currentTab = dataTab;
+        this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: this._config } }));
         this.updateActiveTab(); // Update active tab property
         this.renderTabContent();
       });
@@ -51,7 +53,7 @@ class venusOsDashBoardEditor extends HTMLElement {
       style.textContent = css();
       tabGroup.appendChild(style);
             
-      this._currentTab = 0;
+      this._currentTab = this._config.currentTab || 0;
       this._currentSubTab = 0;
             
       libEditor.attachLinkClick(this.renderTabContent.bind(this), this);
