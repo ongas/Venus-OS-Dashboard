@@ -26,10 +26,7 @@ class venusOsDashBoardEditor extends HTMLElement {
               </style>
             
               <sl-tab-group id="tab-group">
-                <sl-tab slot="nav" panel="conf" data-tab="0"" active>Main</sl-tab>
-                <sl-tab slot="nav" panel="conf" data-tab="1">Col. 1</sl-tab>
-                <sl-tab slot="nav" panel="conf" data-tab="2">Col. 2</sl-tab>
-                <sl-tab slot="nav" panel="conf" data-tab="3">Col. 3</sl-tab>
+                <div id="dynamic-tabs"></div>
             
                 <sl-tab-panel id="sl-tab-content" name="conf">
                   <div id="tab-content" class="content"></div>
@@ -39,20 +36,13 @@ class venusOsDashBoardEditor extends HTMLElement {
             
             const tabGroup = this.shadowRoot.querySelector('#tab-group');
             
-            /*tabGroup.addEventListener('sl-tab-show', (event) => {
-                
-              const panelName = event.detail.name; // "conf", "col1", etc.
-              const tabIndexMap = {
-                conf: 0,
-                col1: 1,
-                col2: 2,
-                col3: 3,
-              };
-              this._currentTab = tabIndexMap[panelName] ?? 0;
-              this.renderTabContent();
-            });*/
-            
-            
+            tabGroup.addEventListener('sl-tab-show', (event) => {
+                const clickedTab = event.detail.tab;
+                const dataTab = parseInt(clickedTab.dataset.tab, 10);
+                this._currentTab = dataTab;
+                this.renderTabs(); // Re-render tabs to update active state
+                this.renderTabContent();
+            });
             
             const style = document.createElement('style');
             style.textContent = css();
@@ -65,7 +55,19 @@ class venusOsDashBoardEditor extends HTMLElement {
 
         }
         
+        this.renderTabs(); // Initial render of tabs
         this.renderTabContent();
+    }
+    
+    renderTabs() {
+        const dynamicTabsDiv = this.shadowRoot.querySelector('#dynamic-tabs');
+        let tabsHTML = `
+            <sl-tab slot="nav" panel="conf" data-tab="0" ${this._currentTab === 0 ? 'active' : ''}>Main</sl-tab>
+            <sl-tab slot="nav" panel="conf" data-tab="1" ${this._currentTab === 1 ? 'active' : ''}>Col. 1</sl-tab>
+            <sl-tab slot="nav" panel="conf" data-tab="2" ${this._currentTab === 2 ? 'active' : ''}>Col. 2</sl-tab>
+            <sl-tab slot="nav" panel="conf" data-tab="3" ${this._currentTab === 3 ? 'active' : ''}>Col. 3</sl-tab>
+        `;
+        dynamicTabsDiv.innerHTML = tabsHTML;
     }
     
     renderTabContent() {
