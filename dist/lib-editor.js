@@ -1130,12 +1130,17 @@ export function attachSubLinkClick(appendTo) {
       return;
     }
 
-    const handleClick = (e) => {
-      const tab = parseInt(e.currentTarget.getAttribute('data-tab'), 10);
-      appendTo._currentSubTab = tab;
-      renderSubTabContent(appendTo._currentTab, appendTo);
-    };
-
+        const handleClick = (e) => {
+          // Manually manage 'selected-tab' class for sub-tabs
+          appendTo.shadowRoot.querySelectorAll('#subTab-group sl-tab').forEach(tab => {
+            tab.classList.remove('selected-tab');
+          });
+          e.currentTarget.classList.add('selected-tab');
+    
+          const tab = parseInt(e.currentTarget.getAttribute('data-tab'), 10);
+          appendTo._currentSubTab = tab;
+          renderSubTabContent(appendTo._currentTab, appendTo);
+        };
     sublink.addEventListener("click", handleClick);
     eventHandlers.set(sublink, handleClick);
   });
