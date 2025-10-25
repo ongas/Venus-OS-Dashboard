@@ -54,22 +54,23 @@ class venusOsDashBoardEditor extends HTMLElement {
             
       tabGroup = this.shadowRoot.querySelector('#tab-group');
             
-      tabGroup.addEventListener('sl-tab-show', (event) => {
-        const clickedTab = event.detail.tab;
-        const dataTab = parseInt(clickedTab.dataset.tab, 10);
+      tabGroup.addEventListener('sl-change', (event) => {
+        const selectedValue = event.detail.value;
+        const dataTab = parseInt(selectedValue.replace('conf-', ''), 10);
         this._currentTab = dataTab;
         this._config.currentTab = dataTab;
-        tabGroup.value = `conf-${dataTab}`;
-        
+              
         // Manually manage 'selected-tab' class
         this.shadowRoot.querySelectorAll('sl-tab[slot="nav"]').forEach(tab => {
           tab.classList.remove('selected-tab');
         });
-        clickedTab.classList.add('selected-tab');
-        
+        const newlySelectedTab = this.shadowRoot.querySelector(`sl-tab[panel="${selectedValue}"]`);
+        if (newlySelectedTab) {
+          newlySelectedTab.classList.add('selected-tab');
+        }
+              
         this.renderTabContent();
-      });
-        
+      });        
       const style = document.createElement('style');
       style.textContent = css();
       tabGroup.appendChild(style);
