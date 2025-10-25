@@ -15,7 +15,7 @@ export function css() {
     
                     #subTab-group {
     
-                                    margin-top: 2em;    
+    
                     }
     
         
@@ -136,12 +136,12 @@ export function css() {
             sl-tab[slot="nav"][active] {
                 background-color: var(--primary-color) !important;
                 color: var(--text-primary-color) !important;
-                                border-bottom: 2px solid var(--primary-color);
-                box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-                border-left: 3px solid var(--primary-color) !important;
-                border-right: 3px solid var(--primary-color) !important;
-                background-color: #e0e0e0 !important; /* Light grey for strong contrast */
-            }
+                                                border-bottom: 2px solid var(--primary-color) !important;
+                                                box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4) !important;
+                                                border-left: 3px solid var(--primary-color) !important;
+                                                border-right: 3px solid var(--primary-color) !important;
+                                                background-color: #4CAF50 !important; /* A distinct green */
+                                                color: white !important;            }
             
   `
   return css;
