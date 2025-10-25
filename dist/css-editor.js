@@ -1,11 +1,35 @@
 export function css() {
   var css =`
     
-        #sl-tab-content {
-              display: flex;
-              flex-direction: column;
-              height: 100%;
-            }
+                    #sl-tab-content {
+    
+                      display: flex;
+    
+                      flex-direction: column;
+    
+                      height: 100%;
+    
+                    }
+    
+        
+    
+                    #subTab-group {
+    
+                      margin-top: 1em;
+    
+                    }
+    
+        
+    
+                    #subTab-group sl-tab-panel {
+    
+                      padding: 1em;
+    
+                    }
+    
+            
+    
+                 
     
             .content {
                 /*padding: 16px;*/
@@ -113,8 +137,8 @@ export function css() {
             sl-tab[slot="nav"][active] {
                 background-color: var(--primary-color) !important;
                 color: var(--text-primary-color) !important;
-                border-bottom: 2px solid var(--primary-color);
-            }
+                                border-bottom: 2px solid var(--primary-color);
+                                box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);            }
             
   `
   return css;
