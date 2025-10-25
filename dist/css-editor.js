@@ -133,15 +133,14 @@ export function css() {
                 color: var(--text-primary-color);
             }
 
-            sl-tab[slot="nav"][active] {
-                background-color: var(--primary-color) !important;
+                    sl-tab.selected-tab {                background-color: var(--primary-color) !important;
                 color: var(--text-primary-color) !important;
                                                 border-bottom: 2px solid var(--primary-color) !important;
                                                 box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4) !important;
                                                 border-left: 3px solid var(--primary-color) !important;
                                                 border-right: 3px solid var(--primary-color) !important;
                                                 background-color: #4CAF50 !important; /* A distinct green */
-                                                color: white !important;            }
+            }
             
   `
   return css;

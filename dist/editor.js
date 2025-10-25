@@ -60,24 +60,38 @@ class venusOsDashBoardEditor extends HTMLElement {
         this._currentTab = dataTab;
         this._config.currentTab = dataTab;
         tabGroup.value = `conf-${dataTab}`;
+        
+        // Manually manage 'selected-tab' class
+        this.shadowRoot.querySelectorAll('sl-tab[slot="nav"]').forEach(tab => {
+          tab.classList.remove('selected-tab');
+        });
+        clickedTab.classList.add('selected-tab');
+        
         this.renderTabContent();
       });
-            
+        
       const style = document.createElement('style');
       style.textContent = css();
       tabGroup.appendChild(style);
-            
+        
       this._currentTab = this._config.currentTab || 0;
-            
+        
       libEditor.attachLinkClick(this.renderTabContent.bind(this), this);
-
+        
     } else {
       tabGroup = this.shadowRoot.querySelector('#tab-group');
     }
     if (tabGroup) {
       tabGroup.value = `conf-${this._currentTab}`;
-    }
-        
+      // Manually manage 'selected-tab' class for initial load
+      this.shadowRoot.querySelectorAll('sl-tab[slot="nav"]').forEach(tab => {
+        tab.classList.remove('selected-tab');
+      });
+      const initialTab = this.shadowRoot.querySelector(`sl-tab[panel="conf-${this._currentTab}"]`);
+      if (initialTab) {
+        initialTab.classList.add('selected-tab');
+      }
+    }        
     
     this.renderTabContent();
   }
