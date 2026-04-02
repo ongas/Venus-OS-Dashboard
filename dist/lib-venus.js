@@ -260,6 +260,17 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
       }
     }
             
+    // Handle dynamic icon from iconEntity
+    let iconToUse = device.icon || 'mdi:circle';  // Fallback icon if neither is set
+    if(device.iconEntity) {
+      const iconEntityState = hass.states[device.iconEntity];
+      if(iconEntityState) {
+        const iconName = iconEntityState.state;
+        // If the icon name doesn't already start with 'mdi:', prepend it
+        iconToUse = iconName.startsWith('mdi:') ? iconName : `mdi:${iconName}`;
+      }
+    }
+
     if(device.headerEntity) {
       const stateHeaderEnt = hass.states[device.headerEntity];
       const valueHeaderEnt = stateHeaderEnt ? stateHeaderEnt.state : '';
@@ -305,7 +316,7 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
             
     innerContent.innerHTML = `
             <div class="boxHeader"${addHeaderStyle}>
-                <ha-icon icon="${device.icon}" class="boxIcon"></ha-icon>
+                <ha-icon icon="${iconToUse}" class="boxIcon"></ha-icon>
                 <div class="boxTitle">${device.name}</div>
                 ${addHeaderEntity}
             </div>
