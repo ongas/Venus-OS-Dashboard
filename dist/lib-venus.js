@@ -265,7 +265,7 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     if(device.iconEntity) {
       const iconEntityState = hass.states[device.iconEntity];
       if(iconEntityState) {
-        const iconName = iconEntityState.state;
+        const iconName = iconEntityState.state.trim();  // Strip whitespace!
         // If the icon name doesn't already start with 'mdi:', prepend it
         iconToUse = iconName.startsWith('mdi:') ? iconName : `mdi:${iconName}`;
       }
