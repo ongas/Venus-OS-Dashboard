@@ -65,6 +65,10 @@ export function cssDataDark() {
             padding: 3% 5%;
         }
 
+        .box:only-child {
+            max-height: 100%;
+        }
+
         /* Point d'accroche */
         .anchor {
             position: absolute;
