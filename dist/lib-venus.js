@@ -594,10 +594,10 @@ function creatLine(anchorId1, anchorId2, direction_init, isDarkTheme, appendTo) 
     circle.setAttribute("class", "ball");
     circle.setAttribute("cx", coords1.x);
     circle.setAttribute("cy", coords1.y);
-    circle.setAttribute("r", "4");
+    circle.setAttribute("r", "5");
     circle.setAttribute("data-offset", i / numBalls); // Décalage: 0, 0.25, 0.5, 0.75
-    if(isDarkTheme) circle.setAttribute("fill", "url(#gradientDark)");
-    else circle.setAttribute("fill", "url(#gradientLight)");
+    if(isDarkTheme) circle.setAttribute("fill", "#ffffff");
+    else circle.setAttribute("fill", "#000000");
     circles.push(circle);
     circContainer.appendChild(circle);
   }
