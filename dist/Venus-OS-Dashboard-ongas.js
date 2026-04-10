@@ -16,11 +16,11 @@ console.info(
   "color: white; font-weight: bold; background: grey"
 );
 
-import './editor.js?v=0.2.15';
-import * as libVenus from './lib-venus.js?v=0.2.15';
+import './editor.js?v=0.2.16';
+import * as libVenus from './lib-venus.js?v=0.2.16';
 
-import { cssDataDark } from './css-dark.js?v=0.2.15';
-import { cssDataLight } from './css-light.js?v=0.2.15';
+import { cssDataDark } from './css-dark.js?v=0.2.16';
+import { cssDataLight } from './css-light.js?v=0.2.16';
 
 class venusOsDashboardCard extends HTMLElement {
 
@@ -71,7 +71,7 @@ class venusOsDashboardCard extends HTMLElement {
 
     }
 
-    // recuperation des parametres
+    // retrieve parameters
     const param = this.config.param || [];
 
     // render the base card structure (normal mode or demo "image")
@@ -82,7 +82,7 @@ class venusOsDashboardCard extends HTMLElement {
     const boxCol2 = param.boxCol2 ? Math.min(Math.max(param.boxCol2, 1), 2) : 1;
     const boxCol3 = param.boxCol3 ? Math.min(Math.max(param.boxCol3, 1), 4) : 1;
 
-    // ajout des box
+    // add boxes
     if (this.config.demo !== true) libVenus.addBox(boxCol1, boxCol2, boxCol3, this.content);
 
     // add line anchor points
@@ -138,7 +138,7 @@ class venusOsDashboardCard extends HTMLElement {
       libVenus.checkForReverse(devices, hass);
     }
 
-    // Lancement initial de startPeriodicTask
+    // Initial launch of startPeriodicTask
     if (!this.periodicTaskStarted) {
       // console.log('Attempting to start startPeriodicTask...');
       const taskStarted = libVenus.startPeriodicTask(this.config, hass);
@@ -148,7 +148,7 @@ class venusOsDashboardCard extends HTMLElement {
         this.periodicTaskStarted = true; // Mark as started
       } else {
         // console.warn('startPeriodicTask failed. Will retry on next iteration.');
-        this.periodicTaskStarted = false; // Rester sur false pour retenter
+        this.periodicTaskStarted = false; // Stay false to retry
       }
     }
 
@@ -191,5 +191,5 @@ window.customCards.push({
   type: 'venus-os-dashboard-ongas',
   name: 'Venus OS Dashboard (ongas)',
   preview: true,
-  description: 'A DashBoard that looklike Venos OS gui-v2 from Victron.',
+  description: 'A Dashboard that looks like Venus OS gui-v2 from Victron.',
 });

@@ -28,7 +28,7 @@ export function baseRender(config, appendTo) {
         <svg id="svg_container" class="line" viewBox="0 0 1000 600" width="100%" height="100%">
           <defs>
             <filter id="blurEffect">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="1"/> <!-- Ajuste stdDeviation pour plus ou moins de flou -->
+              <feGaussianBlur in="SourceGraphic" stdDeviation="1"/> <!-- Adjust stdDeviation for blur amount -->
             </filter>
             <radialGradient id="gradientDark" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stop-color="#ffffff" stop-opacity="1"></stop>
@@ -69,7 +69,7 @@ export function addBox(col1, col2, col3, appendTo) {
                 
         const content = document.createElement('div'); // Create a new div element
         content.id = `content_${columnIndex + 1}-${i}`; // Set the box id
-        content.className = 'content'; // Applique la classe 'content'
+        content.className = 'content'; // Apply the 'content' class
                 
         const graph = document.createElement('div'); // Create a new div element
         graph.id = `graph_${columnIndex + 1}-${i}`;
@@ -82,7 +82,7 @@ export function addBox(col1, col2, col3, appendTo) {
                 
         const box = document.createElement('div'); // Create a new div element
         box.id = `box_${columnIndex + 1}-${i}`; // Set the box id
-        box.className = 'box'; // Applique la classe 'box'
+        box.className = 'box'; // Apply the 'box' class
         box.appendChild(graph);
         box.appendChild(gauge);
         box.appendChild(content);
@@ -346,7 +346,7 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     }
         
     if (!innerContent.dataset.listener) {
-      innerContent.dataset.listener = "true"; // Marque comme ayant un listener
+      innerContent.dataset.listener = "true"; // Mark as having a listener
         
       innerContent.addEventListener('click', () => {
         const entityId = device.entity; // Replace with the entity associated with the div
@@ -458,7 +458,7 @@ export function checkReSize(devices, isDarkTheme, appendTo) {
         const hasInert = homeAssistantMain.hasAttribute('inert');
                     
         // different cases...
-        if (mustRedrawLine) { // suite a une mise a jour du yaml
+        if (mustRedrawLine) { // following a YAML update
                         
           circContainer.innerHTML = "";
           pathContainer.innerHTML = "";
@@ -828,7 +828,7 @@ function performTask(entityId, hass) {
   //console.log(`Periodic task running for entity "${entityId}"...`);
   // Add data retrieval logic here
     
-  const historicalData = fetchHistoricalData(entityId, 24, hass); // recup sur 24h
+  const historicalData = fetchHistoricalData(entityId, 24, hass); // fetch 24h of data
     
   if (historicalData === "false") {
     console.warn(`Unable to retrieve history for ${entityId}.`);

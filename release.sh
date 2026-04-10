@@ -15,8 +15,10 @@ if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 fi
 
 echo "==> Bumping cache-busting params to ?v=$VERSION"
-# Replace any existing ?v=X.Y.Z in the main card file
-sed -i "s/?v=[0-9]\+\.[0-9]\+\.[0-9]\+/?v=$VERSION/g" dist/Venus-OS-Dashboard-ongas.js
+# Replace any existing ?v=X.Y.Z in all JS files that use them
+for f in dist/Venus-OS-Dashboard-ongas.js dist/editor.js dist/lib-editor.js; do
+  sed -i "s/?v=[0-9]\+\.[0-9]\+\.[0-9]\+/?v=$VERSION/g" "$f"
+done
 
 echo "==> Normalizing CRLF line endings"
 for f in dist/*.js; do

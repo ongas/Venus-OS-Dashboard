@@ -40,4 +40,4 @@ export default {
     entity_picker: "Choose an entity",
     reverse: "reverse"
   }
-};
+};

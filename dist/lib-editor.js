@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js`);
+    const response = await import(`./lang-${lang}.js?v=0.2.16`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js`);
+    const response = await import(`./lang-en.js?v=0.2.16`);
     translations = response.default;
   }
 }
@@ -981,7 +981,7 @@ export function attachInputs(appendTo) {
             
       // If the value is an empty string, treat as icon removal
       if (value === "") {
-        value = null; // Marquer pour suppression dans le YAML
+        value = null; // Mark for deletion in YAML
       }
             
       if (key) {
@@ -1013,7 +1013,7 @@ export function attachInputs(appendTo) {
             
       // If the value is an empty string, treat as icon removal
       if (!value || value.trim() === "") {
-        value = null; // Marquer pour suppression dans le YAML
+        value = null; // Mark for deletion in YAML
       }
             
       if (key) {
