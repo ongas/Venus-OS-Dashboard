@@ -664,7 +664,7 @@ function animateBallAlongPath(anchorId1, path, circles, appendTo) {
   const box = appendTo.querySelector(`#dashboard`);
   const boxWidth = box.offsetWidth;
 
-  const speed = boxWidth/10;
+  const speed = boxWidth/20;
   const duration = pathLength / speed * 1000;
   let startTime;
   
@@ -687,17 +687,22 @@ function animateBallAlongPath(anchorId1, path, circles, appendTo) {
     
     // Animer toutes les boules avec un décalage
     circles.forEach((circle) => {
-      const offset = parseFloat(circle.getAttribute("data-offset"));
-      let ballProgress = (progress + offset) % 1;
-      
-      if (direction == -1) {
-        ballProgress = (1 - progress - offset) % 1;
-        if (ballProgress < 0) ballProgress += 1;
+      if (direction == 0) {
+        circle.setAttribute("opacity", "0");
+      } else {
+        circle.setAttribute("opacity", "1");
+        const offset = parseFloat(circle.getAttribute("data-offset"));
+        let ballProgress = (progress + offset) % 1;
+        
+        if (direction == -1) {
+          ballProgress = (1 - progress - offset) % 1;
+          if (ballProgress < 0) ballProgress += 1;
+        }
+        
+        const point = path.getPointAtLength(ballProgress * pathLength);
+        circle.setAttribute("cx", point.x);
+        circle.setAttribute("cy", point.y);
       }
-      
-      const point = path.getPointAtLength(ballProgress * pathLength);
-      circle.setAttribute("cx", point.x);
-      circle.setAttribute("cy", point.y);
     });
     
     requestAnimationFrame(moveBall);
