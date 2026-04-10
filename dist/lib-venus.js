@@ -14,6 +14,8 @@ let mustRedrawLine = true;
 
 let editorOpen = false;
 
+let boxContentCache = new Map();
+
 /************************************************/
 /* function to render the card skeleton:          */
 /* renders an image if YAML mode = DEMO           */
@@ -314,7 +316,8 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
             `;
     }
             
-    innerContent.innerHTML = `
+    const newHtml = `
+
             <div class="boxHeader"${addHeaderStyle}>
                 <ha-icon icon="${iconToUse}" class="boxIcon"></ha-icon>
                 <div class="boxTitle">${device.name}</div>
@@ -324,6 +327,12 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
             ${addEntity2}
             ${addFooter}
         `;
+
+    // Only update DOM if content actually changed (skip unnecessary layout recalcs)
+    if (boxContentCache.get(boxId) !== newHtml) {
+      boxContentCache.set(boxId, newHtml);
+      innerContent.innerHTML = newHtml;
+    }
         
     if (!innerContent.dataset.listener) {
       innerContent.dataset.listener = "true"; // Marque comme ayant un listener
