@@ -131,7 +131,7 @@ class venusOsDashboardCard extends HTMLElement {
     // verification de changement de taille... si oui re-creation des lignes
     libVenus.checkReSize(devices, venusOsDashboardCard.isDark, this.content);
 
-    // verification des valeurs pour inversion de l'anim path (throttled to 500ms)
+    // check direction reversal (throttled to 500ms)
     const now = Date.now();
     if (now - this._lastReverseCheck >= 500) {
       this._lastReverseCheck = now;
