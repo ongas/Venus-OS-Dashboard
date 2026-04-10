@@ -559,16 +559,8 @@ function creatLine(anchorId1, anchorId2, direction_init, isDarkTheme, appendTo) 
 
     if (anchor1isH && anchor2isH) {
       const midX = (coords1.x + coords2.x) / 2;
-      // Définition du chemin avec deux courbes symétriques
-      pathData = `
-          M ${coords1.x} ${coords1.y}
-          C ${midX} ${coords1.y}, ${midX} ${coords1.y}, ${midX} ${(coords1.y + coords2.y) / 2}
-          C ${midX} ${coords2.y}, ${midX} ${coords2.y}, ${coords2.x} ${coords2.y}
-        `;
-
-      // Définition du chemin avec deux courbes : vertical -> horizontal -> vertical
-      const midY = (coords1.y + coords2.y) / 2;
-      pathData = `M${coords1.x},${coords1.y} C${coords1.x},${midY} ${coords2.x},${midY} ${coords2.x},${coords2.y}`;    } else {
+      pathData = `M${coords1.x},${coords1.y} C${midX},${coords1.y} ${midX},${coords2.y} ${coords2.x},${coords2.y}`;
+    } else {
       if (anchor1isH) {
         coords1 = getAnchorCoordinates(anchorId2, appendTo);
         coords2 = getAnchorCoordinates(anchorId1, appendTo);
