@@ -24,9 +24,6 @@ import { cssDataLight } from './css-light.js?v=0.2.8';
 
 class venusOsDashboardCard extends HTMLElement {
 
-  #lastReverseCheckTime = 0;
-  #reverseCheckInterval = 500; // ms - prevent rapid direction updates
-
   static isDark = true;
 
   static periodicTaskStarted = false;
@@ -35,6 +32,7 @@ class venusOsDashboardCard extends HTMLElement {
 
   constructor() {
     super();
+    this._lastReverseCheck = 0;
 
     // Écouter l'événement personnalisé
     document.addEventListener('config-changed', () => {
@@ -133,10 +131,10 @@ class venusOsDashboardCard extends HTMLElement {
     // verification de changement de taille... si oui re-creation des lignes
     libVenus.checkReSize(devices, venusOsDashboardCard.isDark, this.content);
 
-    // verification des valeurs pour inversion de l'anim path (debounced to prevent jolting)
+    // verification des valeurs pour inversion de l'anim path (throttled to 500ms)
     const now = Date.now();
-    if (now - this.#lastReverseCheckTime >= this.#reverseCheckInterval) {
-      this.#lastReverseCheckTime = now;
+    if (now - this._lastReverseCheck >= 500) {
+      this._lastReverseCheck = now;
       libVenus.checkForReverse(devices, hass);
     }
 
