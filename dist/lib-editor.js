@@ -1,18 +1,18 @@
 /**********************************************/
-/* "variable" permettant de lister les panels */
-/* qui sont "expended"                        */
+/* Variable to track which panels   */
+/* are expanded                      */
 /**********************************************/
 let expandedPanelsState = new Set();
 
 /**********************************************/
-/* "variable" permettant de lister les events */
-/* sur les objets et eviter de les recrer     */
+/* Variable to track event handlers  */
+/* on objects to avoid duplicates     */
 /**********************************************/
 export const eventHandlers = new WeakMap();
 
 /**************************************/
-/* fonctions permettant la traduction */
-/* de l'editeur graphique             */
+/* Functions for translation          */
+/* of the graphical editor            */
 /**************************************/
 let translations = {}; // Stores loaded translations
 
@@ -35,11 +35,11 @@ export async function loadTranslations(appendTo) {
 }
 
 export function t(func, key) {
-  return translations?.[func]?.[key] || `⚠️ ${func}.${key} ⚠️`; // Si absent, affiche une alerte visuelle
+  return translations?.[func]?.[key] || `⚠️ ${func}.${key} ⚠️`; // If missing, show a visual alert
 }
 
 /***************************************/
-/* fonction de rendu du tab pricipal : */
+/* Main tab render function :         */
 /***************************************/
 export function tab1Render(appendTo) {
     
@@ -205,13 +205,13 @@ export function tab1Render(appendTo) {
     
   editorDiv.appendChild(fontSizeRow);
     
-  // Ajouter le contenu au DOM
+  // Add content to the DOM
   tabContent.appendChild(editorDiv);
 
 }
 
 /**********************************************/
-/* fonction de rendu du contenu de tabs col : */
+/* Column tab content render function : */
 /**********************************************/
 export function tabColRender(col, appendTo) {
     
@@ -249,10 +249,10 @@ export function tabColRender(col, appendTo) {
 }
 
 /************************************************/
-/* fonction d'appel de la fonction de rendu des */
-/* sous tabs                                    */
-/* me demandez pas pourquoi j'ai fait deux      */
-/* foncions, je ne saisplus                     */
+/* Function that calls the sub-tab        */
+/* render function                         */
+/* don't ask me why I made two             */
+/* functions, I don't remember anymore      */
 /************************************************/
 
 export function renderSubTabContent(col, appendTo) {
@@ -262,8 +262,8 @@ export function renderSubTabContent(col, appendTo) {
 }
 
 /************************************************/
-/* fonction de rendu du contenu des sous-tabs : */
-/* toutes les zones de conf des box en somme    */
+/* Sub-tab content render function :        */
+/* all box configuration areas              */
 /************************************************/
 export function subtabRender(box, config, hass, appendTo) {
     
@@ -488,7 +488,7 @@ export function subtabRender(box, config, hass, appendTo) {
   const anchorbottom = subTabContent.querySelector('#anchor_bottom');
   const anchorRight = subTabContent.querySelector('#anchor_right');
 	
-  // code pour recuperer les valeurs pour chaque cote
+  // Retrieve values for each side
   anchorLeft.value = leftQty;
   anchorTop.value = topQty;
   anchorbottom.value = bottomQty;
@@ -504,13 +504,13 @@ export function subtabRender(box, config, hass, appendTo) {
   footerEntity2.value = config?.devices?.[box]?.footerEntity2 ?? "";
   footerEntity3.value = config?.devices?.[box]?.footerEntity3 ?? "";
     
-  iconPicker.hass = hass; // Passe l'objet directement ici
-  entityPicker.hass = hass; // Passe l'objet directement ici
-  entity2Picker.hass = hass; // Passe l'objet directement ici
-  headerEntity.hass = hass; // Passe l'objet directement ici  
-  footerEntity1.hass = hass; // Passe l'objet directement ici
-  footerEntity2.hass = hass; // Passe l'objet directement ici
-  footerEntity3.hass = hass; // Passe l'objet directement ici
+  iconPicker.hass = hass; // Pass the object directly here
+  entityPicker.hass = hass; // Pass the object directly here
+  entity2Picker.hass = hass; // Pass the object directly here
+  headerEntity.hass = hass; // Pass the object directly here  
+  footerEntity1.hass = hass; // Pass the object directly here
+  footerEntity2.hass = hass; // Pass the object directly here
+  footerEntity3.hass = hass; // Pass the object directly here
            
   if (config?.devices?.[box]?.graph === true) graphSwitch.setAttribute('checked', '');
     
@@ -555,7 +555,7 @@ export function getAllAnchorsExceptCurrent(config, currentBox) {
   let allAnchors = [];
 
   Object.entries(config.devices || {}).forEach(([boxKey, device]) => {
-    if (boxKey === currentBox || !device.anchors) return; // On saute le device en cours
+    if (boxKey === currentBox || !device.anchors) return; // Skip the current device
 
     const anchors = device.anchors.split(', ');
 
@@ -564,7 +564,7 @@ export function getAllAnchorsExceptCurrent(config, currentBox) {
       const qty = parseInt(qtyStr, 10);
 
       for (let i = 1; i <= qty; i++) {
-        allAnchors.push(`${boxKey}_${side}-${i}`); // Associer l'ancre au device
+        allAnchors.push(`${boxKey}_${side}-${i}`); // Associate the anchor with the device
       }
     });
   });
@@ -585,8 +585,8 @@ export function addLink(index, box, hass, thisAllAnchors, OtherAllAnchors, appen
         
   panel.innerHTML = `
         <div slot="header" style="display: flex; justify-content: space-between; align-items: center;">
-            <span>Lien ${index}</span>
-            <ha-icon-button id="add-link-button" aria-label="Ajouter un lien">
+            <span>Link ${index}</span>
+            <ha-icon-button id="add-link-button" aria-label="Add a link">
                 <ha-icon icon="mdi:trash-can" style="display: flex;"></ha-icon>
             </ha-icon-button>
         </div>
@@ -651,7 +651,7 @@ export function addLink(index, box, hass, thisAllAnchors, OtherAllAnchors, appen
     panel.remove();
   });
     
-  // Ajouter le panel au conteneur
+  // Add the panel to the container
   linkContainer.appendChild(panel);
     
   attachLinkInputs(appendTo)
@@ -660,7 +660,7 @@ export function addLink(index, box, hass, thisAllAnchors, OtherAllAnchors, appen
 
 export function attachLinkInputs(appendTo) {
         
-  // Listener pour les `ha-textfield` sauf les champs "anchor"
+  // Listener for ha-textfield except anchor fields
   appendTo.shadowRoot.querySelectorAll('ha-combo-box').forEach((comboBox) => {
         
     if (eventHandlers.has(comboBox)) {
@@ -694,12 +694,12 @@ export function attachLinkInputs(appendTo) {
     // Add the event listener
     comboBox.addEventListener("value-changed", handleChange);
         
-    // Enregistrer le gestionnaire dans le WeakMap
+    // Register the handler in the WeakMap
     eventHandlers.set(comboBox, handleChange);
         
   });
     
-  // Listener pour les `ha-textfield` sauf les champs "anchor"
+  // Listener for ha-textfield except anchor fields
   appendTo.shadowRoot.querySelectorAll('ha-textfield').forEach((textField) => {
         
     if (eventHandlers.has(textField)) {
@@ -712,19 +712,19 @@ export function attachLinkInputs(appendTo) {
       const key = textField.dataset.path;
       let value = e.target.value;
     
-      // Gestion des valeurs en fonction du type de champ
+      // Handle values based on field type
       if (e.target.type === 'number') {
         // If it's a numeric field
         if (!value || isNaN(parseInt(value, 10))) {
           value = null; // Trigger key deletion in YAML
         } else {
-          value = parseInt(value, 10); // Convertir en entier si valide
+          value = parseInt(value, 10); // Convert to integer if valid
         }
       } else {
-        // Si c'est un champ texte, on garde la valeur telle quelle
-        value = value.trim(); // Supprime les espaces inutiles
+        // If text field, keep value as-is
+        value = value.trim(); // Trim whitespace
         if (value === "") {
-          value = null; // Si le champ est vide, suppression dans YAML
+          value = null; // If empty, delete from YAML
         }
       }
         
@@ -744,12 +744,12 @@ export function attachLinkInputs(appendTo) {
     // Add the event listener
     textField.addEventListener("change", handleChange);
         
-    // Enregistrer le gestionnaire dans le WeakMap
+    // Register the handler in the WeakMap
     eventHandlers.set(textField, handleChange);
         
   });
     
-  // Listener pour les `ha-switch`
+  // Listener for ha-switch
   appendTo.shadowRoot.querySelectorAll('ha-switch').forEach((toggle) => {
         
     if (eventHandlers.has(toggle)) {
@@ -777,7 +777,7 @@ export function attachLinkInputs(appendTo) {
     // Add the event listener
     toggle.addEventListener("change", handleChange);
         
-    // Enregistrer le gestionnaire dans le WeakMap
+    // Register the handler in the WeakMap
     eventHandlers.set(toggle, handleChange);
         
   });
@@ -786,11 +786,11 @@ export function attachLinkInputs(appendTo) {
 /************************************************/
 /* function to create events attached to           */
 /* differents inputs de l'interface puis tri et */
-/* envoi pour mise a jour du yaml               */
-/************************************************/
+/* different inputs then sort and           */
+/* send for YAML update                     */
 export function attachInputs(appendTo) {
         
-  // Listener pour les `ha-textfield` sauf les champs "anchor"
+  // Listener for ha-textfield except anchor fields
   appendTo.shadowRoot.querySelectorAll('ha-textfield:not(.anchor)').forEach((textField) => {
         
     if (eventHandlers.has(textField)) {
@@ -803,19 +803,19 @@ export function attachInputs(appendTo) {
       const key = textField.dataset.path;
       let value = e.target.value;
     
-      // Gestion des valeurs en fonction du type de champ
+      // Handle values based on field type
       if (e.target.type === 'number') {
         // If it's a numeric field
         if (!value || isNaN(parseInt(value, 10))) {
           value = null; // Trigger key deletion in YAML
         } else {
-          value = parseInt(value, 10); // Convertir en entier si valide
+          value = parseInt(value, 10); // Convert to integer if valid
         }
       } else {
-        // Si c'est un champ texte, on garde la valeur telle quelle
-        value = value.trim(); // Supprime les espaces inutiles
+        // If text field, keep value as-is
+        value = value.trim(); // Trim whitespace
         if (value === "") {
-          value = null; // Si le champ est vide, suppression dans YAML
+          value = null; // If empty, delete from YAML
         }
       }
         
@@ -829,12 +829,12 @@ export function attachInputs(appendTo) {
     // Add the event listener
     textField.addEventListener("change", handleChange);
         
-    // Enregistrer le gestionnaire dans le WeakMap
+    // Register the handler in the WeakMap
     eventHandlers.set(textField, handleChange);
         
   });
 
-  // Listener pour les champs "anchor"
+  // Listener for anchor fields
   appendTo.shadowRoot.querySelectorAll('ha-textfield.anchor').forEach((textField) => {
         
     if (eventHandlers.has(textField)) {
@@ -885,12 +885,12 @@ export function attachInputs(appendTo) {
     // Add the event listener
     textField.addEventListener("change", handleChange);
         
-    // Enregistrer le gestionnaire dans le WeakMap
+    // Register the handler in the WeakMap
     eventHandlers.set(textField, handleChange);
         
   });
  
-  // Listener pour les `ha-switch`
+  // Listener for ha-switch
   appendTo.shadowRoot.querySelectorAll('ha-switch').forEach((toggle) => {
         
     if (eventHandlers.has(toggle)) {
@@ -934,12 +934,12 @@ export function attachInputs(appendTo) {
     // Add the event listener
     toggle.addEventListener("change", handleChange);
         
-    // Enregistrer le gestionnaire dans le WeakMap
+    // Register the handler in the WeakMap
     eventHandlers.set(toggle, handleChange);
         
   });
     
-  // Listener pour les `ha-radio`
+  // Listener for ha-radio
   appendTo.shadowRoot.querySelectorAll('ha-radio').forEach((radio) => {
         
     if (eventHandlers.has(radio)) {
@@ -961,12 +961,12 @@ export function attachInputs(appendTo) {
     // Add the event listener
     radio.addEventListener("change", handleChange);
         
-    // Enregistrer le gestionnaire dans le WeakMap
+    // Register the handler in the WeakMap
     eventHandlers.set(radio, handleChange);
         
   });
           
-  // Listener pour les `ha-icon-picker`
+  // Listener for ha-icon-picker
   appendTo.shadowRoot.querySelectorAll('ha-icon-picker').forEach((iconPicker) => {
         
     if (eventHandlers.has(iconPicker)) {
@@ -993,12 +993,12 @@ export function attachInputs(appendTo) {
     // Add the event listener
     iconPicker.addEventListener("value-changed", handleChange);
         
-    // Enregistrer le gestionnaire dans le WeakMap
+    // Register the handler in the WeakMap
     eventHandlers.set(iconPicker, handleChange);
         
   });
     
-  // Listener pour les `ha-entity-picker`
+  // Listener for ha-entity-picker
   appendTo.shadowRoot.querySelectorAll('ha-entity-picker').forEach((entityPicker) => {
         
     if (eventHandlers.has(entityPicker)) {
@@ -1025,7 +1025,7 @@ export function attachInputs(appendTo) {
     // Add the event listener
     entityPicker.addEventListener("value-changed", handleChange);
         
-    // Enregistrer le gestionnaire dans le WeakMap
+    // Register the handler in the WeakMap
     eventHandlers.set(entityPicker, handleChange);
         
   });
@@ -1033,10 +1033,10 @@ export function attachInputs(appendTo) {
 }
 
 /**********************************************/
-/* fonction de modification de la config yaml */
+/* Function to modify the YAML config       */
 /* en local (en fait l'array local)           */
 /* renvoi la nouvelle confif pour mod du yaml */
-/* via la fonction notifyConfigChange         */
+/* via the notifyConfigChange function      */
 /**********************************************/
 export function updateConfigRecursively(obj, path, value, removeIfNull = false) {
   const cloneObject = (o) => {
@@ -1104,7 +1104,7 @@ export function notifyConfigChange(appendTo) {
 }
 
 /********************************/
-/* fonction de gestion du click */
+/* Click handling function */
 /* dans les onglets principaux  */
 /********************************/
 export function attachLinkClick(renderTabContent, appendTo) {
@@ -1127,7 +1127,7 @@ export function attachLinkClick(renderTabContent, appendTo) {
 }
 
 /********************************/
-/* fonction de gestion du click */
+/* Click handling function */
 /* dans les onglets secondaires */
 /********************************/
 export function attachSubLinkClick(appendTo) {

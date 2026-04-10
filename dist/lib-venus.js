@@ -15,6 +15,7 @@ let mustRedrawLine = true;
 let editorOpen = false;
 
 let boxContentCache = new Map();
+let boxStateCache = new Map();
 
 /************************************************/
 /* function to render the card skeleton:          */
@@ -180,6 +181,11 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
             
     const device = devices[boxId];
             
+    // Fast-path: skip box if entity states haven't changed
+    const _ents = [device.entity, device.entity2, device.headerEntity, device.footerEntity1, device.footerEntity2, device.footerEntity3, device.iconEntity].filter(Boolean);
+    const _stateKey = _ents.map(function(k) { var s = hass.states[k]; return s ? s.state + (s.attributes && s.attributes.unit_of_measurement || '') : ''; }).join('|');
+    if (boxStateCache.get(boxId) === _stateKey) continue;
+    boxStateCache.set(boxId, _stateKey);
 
     const divGauge = appendTo.querySelector(`#dashboard > #column-${boxId[0]} > #box_${boxId} > #gauge_${boxId}`);
     const innerContent = appendTo.querySelector(`#dashboard > #column-${boxId[0]} > #box_${boxId} > #content_${boxId}`);
