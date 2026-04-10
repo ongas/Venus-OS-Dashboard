@@ -130,8 +130,8 @@ class venusOsDashboardCard extends HTMLElement {
     // verification de changement de taille... si oui re-creation des lignes
     libVenus.checkReSize(devices, venusOsDashboardCard.isDark, this.content);
 
-    // verification des valeurs pour inversion de l'anim path (debounced to prevent animation stalls)
-    libVenus.checkForReverseDebounced(devices, hass);
+    // verification des valeurs pour inversion de l'anim path
+    libVenus.checkForReverse(devices, hass);
 
     // Lancement initial de startPeriodicTask
     if (!this.periodicTaskStarted) {

@@ -716,15 +716,9 @@ function animateBallAlongPath(anchorId1, path, circles, appendTo) {
 }
 
 /******************************************************/
-/* État pour le debouncing et le suivi de direction   */
-/******************************************************/
-const directionState = new Map(); // Track last direction for each link
-let reverseCheckTimeout = null;
-
-/******************************************************/
 /* fonction de d'invertion de l'animation :           */
 /* verifie la valeur de l'entité et change le sens si */
-/* necessaire (avec debounce et hysteresis)           */
+/* necessaire                                         */
 /******************************************************/
 export function checkForReverse(devices, hass) {
     
@@ -743,48 +737,17 @@ export function checkForReverse(devices, hass) {
                     
         const stateLinkEnt = hass.states[link.entity];
         const valueLinkEnt = stateLinkEnt ? stateLinkEnt.state : '';
-        const linkKey = `${boxId}_${link.start}`;
-        const pathControl = pathControls.get(linkKey);
+                    
+        const pathControl = pathControls.get(`${boxId}_${link.start}`);
                     
         if (pathControl && typeof pathControl.reverse === "function") {
-          // Determine new direction with hysteresis to prevent oscillation
-          let newDirection = directionState.get(linkKey) || 0;
-          
-          if(valueLinkEnt < -0.5) {
-            newDirection = -1;
-          } else if(valueLinkEnt > 0.5) {
-            newDirection = 1;
-          } else {
-            // Only go idle if current direction isn't idle already (hysteresis)
-            if(newDirection !== 0) {
-              newDirection = 0;
-            }
-          }
-          
-          // Only call reverse if direction actually changed
-          if(newDirection !== directionState.get(linkKey)) {
-            directionState.set(linkKey, newDirection);
-            pathControl.reverse(newDirection);
-          }
+          if(valueLinkEnt < -0.5) pathControls.get(`${boxId}_${link.start}`).reverse(-1); 
+          else if(valueLinkEnt > 0.5) pathControls.get(`${boxId}_${link.start}`).reverse(1); 
+          else pathControls.get(`${boxId}_${link.start}`).reverse(0); 
         } 
       }
     }
   }
-}
-
-/******************************************************/
-/* Debounced version of checkForReverse              */
-/* Only executes every 500ms to avoid rapid resets   */
-/******************************************************/
-export function checkForReverseDebounced(devices, hass) {
-  if (reverseCheckTimeout) {
-    clearTimeout(reverseCheckTimeout);
-  }
-  
-  reverseCheckTimeout = setTimeout(() => {
-    checkForReverse(devices, hass);
-    reverseCheckTimeout = null;
-  }, 500);
 }
 
 /******************************************************/
