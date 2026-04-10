@@ -24,6 +24,9 @@ import { cssDataLight } from './css-light.js?v=0.2.8';
 
 class venusOsDashboardCard extends HTMLElement {
 
+  #lastReverseCheckTime = 0;
+  #reverseCheckInterval = 500; // ms - prevent rapid direction updates
+
   static isDark = true;
 
   static periodicTaskStarted = false;
@@ -130,8 +133,12 @@ class venusOsDashboardCard extends HTMLElement {
     // verification de changement de taille... si oui re-creation des lignes
     libVenus.checkReSize(devices, venusOsDashboardCard.isDark, this.content);
 
-    // verification des valeurs pour inversion de l'anim path
-    libVenus.checkForReverse(devices, hass);
+    // verification des valeurs pour inversion de l'anim path (debounced to prevent jolting)
+    const now = Date.now();
+    if (now - this.#lastReverseCheckTime >= this.#reverseCheckInterval) {
+      this.#lastReverseCheckTime = now;
+      libVenus.checkForReverse(devices, hass);
+    }
 
     // Lancement initial de startPeriodicTask
     if (!this.periodicTaskStarted) {
