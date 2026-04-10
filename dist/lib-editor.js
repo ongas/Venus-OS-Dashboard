@@ -351,6 +351,14 @@ export function subtabRender(box, config, hass, appendTo) {
                             data-path="devices.${box}.gauge" 
                         ></ha-switch>
                     </div>
+                    <div id="gaugeMax_div" class="row cell">
+                        ${t("subtabRender", "gauge_max")} :
+                        <ha-textfield class="cell right"
+                            id="gaugeMax_field"
+                            type="number"
+                            data-path="devices.${box}.gaugeMax"
+                        ></ha-textfield>
+                    </div>
                 </div>
             </div>
         </ha-expansion-panel>
@@ -509,10 +517,9 @@ export function subtabRender(box, config, hass, appendTo) {
   const entity = hass.states?.[entityPicker.value];
   const unit = entity?.attributes?.unit_of_measurement;
 
-  if(unit !== '%' ) {
-    gaugeSwitch.setAttribute('disabled', '');
-    gaugeSwitch.setAttribute("title", t("subtabRender", "warning_gauge"));
-  } else if (config.devices?.[box]?.gauge === true) gaugeSwitch.setAttribute('checked', '');
+  if (config.devices?.[box]?.gauge === true) gaugeSwitch.setAttribute('checked', '');
+  const gaugeMaxField = subTabContent.querySelector("#gaugeMax_field");
+  gaugeMaxField.value = config?.devices?.[box]?.gaugeMax ?? "";
     
     
   const linkContainer = subTabContent.querySelector('#link-container');
