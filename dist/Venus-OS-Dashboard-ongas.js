@@ -16,11 +16,11 @@ console.info(
   "color: white; font-weight: bold; background: grey"
 );
 
-import './editor.js?v=0.2.10';
-import * as libVenus from './lib-venus.js?v=0.2.10';
+import './editor.js?v=0.2.8';
+import * as libVenus from './lib-venus.js?v=0.2.8';
 
-import { cssDataDark } from './css-dark.js?v=0.2.10';
-import { cssDataLight } from './css-light.js?v=0.2.10';
+import { cssDataDark } from './css-dark.js?v=0.2.8';
+import { cssDataLight } from './css-light.js?v=0.2.8';
 
 class venusOsDashboardCard extends HTMLElement {
 
@@ -32,7 +32,6 @@ class venusOsDashboardCard extends HTMLElement {
 
   constructor() {
     super();
-    this._lastReverseCheck = 0;
 
     // Écouter l'événement personnalisé
     document.addEventListener('config-changed', () => {
@@ -131,12 +130,8 @@ class venusOsDashboardCard extends HTMLElement {
     // verification de changement de taille... si oui re-creation des lignes
     libVenus.checkReSize(devices, venusOsDashboardCard.isDark, this.content);
 
-    // check direction reversal (throttled to 500ms)
-    const now = Date.now();
-    if (now - this._lastReverseCheck >= 500) {
-      this._lastReverseCheck = now;
-      libVenus.checkForReverse(devices, hass);
-    }
+    // verification des valeurs pour inversion de l'anim path
+    libVenus.checkForReverse(devices, hass);
 
     // Lancement initial de startPeriodicTask
     if (!this.periodicTaskStarted) {
