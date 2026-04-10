@@ -585,23 +585,28 @@ function creatLine(anchorId1, anchorId2, direction_init, isDarkTheme, appendTo) 
     
   path.setAttribute("fill", "none");
   path.setAttribute("stroke-width", "2");
-  //path.setAttribute("filter", "url(#blurEffect)"); // Utilisation du dégradé
   
-  // Créer la boule avec le dégradé
-  const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  circle.setAttribute("class", "ball");
-  circle.setAttribute("cx", coords1.x); // Départ de la boule
-  circle.setAttribute("cy", coords1.y); // Départ de la boule
-  circle.setAttribute("r", "4");
-  if(isDarkTheme) circle.setAttribute("fill", "url(#gradientDark)"); // Utilisation du dégradé
-  else circle.setAttribute("fill", "url(#gradientLight)"); // Utilisation du dégradé
+  // Créer les boules avec le dégradé (4 boules espacées régulièrement)
+  const circles = [];
+  const numBalls = 4;
+  for (let i = 0; i < numBalls; i++) {
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("class", "ball");
+    circle.setAttribute("cx", coords1.x);
+    circle.setAttribute("cy", coords1.y);
+    circle.setAttribute("r", "4");
+    circle.setAttribute("data-offset", i / numBalls); // Décalage: 0, 0.25, 0.5, 0.75
+    if(isDarkTheme) circle.setAttribute("fill", "url(#gradientDark)");
+    else circle.setAttribute("fill", "url(#gradientLight)");
+    circles.push(circle);
+    circContainer.appendChild(circle);
+  }
   
-  // Ajouter le path et le circle au groupe
+  // Ajouter le path au groupe
   pathContainer.appendChild(path);
-  circContainer.appendChild(circle);
   
-  // Animer la boule le long du path et recuperation du pointeur de fonction "reverse"
-  const controls = animateBallAlongPath(anchorId1, path, circle, appendTo);
+  // Animer les boules le long du path
+  const controls = animateBallAlongPath(anchorId1, path, circles, appendTo);
   
   // ajout du pointeur "reverse" dans un "map" pour exploitation ulterieur
   pathControls.set(anchorId1, controls);
@@ -650,51 +655,56 @@ function getAnchorCoordinates(anchorId, appendTo) {
 /* circle, le path pour le deplacement du circle, et le circle à  */
 /* deplacer                                                       */
 /******************************************************************/
-function animateBallAlongPath(anchorId1, path, circle, appendTo) {
+function animateBallAlongPath(anchorId1, path, circles, appendTo) {
   
   let direction = directionControls.get(anchorId1);
   
-  const pathLength = path.getTotalLength(); // Longueur totale du path
+  const pathLength = path.getTotalLength();
   
   const box = appendTo.querySelector(`#dashboard`);
   const boxWidth = box.offsetWidth;
 
-  const speed = boxWidth/10; // Vitesse de la boule en pixels par seconde 100/900
-  const duration = pathLength / speed * 1000; // Durée de l'animation (en ms)
+  const speed = boxWidth/10;
+  const duration = pathLength / speed * 1000;
   let startTime;
   
   function reverseDirection(cmd) {
     const directionInit = directionControls.get(anchorId1);
-    direction = directionInit*cmd; // Inverser la direction
+    direction = directionInit*cmd;
   }
   
   function moveBall(time) {
     if (!startTime) startTime = time;
     
-    const elapsed = time - startTime; // Temps écoulé
-    var progress = (elapsed % duration) / duration; // Progression sur l'animation (0 à 1)
+    const elapsed = time - startTime;
+    var progress = (elapsed % duration) / duration;
     
     if (direction == -1) {
-      progress = 1 - progress; // Inverse la progression pour revenir en arrière
+      progress = 1 - progress;
     } if (direction == 0) {
       progress = 0; 
     }
     
-    // Calculer la position actuelle sur le path, proportionnelle à la durée
-    const point = path.getPointAtLength(progress * pathLength);
+    // Animer toutes les boules avec un décalage
+    circles.forEach((circle) => {
+      const offset = parseFloat(circle.getAttribute("data-offset"));
+      let ballProgress = (progress + offset) % 1;
+      
+      if (direction == -1) {
+        ballProgress = (1 - progress - offset) % 1;
+        if (ballProgress < 0) ballProgress += 1;
+      }
+      
+      const point = path.getPointAtLength(ballProgress * pathLength);
+      circle.setAttribute("cx", point.x);
+      circle.setAttribute("cy", point.y);
+    });
     
-    // Déplacer la boule
-    circle.setAttribute("cx", point.x);
-    circle.setAttribute("cy", point.y);
-    
-    // Continuer l'animation
     requestAnimationFrame(moveBall);
   }
   
-  // Démarrer l'animation
   requestAnimationFrame(moveBall);
   
-  // renvoi le pointeur de la fonction "reverse"
   return {
     reverse: reverseDirection,
   };
