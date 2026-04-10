@@ -199,8 +199,13 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
         
     if(device.graph) creatGraph(boxId, device, isDark, appendTo);
         
-    if(device.gauge) divGauge.style.height = value + `%`;
-    else divGauge.style.height = `0px`;
+    if(device.gauge && device.gaugeMax) {
+      const gaugeMax = parseFloat(device.gaugeMax);
+      const gaugeVal = Math.min(Math.abs(parseFloat(value)) / gaugeMax * 100, 100);
+      divGauge.style.height = gaugeVal + `%`;
+    } else {
+      divGauge.style.height = `0px`;
+    }
             
     if(styles.header != "") {
       if(styles.header == "auto") {
