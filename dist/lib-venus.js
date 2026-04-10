@@ -664,7 +664,7 @@ function animateBallAlongPath(anchorId1, path, circles, appendTo) {
   const box = appendTo.querySelector(`#dashboard`);
   const boxWidth = box.offsetWidth;
 
-  const speed = boxWidth/20;
+  const speed = boxWidth/40;
   const duration = pathLength / speed * 1000;
   let startTime;
   
