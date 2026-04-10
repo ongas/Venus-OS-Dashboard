@@ -32,6 +32,17 @@ npm run build
 
 **CRITICAL:** HACS requires a GitHub Release object, not just a git tag. A tag alone will NOT be picked up by HACS.
 
+## Editing JS Files in `dist/`
+
+**CRITICAL: Never rewrite entire files. Use targeted edits only.**
+
+- **DO NOT** use Python `open()`/`write()` or any tool that rewrites the full file — this converts CRLF line endings to LF, which breaks HA's Lovelace card loader and causes "Configuration error".
+- **DO NOT** use JavaScript private class fields (`#field`) — HA's JS environment does not support them. Use regular properties (`this._field`) instead.
+- **DO** use `sed -i` for targeted line replacements.
+- **DO** preserve original line endings (CRLF). Verify with `file dist/<name>.js` after editing.
+- **DO** validate syntax with `node -c dist/<name>.js` before committing.
+- After editing, always bump the cache-busting `?v=X.Y.Z` params in the import statements of `Venus-OS-Dashboard-ongas.js` to force HA to load the new version.
+
 ## Project Structure
 
 - `dist/` — Production JS files and their gzipped counterparts
