@@ -1,8 +1,8 @@
 /*
 
- switch auto theme clair/sombre ou choix manuel
+ switch auto theme light/dark or manual choice
  
- donc onglet param en plus
+ additional param tab
 
 */
 
@@ -16,11 +16,11 @@ console.info(
   "color: white; font-weight: bold; background: grey"
 );
 
-import './editor.js?v=0.2.8';
-import * as libVenus from './lib-venus.js?v=0.2.8';
+import './editor.js?v=0.2.11';
+import * as libVenus from './lib-venus.js?v=0.2.11';
 
-import { cssDataDark } from './css-dark.js?v=0.2.8';
-import { cssDataLight } from './css-light.js?v=0.2.8';
+import { cssDataDark } from './css-dark.js?v=0.2.11';
+import { cssDataLight } from './css-light.js?v=0.2.11';
 
 class venusOsDashboardCard extends HTMLElement {
 
@@ -32,8 +32,9 @@ class venusOsDashboardCard extends HTMLElement {
 
   constructor() {
     super();
+    this._lastReverseCheck = 0;
 
-    // Écouter l'événement personnalisé
+    // Listen for the custom event
     document.addEventListener('config-changed', () => {
       // if(event.detail.redrawRequired) libVenus.razDashboardOldWidth();
       libVenus.razDashboardOldWidth();
@@ -45,7 +46,7 @@ class venusOsDashboardCard extends HTMLElement {
 
     this.config = config;
 
-    // Crée la structure statique après avoir reçu la configuration
+    // Create the static structure after receiving the configuration
     if (!this.content) {
       this._createCardStructure();
     }
@@ -73,10 +74,10 @@ class venusOsDashboardCard extends HTMLElement {
     // recuperation des parametres
     const param = this.config.param || [];
 
-    // rendu de la structure de base de la carte (en mode normal ou demo "image")
+    // render the base card structure (normal mode or demo "image")
     libVenus.baseRender(this.config, this.content);
 
-    // recuperation des quantités de box a créer par colonne dans les parametres
+    // retrieve the number of boxes to create per column from parameters
     const boxCol1 = param.boxCol1 ? Math.min(Math.max(param.boxCol1, 1), 4) : 1;
     const boxCol2 = param.boxCol2 ? Math.min(Math.max(param.boxCol2, 1), 2) : 1;
     const boxCol3 = param.boxCol3 ? Math.min(Math.max(param.boxCol3, 1), 4) : 1;
@@ -84,7 +85,7 @@ class venusOsDashboardCard extends HTMLElement {
     // ajout des box
     if (this.config.demo !== true) libVenus.addBox(boxCol1, boxCol2, boxCol3, this.content);
 
-    // ajout des ancres d'attache des lignes
+    // add line anchor points
     if (this.config.demo !== true) libVenus.addAnchors(this.config, this.content);
 
   }
@@ -114,35 +115,39 @@ class venusOsDashboardCard extends HTMLElement {
       }
     }
 
-    // mise en pause (ou ne pas aller plus loin) si mode demo
+    // pause (or stop) if demo mode
     if (this.config.demo === true) return;
 
-    // mise en pause (ou ne pas aller plus loin) si debug
+    // pause (or stop) if debug mode
     if (venusOsDashboardCard.cycle >= 10) return;
 
-    // recuperation des parametres de la carte
+    // retrieve card parameters
     const devices = this.config.devices || [];
     const styles = this.config.styles || "";
 
-    // remplissage des box avec les parametres donnés
+    // fill boxes with the given parameters
     libVenus.fillBox(this.config, styles, venusOsDashboardCard.isDark, hass, this.content);
 
-    // verification de changement de taille... si oui re-creation des lignes
+    // check for size change... if so, recreate lines
     libVenus.checkReSize(devices, venusOsDashboardCard.isDark, this.content);
 
-    // verification des valeurs pour inversion de l'anim path
-    libVenus.checkForReverse(devices, hass);
+    // check direction reversal (throttled to 500ms)
+    const now = Date.now();
+    if (now - this._lastReverseCheck >= 500) {
+      this._lastReverseCheck = now;
+      libVenus.checkForReverse(devices, hass);
+    }
 
     // Lancement initial de startPeriodicTask
     if (!this.periodicTaskStarted) {
-      // console.log('Tentative de démarrage de startPeriodicTask...');
+      // console.log('Attempting to start startPeriodicTask...');
       const taskStarted = libVenus.startPeriodicTask(this.config, hass);
 
       if (taskStarted) {
-        // console.log('startPeriodicTask démarré avec succès.');
-        this.periodicTaskStarted = true; // Marquer comme démarrée
+        // console.log('startPeriodicTask started successfully.');
+        this.periodicTaskStarted = true; // Mark as started
       } else {
-        // console.warn('startPeriodicTask a échoué. Elle sera relancée lors de la prochaine itération.');
+        // console.warn('startPeriodicTask failed. Will retry on next iteration.');
         this.periodicTaskStarted = false; // Rester sur false pour retenter
       }
     }
@@ -150,10 +155,10 @@ class venusOsDashboardCard extends HTMLElement {
     // venusOsDashboardCard.cycle++;
   }
 
-  // Méthode pour générer l'élément de configuration
+  // Method to generate the configuration element
   static getConfigElement(hass) {
     const editor = document.createElement('venus-os-editor');
-    editor.hass = hass; // Passe explicitement l'instance de hass à l'éditeur
+    editor.hass = hass; // Explicitly pass hass instance to the editor
     return editor;
   }
 
@@ -168,14 +173,14 @@ class venusOsDashboardCard extends HTMLElement {
     return libVenus.getDefaultConfig(hass);
   }
 
-  // Méthode pour récupérer la taille de la carte
+  // Method to get the card size
   getCardSize() {
     return 1;
   }
 
-  // Fonction de nettoyage si la carte est retirée
+  // Cleanup function when the card is removed
   disconnectedCallback() {
-    libVenus.clearAllIntervals(); // Arrêter toutes les tâches
+    libVenus.clearAllIntervals(); // Stop all tasks
   }
 
 }

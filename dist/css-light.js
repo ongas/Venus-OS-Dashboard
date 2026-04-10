@@ -11,8 +11,8 @@ export function cssDataLight() {
         .db-container {
             position: relative;
             width: 100%; /* Prend toute la largeur disponible */
-            padding-bottom: 60%; /* Définit la hauteur à 60% de la largeur */
-            overflow: hidden; /* Cache tout dépassement éventuel */
+            padding-bottom: 60%; /* Sets height to 60% of width */
+            overflow: hidden; /* Hide any overflow */
         }
         
   
