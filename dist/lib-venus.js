@@ -678,6 +678,7 @@ function getAnchorCoordinates(anchorId, appendTo) {
 function animateBallAlongPath(anchorId1, path, circles, appendTo) {
   
   let direction = directionControls.get(anchorId1);
+  let running = true;
   
   const pathLength = path.getTotalLength();
   
@@ -694,6 +695,7 @@ function animateBallAlongPath(anchorId1, path, circles, appendTo) {
   }
   
   function moveBall(time) {
+    if (!running) return;
     if (!startTime) startTime = time;
     
     const elapsed = time - startTime;
@@ -732,6 +734,7 @@ function animateBallAlongPath(anchorId1, path, circles, appendTo) {
   
   return {
     reverse: reverseDirection,
+    stop: function() { running = false; },
   };
 }
 
@@ -821,6 +824,16 @@ export function clearAllIntervals() {
     //console.log(`Task for entity "${id}" stopped.`);
   });
   intervals.clear();
+  // Stop all animation RAF loops
+  pathControls.forEach((controls) => {
+    if (controls.stop) controls.stop();
+  });
+  pathControls.clear();
+  directionControls.clear();
+  boxContentCache.clear();
+  boxStateCache.clear();
+  historicData.clear();
+  updateGraphTriggers.clear();
 }
 
 function performTask(entityId, hass) {

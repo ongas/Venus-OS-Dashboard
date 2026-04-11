@@ -16,11 +16,11 @@ console.info(
   "color: white; font-weight: bold; background: grey"
 );
 
-import './editor.js?v=0.2.16';
-import * as libVenus from './lib-venus.js?v=0.2.16';
+import './editor.js?v=0.2.17';
+import * as libVenus from './lib-venus.js?v=0.2.17';
 
-import { cssDataDark } from './css-dark.js?v=0.2.16';
-import { cssDataLight } from './css-light.js?v=0.2.16';
+import { cssDataDark } from './css-dark.js?v=0.2.17';
+import { cssDataLight } from './css-light.js?v=0.2.17';
 
 class venusOsDashboardCard extends HTMLElement {
 
@@ -35,10 +35,8 @@ class venusOsDashboardCard extends HTMLElement {
     this._lastReverseCheck = 0;
 
     // Listen for the custom event
-    document.addEventListener('config-changed', () => {
-      // if(event.detail.redrawRequired) libVenus.razDashboardOldWidth();
-      libVenus.razDashboardOldWidth();
-    });
+    this._configChangedHandler = () => { libVenus.razDashboardOldWidth(); };
+    document.addEventListener('config-changed', this._configChangedHandler);
 
   }
 
@@ -67,7 +65,6 @@ class venusOsDashboardCard extends HTMLElement {
 
       this.content = this.querySelector("div");
 
-      window.contElem = this.content;
 
     }
 
@@ -180,7 +177,12 @@ class venusOsDashboardCard extends HTMLElement {
 
   // Cleanup function when the card is removed
   disconnectedCallback() {
-    libVenus.clearAllIntervals(); // Stop all tasks
+    libVenus.clearAllIntervals(); // Stop all tasks, animations, clear caches
+    if (this._configChangedHandler) {
+      document.removeEventListener('config-changed', this._configChangedHandler);
+      this._configChangedHandler = null;
+    }
+    this.periodicTaskStarted = false;
   }
 
 }
