@@ -16,11 +16,11 @@ console.info(
   "color: white; font-weight: bold; background: grey"
 );
 
-import './editor.js?v=0.2.17';
-import * as libVenus from './lib-venus.js?v=0.2.17';
+import './editor.js?v=0.2.18';
+import * as libVenus from './lib-venus.js?v=0.2.18';
 
-import { cssDataDark } from './css-dark.js?v=0.2.17';
-import { cssDataLight } from './css-light.js?v=0.2.17';
+import { cssDataDark } from './css-dark.js?v=0.2.18';
+import { cssDataLight } from './css-light.js?v=0.2.18';
 
 class venusOsDashboardCard extends HTMLElement {
 
@@ -33,6 +33,7 @@ class venusOsDashboardCard extends HTMLElement {
   constructor() {
     super();
     this._lastReverseCheck = 0;
+    this._appliedTheme = null;
 
     // Listen for the custom event
     this._configChangedHandler = () => { libVenus.razDashboardOldWidth(); };
@@ -93,22 +94,20 @@ class venusOsDashboardCard extends HTMLElement {
 
     if (this._hass) {
 
-      // Check the selected theme
+      // Determine effective theme (only rewrite CSS when it changes)
       const isDarkTheme = this._hass.themes.darkMode;
+      const wantDark = (isDarkTheme && this.config.theme === 'auto') || this.config.theme === 'dark';
+      const effectiveTheme = wantDark ? 'dark' : 'light';
 
-      // Create or update the style element based on the theme
-      let style = this.querySelector('style');
-      if (!style) {
-        style = document.createElement('style');
-        this.querySelector('ha-card').appendChild(style);
-      }
-
-      if ((isDarkTheme && this.config.theme === 'auto') || this.config.theme === 'dark') {
-        style.textContent = cssDataDark();
-        venusOsDashboardCard.isDark = true;
-      } else {
-        style.textContent = cssDataLight();
-        venusOsDashboardCard.isDark = false;
+      if (this._appliedTheme !== effectiveTheme) {
+        this._appliedTheme = effectiveTheme;
+        let style = this.querySelector('style');
+        if (!style) {
+          style = document.createElement('style');
+          this.querySelector('ha-card').appendChild(style);
+        }
+        style.textContent = wantDark ? cssDataDark() : cssDataLight();
+        venusOsDashboardCard.isDark = wantDark;
       }
     }
 
