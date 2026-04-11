@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.20`);
+    const response = await import(`./lang-${lang}.js?v=0.2.21`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.20`);
+    const response = await import(`./lang-en.js?v=0.2.21`);
     translations = response.default;
   }
 }
@@ -374,13 +374,13 @@ export function subtabRender(box, config, hass, appendTo) {
                         >
                         </ha-entity-picker>
                     </div>
-                    <div id="sideGaugeMax_div" class="row cell">
-                        ${t("subtabRender", "side_gauge_max")} :
-                        <ha-textfield class="cell right"
-                            id="sideGaugeMax_field"
-                            type="number"
+                    <div id="sideGaugeMax_div" class="row">
+                        <ha-entity-picker
+                            label="${t("subtabRender", "side_gauge_max")}"
+                            id="sideGaugeMax_picker"
                             data-path="devices.${box}.sideGaugeMax"
-                        ></ha-textfield>
+                        >
+                        </ha-entity-picker>
                     </div>
                 </div>
             </div>
@@ -548,8 +548,9 @@ export function subtabRender(box, config, hass, appendTo) {
   const sideGaugeEntityPicker = subTabContent.querySelector("#sideGaugeEntity_picker");
   sideGaugeEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
   sideGaugeEntityPicker.hass = hass;
-  const sideGaugeMaxField = subTabContent.querySelector("#sideGaugeMax_field");
-  sideGaugeMaxField.value = config?.devices?.[box]?.sideGaugeMax ?? "";
+  const sideGaugeMaxPicker = subTabContent.querySelector("#sideGaugeMax_picker");
+  sideGaugeMaxPicker.value = config?.devices?.[box]?.sideGaugeMax ?? "";
+  sideGaugeMaxPicker.hass = hass;
     
     
   const linkContainer = subTabContent.querySelector('#link-container');

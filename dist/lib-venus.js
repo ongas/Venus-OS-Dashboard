@@ -16,6 +16,7 @@ let editorOpen = false;
 
 let boxContentCache = new Map();
 let boxStateCache = new Map();
+let boxWidthCache = new Map();
 
 /************************************************/
 /* function to render the card skeleton:          */
@@ -188,7 +189,7 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     const device = devices[boxId];
             
     // Fast-path: skip box if entity states haven't changed
-    const _ents = [device.entity, device.entity2, device.headerEntity, device.footerEntity1, device.footerEntity2, device.footerEntity3, device.iconEntity, device.sideGaugeEntity].filter(Boolean);
+    const _ents = [device.entity, device.entity2, device.headerEntity, device.footerEntity1, device.footerEntity2, device.footerEntity3, device.iconEntity, device.sideGaugeEntity, device.sideGaugeMax].filter(Boolean);
     const _stateKey = _ents.map(function(k) { var s = hass.states[k]; return s ? s.state + (s.attributes && s.attributes.unit_of_measurement || '') : ''; }).join('|');
     if (boxStateCache.get(boxId) === _stateKey) continue;
     boxStateCache.set(boxId, _stateKey);
@@ -196,6 +197,7 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     const divGauge = appendTo.querySelector(`#dashboard > #column-${boxId[0]} > #box_${boxId} > #gauge_${boxId}`);
     const divSideGauge = appendTo.querySelector(`#dashboard > #column-${boxId[0]} > #box_${boxId} > #sideGauge_${boxId}`);
     const innerContent = appendTo.querySelector(`#dashboard > #column-${boxId[0]} > #box_${boxId} > #content_${boxId}`);
+    const _boxW = boxWidthCache.get(boxId) || innerContent.offsetWidth;
                 
     let state = hass.states[device.entity];
     let value = state ? state.state : 'N/C';
@@ -223,7 +225,8 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     if(device.sideGauge && device.sideGaugeEntity && divSideGauge) {
       var sgState = hass.states[device.sideGaugeEntity];
       var sgValue = sgState ? parseFloat(sgState.state) : 0;
-      var sgMax = parseFloat(device.sideGaugeMax) || 100;
+      var sgMaxState = device.sideGaugeMax ? hass.states[device.sideGaugeMax] : null;
+      var sgMax = sgMaxState ? parseFloat(sgMaxState.state) || 100 : 100;
       if(isNaN(sgValue)) sgValue = 0;
       var sgPct = Math.min(Math.abs(sgValue) / sgMax * 100, 100);
       var sgFill = divSideGauge.querySelector('.sideGaugeFill');
@@ -243,8 +246,8 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
                 
         let dynSizeHeader = "";
                 
-        if(boxId[0] == "2") dynSizeHeader = Math.round(0.0693*innerContent.offsetWidth+1.9854);
-        else dynSizeHeader = Math.round(0.0945*innerContent.offsetWidth+2.209);
+        if(boxId[0] == "2") dynSizeHeader = Math.round(0.0693*_boxW+1.9854);
+        else dynSizeHeader = Math.round(0.0945*_boxW+2.209);
 
         addHeaderStyle = ` style="font-size: ${dynSizeHeader}px;"`;
                 
@@ -258,8 +261,8 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
                     
         let dynSizeSensor = "";
                     
-        if(boxId[0] == "2") dynSizeSensor = Math.round(0.1065*innerContent.offsetWidth+8.7929);
-        else dynSizeSensor = Math.round(0.1452*innerContent.offsetWidth+9.0806);
+        if(boxId[0] == "2") dynSizeSensor = Math.round(0.1065*_boxW+8.7929);
+        else dynSizeSensor = Math.round(0.1452*_boxW+9.0806);
                     
         addSensorStyle = ` style="font-size: ${dynSizeSensor}px;"`;
                     
@@ -273,8 +276,8 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
                     
         let dynSizeSensor2 = "";
                     
-        if(boxId[0] == "2") dynSizeSensor2 = Math.round(0.0693*innerContent.offsetWidth+1.9854);
-        else dynSizeSensor2 = Math.round(0.0945*innerContent.offsetWidth+2.209);
+        if(boxId[0] == "2") dynSizeSensor2 = Math.round(0.0693*_boxW+1.9854);
+        else dynSizeSensor2 = Math.round(0.0945*_boxW+2.209);
                     
         addSensor2Style = ` style="font-size: ${dynSizeSensor2}px;"`;
                     
@@ -288,8 +291,8 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
                     
         let dynSizeFooter = "";
                     
-        if(boxId[0] == "2") dynSizeFooter = Math.round(0.0803*innerContent.offsetWidth-2.438);
-        else dynSizeFooter = Math.round(0.1095*innerContent.offsetWidth-2.1791);
+        if(boxId[0] == "2") dynSizeFooter = Math.round(0.0803*_boxW-2.438);
+        else dynSizeFooter = Math.round(0.1095*_boxW-2.1791);
                     
         addFooterStyle = ` style="font-size: ${dynSizeFooter}px;"`;
                     
@@ -368,6 +371,7 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     if (boxContentCache.get(boxId) !== newHtml) {
       boxContentCache.set(boxId, newHtml);
       innerContent.innerHTML = newHtml;
+      boxWidthCache.set(boxId, innerContent.offsetWidth);
     }
         
     if (!innerContent.dataset.listener) {
@@ -530,6 +534,7 @@ export function checkReSize(devices, isDarkTheme, appendTo) {
         
   // update card width in global variable for comparison on next iteration
   dashboardOldWidth = rect.width;
+  boxWidthCache.clear();
 }
 
 export function razDashboardOldWidth() {
@@ -857,6 +862,7 @@ export function clearAllIntervals() {
   directionControls.clear();
   boxContentCache.clear();
   boxStateCache.clear();
+  boxWidthCache.clear();
   historicData.clear();
   updateGraphTriggers.clear();
 }

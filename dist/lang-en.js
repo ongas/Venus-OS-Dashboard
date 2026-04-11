@@ -23,7 +23,7 @@ export default {
     gauge_max: "Gauge max value",
     enable_side_gauge: "Enable side gauge",
     side_gauge_entity: "Side gauge entity",
-    side_gauge_max: "Side gauge max value",
+    side_gauge_max: "Side gauge max entity",
     header_footer_title: "Header and footer sensors configuration",
     entity_header: "Select header entity",
     entity_footer: "Select footer entity",

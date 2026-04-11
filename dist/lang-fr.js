@@ -23,7 +23,7 @@ export default {
     gauge_max: "Valeur max de la gauge",
     enable_side_gauge: "Activer la gauge latérale",
     side_gauge_entity: "Entité de la gauge latérale",
-    side_gauge_max: "Valeur max de la gauge latérale",
+    side_gauge_max: "Entité max de la gauge latérale",
     header_footer_title: "Configuration des sensors d'header et de footer",
     entity_header: "Choisir une entité d'header",
     entity_footer: "Choisir une entité de footer",
