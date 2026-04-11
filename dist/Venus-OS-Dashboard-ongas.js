@@ -16,11 +16,11 @@ console.info(
   "color: white; font-weight: bold; background: grey"
 );
 
-import './editor.js?v=0.2.18';
-import * as libVenus from './lib-venus.js?v=0.2.18';
+import './editor.js?v=0.2.19';
+import * as libVenus from './lib-venus.js?v=0.2.19';
 
-import { cssDataDark } from './css-dark.js?v=0.2.18';
-import { cssDataLight } from './css-light.js?v=0.2.18';
+import { cssDataDark } from './css-dark.js?v=0.2.19';
+import { cssDataLight } from './css-light.js?v=0.2.19';
 
 class venusOsDashboardCard extends HTMLElement {
 
@@ -34,6 +34,7 @@ class venusOsDashboardCard extends HTMLElement {
     super();
     this._lastReverseCheck = 0;
     this._appliedTheme = null;
+    this._hassUpdatePending = false;
 
     // Listen for the custom event
     this._configChangedHandler = () => { libVenus.razDashboardOldWidth(); };
@@ -114,8 +115,19 @@ class venusOsDashboardCard extends HTMLElement {
     // pause (or stop) if demo mode
     if (this.config.demo === true) return;
 
-    // pause (or stop) if debug mode
-    if (venusOsDashboardCard.cycle >= 10) return;
+    // Batch heavy work: schedule ONE update per animation frame
+    if (!this._hassUpdatePending) {
+      this._hassUpdatePending = true;
+      requestAnimationFrame(() => {
+        this._hassUpdatePending = false;
+        this._processHassUpdate();
+      });
+    }
+  }
+
+  _processHassUpdate() {
+    const hass = this._hass;
+    if (!hass) return;
 
     // retrieve card parameters
     const devices = this.config.devices || [];
@@ -136,19 +148,14 @@ class venusOsDashboardCard extends HTMLElement {
 
     // Initial launch of startPeriodicTask
     if (!this.periodicTaskStarted) {
-      // console.log('Attempting to start startPeriodicTask...');
       const taskStarted = libVenus.startPeriodicTask(this.config, hass);
 
       if (taskStarted) {
-        // console.log('startPeriodicTask started successfully.');
-        this.periodicTaskStarted = true; // Mark as started
+        this.periodicTaskStarted = true;
       } else {
-        // console.warn('startPeriodicTask failed. Will retry on next iteration.');
-        this.periodicTaskStarted = false; // Stay false to retry
+        this.periodicTaskStarted = false;
       }
     }
-
-    // venusOsDashboardCard.cycle++;
   }
 
   // Method to generate the configuration element

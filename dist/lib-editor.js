@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.18`);
+    const response = await import(`./lang-${lang}.js?v=0.2.19`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.18`);
+    const response = await import(`./lang-en.js?v=0.2.19`);
     translations = response.default;
   }
 }
