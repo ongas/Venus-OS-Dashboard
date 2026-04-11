@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.23`);
+    const response = await import(`./lang-${lang}.js?v=0.2.24`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.23`);
+    const response = await import(`./lang-en.js?v=0.2.24`);
     translations = response.default;
   }
 }
@@ -360,14 +360,14 @@ export function subtabRender(box, config, hass, appendTo) {
                         ></ha-textfield>
                     </div>
                 </div>
+                <div class="row cell">
+                    ${t("subtabRender", "enable_side_gauge")} :
+                    <ha-switch class="cell right"
+                        id="sideGauge_switch"
+                        data-path="devices.${box}.sideGauge"
+                    ></ha-switch>
+                </div>
                 <div class="row">
-                    <div id="sideGauge_div" class="row cell">
-                        ${t("subtabRender", "enable_side_gauge")} :
-                        <ha-switch class="cell right"
-                            id="sideGauge_switch"
-                            data-path="devices.${box}.sideGauge"
-                        ></ha-switch>
-                    </div>
                     <ha-entity-picker
                         label="${t("subtabRender", "side_gauge_entity")}"
                         id="sideGaugeEntity_picker"

@@ -223,7 +223,7 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     }
 
     if(device.sideGauge && divSideGauge) {
-      var sgEntity = device.sideGaugeEntity || device.entity;
+      var sgEntity = device.sideGaugeEntity;
       var sgState = sgEntity ? hass.states[sgEntity] : null;
       var sgValue = sgState ? parseFloat(sgState.state) : 0;
       var sgMaxState = device.sideGaugeMax ? hass.states[device.sideGaugeMax] : null;
