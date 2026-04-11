@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.22`);
+    const response = await import(`./lang-${lang}.js?v=0.2.23`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.22`);
+    const response = await import(`./lang-en.js?v=0.2.23`);
     translations = response.default;
   }
 }
@@ -359,6 +359,8 @@ export function subtabRender(box, config, hass, appendTo) {
                             data-path="devices.${box}.gaugeMax"
                         ></ha-textfield>
                     </div>
+                </div>
+                <div class="row">
                     <div id="sideGauge_div" class="row cell">
                         ${t("subtabRender", "enable_side_gauge")} :
                         <ha-switch class="cell right"
@@ -366,22 +368,18 @@ export function subtabRender(box, config, hass, appendTo) {
                             data-path="devices.${box}.sideGauge"
                         ></ha-switch>
                     </div>
-                    <div id="sideGaugeEntity_div" class="row">
-                        <ha-entity-picker
-                            label="${t("subtabRender", "side_gauge_entity")}"
-                            id="sideGaugeEntity_picker"
-                            data-path="devices.${box}.sideGaugeEntity"
-                        >
-                        </ha-entity-picker>
-                    </div>
-                    <div id="sideGaugeMax_div" class="row">
-                        <ha-entity-picker
-                            label="${t("subtabRender", "side_gauge_max")}"
-                            id="sideGaugeMax_picker"
-                            data-path="devices.${box}.sideGaugeMax"
-                        >
-                        </ha-entity-picker>
-                    </div>
+                    <ha-entity-picker
+                        label="${t("subtabRender", "side_gauge_entity")}"
+                        id="sideGaugeEntity_picker"
+                        data-path="devices.${box}.sideGaugeEntity"
+                    >
+                    </ha-entity-picker>
+                    <ha-entity-picker
+                        label="${t("subtabRender", "side_gauge_max")}"
+                        id="sideGaugeMax_picker"
+                        data-path="devices.${box}.sideGaugeMax"
+                    >
+                    </ha-entity-picker>
                 </div>
             </div>
         </ha-expansion-panel>

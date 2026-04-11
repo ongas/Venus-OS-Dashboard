@@ -241,7 +241,7 @@ export function cssDataLight() {
 		
 		.sideGauge {
 			position: absolute;
-			right: 0;
+			right: 5px;
 			top: 0;
 			width: 6px;
 			height: 100%;
@@ -257,7 +257,7 @@ export function cssDataLight() {
 			left: 0;
 			width: 100%;
 			height: 100%;
-			background: rgba(0,0,0,0.06);
+			background: rgba(0,0,0,0.15);
 		}
 		
 		.sideGaugeFill {
