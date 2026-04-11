@@ -79,12 +79,18 @@ export function addBox(col1, col2, col3, appendTo) {
         gauge.id = `gauge_${columnIndex + 1}-${i}`;
         gauge.className = 'gauge';
         gauge.style.height = `0px`;
+        const sideGauge = document.createElement('div');
+        sideGauge.id = `sideGauge_${columnIndex + 1}-${i}`;
+        sideGauge.className = 'sideGauge';
+        sideGauge.innerHTML = '<div class="sideGaugeTrack"></div><div class="sideGaugeFill"></div>';
+        sideGauge.style.display = 'none';
                 
         const box = document.createElement('div'); // Create a new div element
         box.id = `box_${columnIndex + 1}-${i}`; // Set the box id
         box.className = 'box'; // Apply the 'box' class
         box.appendChild(graph);
         box.appendChild(gauge);
+        box.appendChild(sideGauge);
         box.appendChild(content);
         column.appendChild(box); // Add the box to the column
       }
@@ -182,12 +188,13 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     const device = devices[boxId];
             
     // Fast-path: skip box if entity states haven't changed
-    const _ents = [device.entity, device.entity2, device.headerEntity, device.footerEntity1, device.footerEntity2, device.footerEntity3, device.iconEntity].filter(Boolean);
+    const _ents = [device.entity, device.entity2, device.headerEntity, device.footerEntity1, device.footerEntity2, device.footerEntity3, device.iconEntity, device.sideGaugeEntity].filter(Boolean);
     const _stateKey = _ents.map(function(k) { var s = hass.states[k]; return s ? s.state + (s.attributes && s.attributes.unit_of_measurement || '') : ''; }).join('|');
     if (boxStateCache.get(boxId) === _stateKey) continue;
     boxStateCache.set(boxId, _stateKey);
 
     const divGauge = appendTo.querySelector(`#dashboard > #column-${boxId[0]} > #box_${boxId} > #gauge_${boxId}`);
+    const divSideGauge = appendTo.querySelector(`#dashboard > #column-${boxId[0]} > #box_${boxId} > #sideGauge_${boxId}`);
     const innerContent = appendTo.querySelector(`#dashboard > #column-${boxId[0]} > #box_${boxId} > #content_${boxId}`);
                 
     let state = hass.states[device.entity];
@@ -211,6 +218,24 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
       divGauge.style.height = gaugeVal + `%`;
     } else {
       divGauge.style.height = `0px`;
+    }
+
+    if(device.sideGauge && device.sideGaugeEntity && divSideGauge) {
+      var sgState = hass.states[device.sideGaugeEntity];
+      var sgValue = sgState ? parseFloat(sgState.state) : 0;
+      var sgMax = parseFloat(device.sideGaugeMax) || 100;
+      if(isNaN(sgValue)) sgValue = 0;
+      var sgPct = Math.min(Math.abs(sgValue) / sgMax * 100, 100);
+      var sgFill = divSideGauge.querySelector('.sideGaugeFill');
+      if(sgFill) {
+        sgFill.style.height = sgPct + '%';
+        if(sgPct >= 90) sgFill.style.background = 'linear-gradient(to top, #d94a4a, #e06060)';
+        else if(sgPct >= 70) sgFill.style.background = 'linear-gradient(to top, #d9944a, #e0a860)';
+        else sgFill.style.background = 'linear-gradient(to top, #4a90d9, #70a1d5)';
+      }
+      divSideGauge.style.display = '';
+    } else if(divSideGauge) {
+      divSideGauge.style.display = 'none';
     }
             
     if(styles.header != "") {

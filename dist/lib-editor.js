@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.19`);
+    const response = await import(`./lang-${lang}.js?v=0.2.20`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.19`);
+    const response = await import(`./lang-en.js?v=0.2.20`);
     translations = response.default;
   }
 }
@@ -359,6 +359,29 @@ export function subtabRender(box, config, hass, appendTo) {
                             data-path="devices.${box}.gaugeMax"
                         ></ha-textfield>
                     </div>
+                    <div id="sideGauge_div" class="row cell">
+                        ${t("subtabRender", "enable_side_gauge")} :
+                        <ha-switch class="cell right"
+                            id="sideGauge_switch"
+                            data-path="devices.${box}.sideGauge"
+                        ></ha-switch>
+                    </div>
+                    <div id="sideGaugeEntity_div" class="row">
+                        <ha-entity-picker
+                            label="${t("subtabRender", "side_gauge_entity")}"
+                            id="sideGaugeEntity_picker"
+                            data-path="devices.${box}.sideGaugeEntity"
+                        >
+                        </ha-entity-picker>
+                    </div>
+                    <div id="sideGaugeMax_div" class="row cell">
+                        ${t("subtabRender", "side_gauge_max")} :
+                        <ha-textfield class="cell right"
+                            id="sideGaugeMax_field"
+                            type="number"
+                            data-path="devices.${box}.sideGaugeMax"
+                        ></ha-textfield>
+                    </div>
                 </div>
             </div>
         </ha-expansion-panel>
@@ -520,6 +543,13 @@ export function subtabRender(box, config, hass, appendTo) {
   if (config.devices?.[box]?.gauge === true) gaugeSwitch.setAttribute('checked', '');
   const gaugeMaxField = subTabContent.querySelector("#gaugeMax_field");
   gaugeMaxField.value = config?.devices?.[box]?.gaugeMax ?? "";
+  const sideGaugeSwitch = subTabContent.querySelector("#sideGauge_switch");
+  if (config.devices?.[box]?.sideGauge === true) sideGaugeSwitch.setAttribute('checked', '');
+  const sideGaugeEntityPicker = subTabContent.querySelector("#sideGaugeEntity_picker");
+  sideGaugeEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
+  sideGaugeEntityPicker.hass = hass;
+  const sideGaugeMaxField = subTabContent.querySelector("#sideGaugeMax_field");
+  sideGaugeMaxField.value = config?.devices?.[box]?.sideGaugeMax ?? "";
     
     
   const linkContainer = subTabContent.querySelector('#link-container');

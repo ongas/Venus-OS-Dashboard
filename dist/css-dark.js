@@ -239,6 +239,37 @@ export function cssDataDark() {
 		    mask-size: 100% 100%;
 		}
 		
+		.sideGauge {
+			position: absolute;
+			right: 0;
+			top: 0;
+			width: 6px;
+			height: 100%;
+			z-index: 3;
+			border-radius: 0 5px 5px 0;
+			overflow: hidden;
+			pointer-events: none;
+		}
+		
+		.sideGaugeTrack {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(255,255,255,0.08);
+		}
+		
+		.sideGaugeFill {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+			height: 0%;
+			background: linear-gradient(to top, #4a90d9, #70a1d5);
+			transition: height 0.5s ease, background 0.3s ease;
+		}
+
 		.boxFooter {
 			position: absolute;
 			display: flex;
