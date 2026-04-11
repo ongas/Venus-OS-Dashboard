@@ -222,9 +222,12 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
       divGauge.style.height = `0px`;
     }
 
-    if(device.sideGauge && device.sideGaugeEntity && divSideGauge) {
-      var sgState = hass.states[device.sideGaugeEntity];
-      var sgValue = sgState ? parseFloat(sgState.state) : 0;
+    if(device.sideGauge && divSideGauge) {
+      var sgValue = 0;
+      if(device.sideGaugeEntity) {
+        var sgState = hass.states[device.sideGaugeEntity];
+        sgValue = sgState ? parseFloat(sgState.state) : 0;
+      }
       var sgMaxState = device.sideGaugeMax ? hass.states[device.sideGaugeMax] : null;
       var sgMax = sgMaxState ? parseFloat(sgMaxState.state) || 100 : 100;
       if(isNaN(sgValue)) sgValue = 0;
@@ -539,6 +542,7 @@ export function checkReSize(devices, isDarkTheme, appendTo) {
 
 export function razDashboardOldWidth() {
   mustRedrawLine = true;
+  boxStateCache.clear();
 }
 
 /********************************************************/
