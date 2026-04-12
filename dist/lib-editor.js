@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.24`);
+    const response = await import(`./lang-${lang}.js?v=0.2.25`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.24`);
+    const response = await import(`./lang-en.js?v=0.2.25`);
     translations = response.default;
   }
 }
@@ -360,6 +360,12 @@ export function subtabRender(box, config, hass, appendTo) {
                         ></ha-textfield>
                     </div>
                 </div>
+            </div>
+        </ha-expansion-panel>
+
+        <!-- SIDE GAUGE -->
+        <ha-expansion-panel outlined expanded id="subPanel_sideGauge" header="${t("subtabRender", "enable_side_gauge")}">
+            <div class="col inner">
                 <div class="row cell">
                     ${t("subtabRender", "enable_side_gauge")} :
                     <ha-switch class="cell right"
@@ -544,11 +550,9 @@ export function subtabRender(box, config, hass, appendTo) {
   const sideGaugeSwitch = subTabContent.querySelector("#sideGauge_switch");
   if (config.devices?.[box]?.sideGauge === true) sideGaugeSwitch.setAttribute('checked', '');
   const sideGaugeEntityPicker = subTabContent.querySelector("#sideGaugeEntity_picker");
-  sideGaugeEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
-  sideGaugeEntityPicker.hass = hass;
+  if(sideGaugeEntityPicker) { sideGaugeEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? ""; sideGaugeEntityPicker.hass = hass; }
   const sideGaugeMaxPicker = subTabContent.querySelector("#sideGaugeMax_picker");
-  sideGaugeMaxPicker.value = config?.devices?.[box]?.sideGaugeMax ?? "";
-  sideGaugeMaxPicker.hass = hass;
+  if(sideGaugeMaxPicker) { sideGaugeMaxPicker.value = config?.devices?.[box]?.sideGaugeMax ?? ""; sideGaugeMaxPicker.hass = hass; }
     
     
   const linkContainer = subTabContent.querySelector('#link-container');
