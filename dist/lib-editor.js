@@ -334,7 +334,18 @@ export function subtabRender(box, config, hass, appendTo) {
                     data-path="devices.${box}.entity2"
                 >
                 </ha-entity-picker>
-                <div id="sideGauge_pickers_container"></div>
+                <ha-entity-picker
+                    label="${t("subtabRender", "side_gauge_entity")}"
+                    id="sideGaugeEntity_picker"
+                    data-path="devices.${box}.sideGaugeEntity"
+                >
+                </ha-entity-picker>
+                <ha-entity-picker
+                    label="${t("subtabRender", "side_gauge_max")}"
+                    id="sideGaugeMax_picker"
+                    data-path="devices.${box}.sideGaugeMax"
+                >
+                </ha-entity-picker>
     
                 <!-- SWITCHS GRAPH ET GAUGE -->
                 <div class="row">
@@ -512,53 +523,11 @@ export function subtabRender(box, config, hass, appendTo) {
   footerEntity1.value = config?.devices?.[box]?.footerEntity1 ?? "";
   footerEntity2.value = config?.devices?.[box]?.footerEntity2 ?? "";
   footerEntity3.value = config?.devices?.[box]?.footerEntity3 ?? "";
-  const sgContainer = subTabContent.querySelector("#sideGauge_pickers_container");
-  sgContainer.innerHTML = `
-    <ha-entity-picker
-      label="${t("subtabRender", "side_gauge_entity")}"
-      id="sideGaugeEntity_picker"
-      data-path="devices.${box}.sideGaugeEntity"
-    ></ha-entity-picker>
-    <ha-entity-picker
-      label="${t("subtabRender", "side_gauge_max")}"
-      id="sideGaugeMax_picker"
-      data-path="devices.${box}.sideGaugeMax"
-    ></ha-entity-picker>
-  `;
-  const sgEntityPicker = sgContainer.querySelector("#sideGaugeEntity_picker");
-  const sgMaxPicker = sgContainer.querySelector("#sideGaugeMax_picker");
-  sgEntityPicker.hass = hass;
+  
+  const sgEntityPicker = subTabContent.querySelector("#sideGaugeEntity_picker");
+  const sgMaxPicker = subTabContent.querySelector("#sideGaugeMax_picker");
   sgEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
-  sgMaxPicker.hass = hass;
   sgMaxPicker.value = config?.devices?.[box]?.sideGaugeMax ?? "";
-  
-  // Add event listeners for dynamically created side gauge pickers
-  const sgEntityHandleChange = (e) => {
-    const key = sgEntityPicker.dataset.path;
-    let value = e.detail.value;
-    if (!value || value.trim() === "") {
-      value = null;
-    }
-    if (key) {
-      appendTo._config = updateConfigRecursively(appendTo._config, key, value, true);
-      notifyConfigChange(appendTo);
-    }
-  };
-  
-  const sgMaxHandleChange = (e) => {
-    const key = sgMaxPicker.dataset.path;
-    let value = e.detail.value;
-    if (!value || value.trim() === "") {
-      value = null;
-    }
-    if (key) {
-      appendTo._config = updateConfigRecursively(appendTo._config, key, value, true);
-      notifyConfigChange(appendTo);
-    }
-  };
-  
-  sgEntityPicker.addEventListener("value-changed", sgEntityHandleChange);
-  sgMaxPicker.addEventListener("value-changed", sgMaxHandleChange);
     
   iconPicker.hass = hass; // Pass the object directly here
   entityPicker.hass = hass; // Pass the object directly here
