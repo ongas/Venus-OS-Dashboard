@@ -256,9 +256,17 @@ export function tabColRender(col, appendTo) {
 /************************************************/
 
 export function renderSubTabContent(col, appendTo) {
-  const boxId = `${col}-${appendTo._currentSubTab+1}`;
-  subtabRender(boxId, appendTo._config, appendTo._hass, appendTo);
-  attachInputs(appendTo); // Call the existing attachInputs function
+  try {
+    const boxId = `${col}-${appendTo._currentSubTab+1}`;
+    subtabRender(boxId, appendTo._config, appendTo._hass, appendTo);
+    attachInputs(appendTo); // Call the existing attachInputs function
+  } catch (error) {
+    console.error("Error in renderSubTabContent:", error);
+    const subTabContent = appendTo.shadowRoot.querySelector('#subTab-content');
+    if (subTabContent) {
+      subTabContent.innerHTML = `<p style="color: red; padding: 20px;">Error loading editor: ${error.message}</p>`;
+    }
+  }
 }
 
 /************************************************/
