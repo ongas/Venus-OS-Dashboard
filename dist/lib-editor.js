@@ -519,18 +519,48 @@ export function subtabRender(box, config, hass, appendTo) {
       id="sideGaugeEntity_picker"
       data-path="devices.${box}.sideGaugeEntity"
     ></ha-entity-picker>
-    <ha-entity-picker
+    <ha-textfield
       label="${t("subtabRender", "side_gauge_max")}"
       id="sideGaugeMax_picker"
       data-path="devices.${box}.sideGaugeMax"
-    ></ha-entity-picker>
+      type="number"
+      min="1"
+      step="1"
+    ></ha-textfield>
   `;
   const sgEntityPicker = sgContainer.querySelector("#sideGaugeEntity_picker");
   const sgMaxPicker = sgContainer.querySelector("#sideGaugeMax_picker");
   sgEntityPicker.hass = hass;
   sgEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
-  sgMaxPicker.hass = hass;
   sgMaxPicker.value = config?.devices?.[box]?.sideGaugeMax ?? "";
+  
+  // Add event listeners for dynamically created side gauge pickers
+  const sgEntityHandleChange = (e) => {
+    const key = sgEntityPicker.dataset.path;
+    let value = e.detail.value;
+    if (!value || value.trim() === "") {
+      value = null;
+    }
+    if (key) {
+      appendTo._config = updateConfigRecursively(appendTo._config, key, value, true);
+      notifyConfigChange(appendTo);
+    }
+  };
+  
+  const sgMaxHandleChange = (e) => {
+    const key = sgMaxPicker.dataset.path;
+    let value = e.target.value;
+    if (!value || value.trim() === "") {
+      value = null;
+    }
+    if (key) {
+      appendTo._config = updateConfigRecursively(appendTo._config, key, value, true);
+      notifyConfigChange(appendTo);
+    }
+  };
+  
+  sgEntityPicker.addEventListener("value-changed", sgEntityHandleChange);
+  sgMaxPicker.addEventListener("change", sgMaxHandleChange);
     
   iconPicker.hass = hass; // Pass the object directly here
   entityPicker.hass = hass; // Pass the object directly here
