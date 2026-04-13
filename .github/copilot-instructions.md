@@ -50,6 +50,39 @@ The script handles: version bump (`?v=` params), CRLF normalization, syntax vali
 - **DO** validate syntax with `node -c dist/<name>.js` before committing.
 - After editing, always bump the cache-busting `?v=X.Y.Z` params in the import statements of `Venus-OS-Dashboard-ongas.js` to force HA to load the new version.
 
+## Home Assistant Web Component Initialization in `lib-editor.js`
+
+**CRITICAL: Define web components in the HTML template, never dynamically via `innerHTML`.**
+
+Home Assistant's custom element system does NOT properly initialize web components created dynamically at runtime. This causes pickers to not appear, not respond to input, and can break other pickers on the page.
+
+### ❌ DO NOT DO THIS (Broken):
+```javascript
+// Empty container in HTML
+<div id="picker_container"></div>
+
+// Dynamic creation in JavaScript - BROKEN
+const container = subTabContent.querySelector("#picker_container");
+container.innerHTML = `<ha-entity-picker id="picker" data-path="..." ...></ha-entity-picker>`;
+const picker = container.querySelector("#picker");
+picker.hass = hass;
+picker.addEventListener("value-changed", handler);  // Won't work properly
+```
+
+### ✅ DO THIS INSTEAD (Works):
+```javascript
+// Define in HTML template upfront (like header/footer pickers do)
+<ha-entity-picker id="picker" data-path="config.field" ...></ha-entity-picker>
+
+// In initialization code: only set values
+const picker = subTabContent.querySelector("#picker");
+picker.value = config?.field ?? "";
+// ✅ Generic event listener loop (line ~1033) handles change events automatically
+```
+
+### Pattern
+All working entity pickers in `lib-editor.js` are defined in the HTML template section of `subtabRender()`. Never create picker elements dynamically.
+
 ## Project Structure
 
 - `dist/` — Production JS files and their gzipped counterparts
