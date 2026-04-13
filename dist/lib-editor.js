@@ -519,19 +519,17 @@ export function subtabRender(box, config, hass, appendTo) {
       id="sideGaugeEntity_picker"
       data-path="devices.${box}.sideGaugeEntity"
     ></ha-entity-picker>
-    <ha-textfield
+    <ha-entity-picker
       label="${t("subtabRender", "side_gauge_max")}"
       id="sideGaugeMax_picker"
       data-path="devices.${box}.sideGaugeMax"
-      type="number"
-      min="1"
-      step="1"
-    ></ha-textfield>
+    ></ha-entity-picker>
   `;
   const sgEntityPicker = sgContainer.querySelector("#sideGaugeEntity_picker");
   const sgMaxPicker = sgContainer.querySelector("#sideGaugeMax_picker");
   sgEntityPicker.hass = hass;
   sgEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
+  sgMaxPicker.hass = hass;
   sgMaxPicker.value = config?.devices?.[box]?.sideGaugeMax ?? "";
   
   // Add event listeners for dynamically created side gauge pickers
@@ -549,8 +547,8 @@ export function subtabRender(box, config, hass, appendTo) {
   
   const sgMaxHandleChange = (e) => {
     const key = sgMaxPicker.dataset.path;
-    let value = e.target.value;
-    if (value === "" || value === null || value === undefined) {
+    let value = e.detail.value;
+    if (!value || value.trim() === "") {
       value = null;
     }
     if (key) {
@@ -560,7 +558,7 @@ export function subtabRender(box, config, hass, appendTo) {
   };
   
   sgEntityPicker.addEventListener("value-changed", sgEntityHandleChange);
-  sgMaxPicker.addEventListener("change", sgMaxHandleChange);
+  sgMaxPicker.addEventListener("value-changed", sgMaxHandleChange);
     
   iconPicker.hass = hass; // Pass the object directly here
   entityPicker.hass = hass; // Pass the object directly here
