@@ -526,6 +526,8 @@ export function subtabRender(box, config, hass, appendTo) {
   
   const sgEntityPicker = subTabContent.querySelector("#sideGaugeEntity_picker");
   const sgMaxPicker = subTabContent.querySelector("#sideGaugeMax_picker");
+  sgEntityPicker.hass = hass;
+  sgMaxPicker.hass = hass;
   sgEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
   sgMaxPicker.value = config?.devices?.[box]?.sideGaugeMax ?? "";
     
