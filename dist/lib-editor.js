@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.28`);
+    const response = await import(`./lang-${lang}.js?v=0.2.29`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.28`);
+    const response = await import(`./lang-en.js?v=0.2.29`);
     translations = response.default;
   }
 }
@@ -367,6 +367,18 @@ export function subtabRender(box, config, hass, appendTo) {
                         data-path="devices.${box}.sideGauge"
                     ></ha-switch>
                 </div>
+                <div class="row">
+                    <ha-textfield class="cell"
+                        label="${t("subtabRender", "side_gauge_entity")}"
+                        id="sideGaugeEntity_field"
+                        data-path="devices.${box}.sideGaugeEntity"
+                    ></ha-textfield>
+                    <ha-textfield class="cell"
+                        label="${t("subtabRender", "side_gauge_max")}"
+                        id="sideGaugeMax_field"
+                        data-path="devices.${box}.sideGaugeMax"
+                    ></ha-textfield>
+                </div>
             </div>
         </ha-expansion-panel>
         
@@ -404,21 +416,6 @@ export function subtabRender(box, config, hass, appendTo) {
                     </ha-entity-picker>
                 </div>
 
-                <!-- SIDE GAUGE ENTITIES -->
-                <div class="row">
-                    <ha-entity-picker
-                        label="${t("subtabRender", "side_gauge_entity")}"
-                        id="sideGaugeEntity_picker"
-                        data-path="devices.${box}.sideGaugeEntity"
-                    >
-                    </ha-entity-picker>
-                    <ha-entity-picker
-                        label="${t("subtabRender", "side_gauge_max")}"
-                        id="sideGaugeMax_picker"
-                        data-path="devices.${box}.sideGaugeMax"
-                    >
-                    </ha-entity-picker>
-                </div>
             </div>
         </ha-expansion-panel>
         
@@ -506,8 +503,8 @@ export function subtabRender(box, config, hass, appendTo) {
   const footerEntity1 = subTabContent.querySelector('#footer1_sensor');
   const footerEntity2 = subTabContent.querySelector('#footer2_sensor');
   const footerEntity3 = subTabContent.querySelector('#footer3_sensor');
-  const sideGaugeEntityPicker = subTabContent.querySelector('#sideGaugeEntity_picker');
-  const sideGaugeMaxPicker = subTabContent.querySelector('#sideGaugeMax_picker');
+  const sideGaugeEntityField = subTabContent.querySelector('#sideGaugeEntity_field');
+  const sideGaugeMaxField = subTabContent.querySelector('#sideGaugeMax_field');
   const anchorLeft = subTabContent.querySelector('#anchor_left');
   const anchorTop = subTabContent.querySelector('#anchor_top');
   const anchorbottom = subTabContent.querySelector('#anchor_bottom');
@@ -528,8 +525,8 @@ export function subtabRender(box, config, hass, appendTo) {
   footerEntity1.value = config?.devices?.[box]?.footerEntity1 ?? "";
   footerEntity2.value = config?.devices?.[box]?.footerEntity2 ?? "";
   footerEntity3.value = config?.devices?.[box]?.footerEntity3 ?? "";
-  sideGaugeEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
-  sideGaugeMaxPicker.value = config?.devices?.[box]?.sideGaugeMax ?? "";
+  sideGaugeEntityField.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
+  sideGaugeMaxField.value = config?.devices?.[box]?.sideGaugeMax ?? "";
     
   iconPicker.hass = hass; // Pass the object directly here
   entityPicker.hass = hass; // Pass the object directly here
@@ -538,8 +535,6 @@ export function subtabRender(box, config, hass, appendTo) {
   footerEntity1.hass = hass; // Pass the object directly here
   footerEntity2.hass = hass; // Pass the object directly here
   footerEntity3.hass = hass; // Pass the object directly here
-  sideGaugeEntityPicker.hass = hass;
-  sideGaugeMaxPicker.hass = hass;
            
   if (config?.devices?.[box]?.graph === true) graphSwitch.setAttribute('checked', '');
     
