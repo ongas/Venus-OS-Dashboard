@@ -224,7 +224,8 @@ export function cssDataDark() {
 		.gauge::before {
 		    content: "";
 		    position: absolute;
-		    top: 0;
+		    top: 5px;
+						bottom: 5px;
 		    left: 0;
 		    width: 100%;
 		    height: 100%;
@@ -242,9 +243,9 @@ export function cssDataDark() {
 		.sideGauge {
 			position: absolute;
 			right: 5px;
-			top: 0;
+			top: 5px;
+			bottom: 5px;
 			width: 6px;
-			height: 100%;
 			z-index: 3;
 			border-radius: 0 5px 5px 0;
 			overflow: hidden;
@@ -253,10 +254,11 @@ export function cssDataDark() {
 		
 		.sideGaugeTrack {
 			position: absolute;
-			top: 0;
+			top: 5px;
+						bottom: 5px;
 			left: 0;
 			width: 100%;
-			height: 100%;
+			
 			background: rgba(255,255,255,0.15);
 		}
 		

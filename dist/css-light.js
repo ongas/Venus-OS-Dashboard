@@ -242,9 +242,9 @@ export function cssDataLight() {
 		.sideGauge {
 			position: absolute;
 			right: 5px;
-			top: 0;
+			top: 5px;
+			bottom: 5px;
 			width: 6px;
-			height: 100%;
 			z-index: 3;
 			border-radius: 0 5px 5px 0;
 			overflow: hidden;
