@@ -550,7 +550,7 @@ export function subtabRender(box, config, hass, appendTo) {
   const sgMaxHandleChange = (e) => {
     const key = sgMaxPicker.dataset.path;
     let value = e.target.value;
-    if (!value || value.trim() === "") {
+    if (value === "" || value === null || value === undefined) {
       value = null;
     }
     if (key) {
