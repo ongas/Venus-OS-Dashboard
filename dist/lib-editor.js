@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.32`);
+    const response = await import(`./lang-${lang}.js?v=0.2.33`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.32`);
+    const response = await import(`./lang-en.js?v=0.2.33`);
     translations = response.default;
   }
 }
@@ -513,24 +513,21 @@ export function subtabRender(box, config, hass, appendTo) {
   footerEntity2.value = config?.devices?.[box]?.footerEntity2 ?? "";
   footerEntity3.value = config?.devices?.[box]?.footerEntity3 ?? "";
   const sgContainer = subTabContent.querySelector("#sideGauge_pickers_container");
-  sgContainer.innerHTML = `
-    <ha-entity-picker
-      label="${t("subtabRender", "side_gauge_entity")}"
-      id="sideGaugeEntity_picker"
-      data-path="devices.${box}.sideGaugeEntity"
-    ></ha-entity-picker>
-    <ha-entity-picker
-      label="${t("subtabRender", "side_gauge_max")}"
-      id="sideGaugeMax_picker"
-      data-path="devices.${box}.sideGaugeMax"
-    ></ha-entity-picker>
-  `;
-  const sgEntityPicker = sgContainer.querySelector("#sideGaugeEntity_picker");
-  const sgMaxPicker = sgContainer.querySelector("#sideGaugeMax_picker");
+  sgContainer.innerHTML = "";
+  const sgEntityPicker = document.createElement("ha-entity-picker");
+  sgEntityPicker.label = t("subtabRender", "side_gauge_entity");
+  sgEntityPicker.id = "sideGaugeEntity_picker";
+  sgEntityPicker.dataset.path = `devices.${box}.sideGaugeEntity`;
   sgEntityPicker.hass = hass;
   sgEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
+  sgContainer.appendChild(sgEntityPicker);
+  const sgMaxPicker = document.createElement("ha-entity-picker");
+  sgMaxPicker.label = t("subtabRender", "side_gauge_max");
+  sgMaxPicker.id = "sideGaugeMax_picker";
+  sgMaxPicker.dataset.path = `devices.${box}.sideGaugeMax`;
   sgMaxPicker.hass = hass;
   sgMaxPicker.value = config?.devices?.[box]?.sideGaugeMax ?? "";
+  sgContainer.appendChild(sgMaxPicker);
     
   iconPicker.hass = hass; // Pass the object directly here
   entityPicker.hass = hass; // Pass the object directly here
