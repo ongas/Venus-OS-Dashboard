@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.29`);
+    const response = await import(`./lang-${lang}.js?v=0.2.30`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.29`);
+    const response = await import(`./lang-en.js?v=0.2.30`);
     translations = response.default;
   }
 }
@@ -368,16 +368,18 @@ export function subtabRender(box, config, hass, appendTo) {
                     ></ha-switch>
                 </div>
                 <div class="row">
-                    <ha-textfield class="cell"
+                    <ha-entity-picker
                         label="${t("subtabRender", "side_gauge_entity")}"
-                        id="sideGaugeEntity_field"
+                        id="sideGaugeEntity_picker"
                         data-path="devices.${box}.sideGaugeEntity"
-                    ></ha-textfield>
-                    <ha-textfield class="cell"
+                    >
+                    </ha-entity-picker>
+                    <ha-entity-picker
                         label="${t("subtabRender", "side_gauge_max")}"
-                        id="sideGaugeMax_field"
+                        id="sideGaugeMax_picker"
                         data-path="devices.${box}.sideGaugeMax"
-                    ></ha-textfield>
+                    >
+                    </ha-entity-picker>
                 </div>
             </div>
         </ha-expansion-panel>
@@ -503,8 +505,6 @@ export function subtabRender(box, config, hass, appendTo) {
   const footerEntity1 = subTabContent.querySelector('#footer1_sensor');
   const footerEntity2 = subTabContent.querySelector('#footer2_sensor');
   const footerEntity3 = subTabContent.querySelector('#footer3_sensor');
-  const sideGaugeEntityField = subTabContent.querySelector('#sideGaugeEntity_field');
-  const sideGaugeMaxField = subTabContent.querySelector('#sideGaugeMax_field');
   const anchorLeft = subTabContent.querySelector('#anchor_left');
   const anchorTop = subTabContent.querySelector('#anchor_top');
   const anchorbottom = subTabContent.querySelector('#anchor_bottom');
@@ -525,8 +525,12 @@ export function subtabRender(box, config, hass, appendTo) {
   footerEntity1.value = config?.devices?.[box]?.footerEntity1 ?? "";
   footerEntity2.value = config?.devices?.[box]?.footerEntity2 ?? "";
   footerEntity3.value = config?.devices?.[box]?.footerEntity3 ?? "";
-  sideGaugeEntityField.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
-  sideGaugeMaxField.value = config?.devices?.[box]?.sideGaugeMax ?? "";
+  requestAnimationFrame(() => {
+    const sgEP = subTabContent.querySelector("#sideGaugeEntity_picker");
+    const sgMP = subTabContent.querySelector("#sideGaugeMax_picker");
+    if(sgEP) { sgEP.value = config?.devices?.[box]?.sideGaugeEntity ?? ""; sgEP.hass = hass; }
+    if(sgMP) { sgMP.value = config?.devices?.[box]?.sideGaugeMax ?? ""; sgMP.hass = hass; }
+  });
     
   iconPicker.hass = hass; // Pass the object directly here
   entityPicker.hass = hass; // Pass the object directly here
