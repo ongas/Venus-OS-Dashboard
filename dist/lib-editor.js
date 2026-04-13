@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.31`);
+    const response = await import(`./lang-${lang}.js?v=0.2.32`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.31`);
+    const response = await import(`./lang-en.js?v=0.2.32`);
     translations = response.default;
   }
 }
@@ -334,18 +334,7 @@ export function subtabRender(box, config, hass, appendTo) {
                     data-path="devices.${box}.entity2"
                 >
                 </ha-entity-picker>
-                <ha-entity-picker
-                    label="${t("subtabRender", "side_gauge_entity")}"
-                    id="sideGaugeEntity_picker"
-                    data-path="devices.${box}.sideGaugeEntity"
-                >
-                </ha-entity-picker>
-                <ha-entity-picker
-                    label="${t("subtabRender", "side_gauge_max")}"
-                    id="sideGaugeMax_picker"
-                    data-path="devices.${box}.sideGaugeMax"
-                >
-                </ha-entity-picker>
+                <div id="sideGauge_pickers_container"></div>
     
                 <!-- SWITCHS GRAPH ET GAUGE -->
                 <div class="row">
@@ -523,9 +512,24 @@ export function subtabRender(box, config, hass, appendTo) {
   footerEntity1.value = config?.devices?.[box]?.footerEntity1 ?? "";
   footerEntity2.value = config?.devices?.[box]?.footerEntity2 ?? "";
   footerEntity3.value = config?.devices?.[box]?.footerEntity3 ?? "";
-  const sgEntityPicker = subTabContent.querySelector("#sideGaugeEntity_picker");
-  const sgMaxPicker = subTabContent.querySelector("#sideGaugeMax_picker");
+  const sgContainer = subTabContent.querySelector("#sideGauge_pickers_container");
+  sgContainer.innerHTML = `
+    <ha-entity-picker
+      label="${t("subtabRender", "side_gauge_entity")}"
+      id="sideGaugeEntity_picker"
+      data-path="devices.${box}.sideGaugeEntity"
+    ></ha-entity-picker>
+    <ha-entity-picker
+      label="${t("subtabRender", "side_gauge_max")}"
+      id="sideGaugeMax_picker"
+      data-path="devices.${box}.sideGaugeMax"
+    ></ha-entity-picker>
+  `;
+  const sgEntityPicker = sgContainer.querySelector("#sideGaugeEntity_picker");
+  const sgMaxPicker = sgContainer.querySelector("#sideGaugeMax_picker");
+  sgEntityPicker.hass = hass;
   sgEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
+  sgMaxPicker.hass = hass;
   sgMaxPicker.value = config?.devices?.[box]?.sideGaugeMax ?? "";
     
   iconPicker.hass = hass; // Pass the object directly here
@@ -535,8 +539,6 @@ export function subtabRender(box, config, hass, appendTo) {
   footerEntity1.hass = hass; // Pass the object directly here
   footerEntity2.hass = hass; // Pass the object directly here
   footerEntity3.hass = hass; // Pass the object directly here
-  sgEntityPicker.hass = hass;
-  sgMaxPicker.hass = hass;
            
   if (config?.devices?.[box]?.graph === true) graphSwitch.setAttribute('checked', '');
     
