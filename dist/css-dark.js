@@ -247,18 +247,17 @@ export function cssDataDark() {
 			bottom: 5px;
 			width: 6px;
 			z-index: 3;
-			border-radius: 0 5px 5px 0;
+			border-radius: 3px;
 			overflow: hidden;
 			pointer-events: none;
 		}
 		
 		.sideGaugeTrack {
 			position: absolute;
-			top: 5px;
-						bottom: 5px;
+			top: 0;
 			left: 0;
 			width: 100%;
-			
+			height: 100%;
 			background: rgba(255,255,255,0.15);
 		}
 		

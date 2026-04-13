@@ -246,7 +246,7 @@ export function cssDataLight() {
 			bottom: 5px;
 			width: 6px;
 			z-index: 3;
-			border-radius: 0 5px 5px 0;
+			border-radius: 3px;
 			overflow: hidden;
 			pointer-events: none;
 		}
