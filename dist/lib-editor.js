@@ -19,11 +19,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.71`);
+    const response = await import(`./lang-${lang}.js?v=0.2.72`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.71`);
+    const response = await import(`./lang-en.js?v=0.2.72`);
     translations = response.default;
   }
 }
@@ -214,16 +214,20 @@ export function tabColRender(col, appendTo) {
   const tabContent = appendTo.shadowRoot.querySelector('#tab-content');
   tabContent.innerHTML = '';
 
-  let tabsHTML = ''; // Store all tab elements
+  let tabsHTML = '';
+  let panelsHTML = '';
+  
   for (let i = 1; i <= boxCol; i++) {
-    tabsHTML += `<ha-tab data-tab="${i - 1}">Box ${i}</ha-tab>`;
+    tabsHTML += `<sl-tab slot="nav" panel="box-${i - 1}">Box ${i}</sl-tab>`;
+    panelsHTML += `<sl-tab-panel name="box-${i - 1}"></sl-tab-panel>`;
   }
             
   tabContent.innerHTML = `
         <div class="devices-editor">
-            <ha-tabs id="subTab-group" scrollable attr="activeTab">
+            <sl-tab-group id="subTab-group">
                 ${tabsHTML}
-            </ha-tabs>
+                ${panelsHTML}
+            </sl-tab-group>
         
             <div id="subTab-content" class="subTab-content">
               <!-- Active section content will be displayed here -->
@@ -1081,14 +1085,15 @@ export function attachLinkClick(renderTabContent, appendTo) {
 /* dans les onglets secondaires */
 /********************************/
 export function attachSubLinkClick(appendTo) {
-  appendTo.shadowRoot.querySelectorAll('#subTab-group ha-tab').forEach((sublink) => {
+  appendTo.shadowRoot.querySelectorAll('#subTab-group sl-tab').forEach((sublink) => {
     if (eventHandlers.has(sublink)) {
       console.log("Event already attached to this sub-tab element:", sublink);
       return;
     }
 
     const handleClick = (e) => {
-      const tab = parseInt(e.currentTarget.getAttribute('data-tab'), 10);
+      const panel = e.currentTarget.getAttribute('panel');
+      const tab = parseInt(panel.replace('box-', ''), 10);
       appendTo._currentSubTab = tab;
       
       // Render the sub-tab content

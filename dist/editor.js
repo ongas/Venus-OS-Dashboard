@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.2.71';
+import {css} from './css-editor.js?v=0.2.72';
 
-import * as libEditor from './lib-editor.js?v=0.2.71';
+import * as libEditor from './lib-editor.js?v=0.2.72';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -34,34 +34,33 @@ class venusOsDashBoardEditor extends HTMLElement {
             
       this.shadowRoot.innerHTML = `
               <style>
-                ha-tabs {
+                sl-tab-group {
                   width: 100%;
-                  --mdc-tab-text-label-color-default: var(--text-primary-color, #000);
-                  --mdc-tab__text-label: { color: var(--text-primary-color, #000); };
-                  --mdc-tab-color-default: var(--text-primary-color, #000);
-                  --mdc-theme-primary: #0ea5e9;
                 }
               </style>
             
-              <ha-tabs id="tab-group" scrollable attr="activeTab">
-                <ha-tab id="main-tab" icon="mdi:home">Main</ha-tab>
-                <ha-tab id="col1-tab" icon="mdi:table">Col. 1</ha-tab>
-                <ha-tab id="col2-tab" icon="mdi:table">Col. 2</ha-tab>
-                <ha-tab id="col3-tab" icon="mdi:table">Col. 3</ha-tab>
-              </ha-tabs>
-            
-              <div id="tab-content" class="content"></div>
+              <sl-tab-group id="tab-group">
+                <sl-tab slot="nav" panel="conf-0">Main</sl-tab>
+                <sl-tab slot="nav" panel="conf-1">Col. 1</sl-tab>
+                <sl-tab slot="nav" panel="conf-2">Col. 2</sl-tab>
+                <sl-tab slot="nav" panel="conf-3">Col. 3</sl-tab>
+                <sl-tab-panel name="conf-0"><div id="tab-content"></div></sl-tab-panel>
+                <sl-tab-panel name="conf-1"></sl-tab-panel>
+                <sl-tab-panel name="conf-2"></sl-tab-panel>
+                <sl-tab-panel name="conf-3"></sl-tab-panel>
+              </sl-tab-group>
             `;
             
       tabGroup = this.shadowRoot.querySelector('#tab-group');
       
-      // Set up event listener for tab changes using ha-tabs native event
-      tabGroup.addEventListener('iron-activate', (event) => {
-        const selectedTab = event.detail.selected;
-        this._currentTab = selectedTab;
-        this._config.currentTab = selectedTab;
+      // Set up event listener for tab changes
+      tabGroup.addEventListener('sl-change', (event) => {
+        const selectedValue = event.detail.value;
+        const dataTab = parseInt(selectedValue.replace('conf-', ''), 10);
+        this._currentTab = dataTab;
+        this._config.currentTab = dataTab;
         
-        console.log('[venus-editor] Tab changed to:', selectedTab, 'config.currentTab:', this._config.currentTab);
+        console.log('[venus-editor] Tab changed to:', dataTab, 'from value:', selectedValue);
         
         this.renderTabContent();
         libEditor.notifyConfigChange(this);
@@ -69,13 +68,14 @@ class venusOsDashBoardEditor extends HTMLElement {
       
       const style = document.createElement('style');
       style.textContent = css();
-      tabGroup.appendChild(style);
+      this.shadowRoot.appendChild(style);
       
       this._currentTab = this._config.currentTab || 0;
       
       console.log('[venus-editor] Tab initialization:', {
         configCurrentTab: this._config.currentTab,
-        currentTabValue: this._currentTab
+        currentTabValue: this._currentTab,
+        tabToActivate: `conf-${this._currentTab}`
       });
       
       libEditor.attachLinkClick(this.renderTabContent.bind(this), this);
@@ -84,7 +84,7 @@ class venusOsDashBoardEditor extends HTMLElement {
     }
     
     if (tabGroup) {
-      tabGroup.activeTab = this._currentTab;
+      tabGroup.value = `conf-${this._currentTab}`;
       console.log('[venus-editor] Setting tab to:', this._currentTab);
     }
     
