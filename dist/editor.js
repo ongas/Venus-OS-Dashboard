@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.2.66';
+import {css} from './css-editor.js?v=0.2.67';
 
-import * as libEditor from './lib-editor.js?v=0.2.66';
+import * as libEditor from './lib-editor.js?v=0.2.67';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -40,6 +40,14 @@ class venusOsDashBoardEditor extends HTMLElement {
                 }
                 sl-tab-panel {
                   padding: 1em;
+                }
+                sl-tab[aria-selected="true"] {
+                  background-color: #0ea5e9 !important;
+                  color: white !important;
+                }
+                sl-tab[aria-selected="true"]::part(base) {
+                  background-color: #0ea5e9 !important;
+                  color: white !important;
                 }
               </style>
             
@@ -106,14 +114,6 @@ class venusOsDashBoardEditor extends HTMLElement {
     if (tabGroup) {
       tabGroup.value = `conf-${this._currentTab}`;
       console.log('[venus-editor] Setting tab to:', this._currentTab, 'value:', `conf-${this._currentTab}`);
-      // Manually manage 'selected-tab' class for initial load
-      this.shadowRoot.querySelectorAll('sl-tab[slot="nav"]').forEach(tab => {
-        tab.classList.remove('selected-tab');
-      });
-      const initialTab = this.shadowRoot.querySelector(`sl-tab[panel="conf-${this._currentTab}"]`);
-      if (initialTab) {
-        initialTab.classList.add('selected-tab');
-      }
     }        
     
     this.renderTabContent();
