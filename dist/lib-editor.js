@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.41`);
+    const response = await import(`./lang-${lang}.js?v=0.2.42`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.41`);
+    const response = await import(`./lang-en.js?v=0.2.42`);
     translations = response.default;
   }
 }
@@ -520,6 +520,13 @@ export function subtabRender(box, config, hass, appendTo) {
   const anchorbottom = subTabContent.querySelector('#anchor_bottom');
   const anchorRight = subTabContent.querySelector('#anchor_right');
 	
+  console.log('[venus-editor] Element queries:', {
+    entityPicker: !!entityPicker,
+    entity2Picker: !!entity2Picker,
+    headerEntity: !!headerEntity,
+    footerEntity1: !!footerEntity1
+  });
+  
   // Set .hass BEFORE .value - required for HA entity/icon pickers to work
   if (iconPicker) iconPicker.hass = hass;
   if (entityPicker) entityPicker.hass = hass;
