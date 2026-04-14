@@ -78,6 +78,18 @@ export function css() {
                 flex: 1; 
             }
             
+            ha-entity-picker {
+                width: 100%;
+                display: block;
+                min-height: 56px;
+            }
+            
+            ha-icon-picker {
+                width: 100%;
+                display: block;
+                min-height: 56px;
+            }
+            
             .cellx1-5{
                 flex: 1.5; 
             }
