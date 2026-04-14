@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.56`);
+    const response = await import(`./lang-${lang}.js?v=0.2.57`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.56`);
+    const response = await import(`./lang-en.js?v=0.2.57`);
     translations = response.default;
   }
 }
@@ -352,6 +352,9 @@ export function subtabRender(box, config, hass, appendTo) {
   
   const entitiesInner = document.createElement('div');
   entitiesInner.className = 'col inner';
+  entitiesInner.style.maxHeight = '300px';
+  entitiesInner.style.overflowY = 'auto';
+  entitiesInner.style.paddingRight = '8px';
   
   // Entity picker 1
   const row1 = document.createElement('div');
