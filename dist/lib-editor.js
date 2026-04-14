@@ -578,6 +578,10 @@ export function subtabRender(box, config, hass, appendTo) {
     }
   });
   
+  // Query side gauge pickers
+  const sgEntityPicker = subTabContent.querySelector("#sideGaugeEntity_picker");
+  const sgMaxPicker = subTabContent.querySelector("#sideGaugeMax_picker");
+  
   // Set .hass BEFORE .value - required for HA entity/icon pickers to work
   if (iconPicker) {
     iconPicker.hass = hass;
@@ -600,8 +604,6 @@ export function subtabRender(box, config, hass, appendTo) {
   if (footer2Entity) footer2Entity.hass = hass;
   if (footer3Entity) footer3Entity.hass = hass;
   
-  const sgEntityPicker = subTabContent.querySelector("#sideGaugeEntity_picker");
-  const sgMaxPicker = subTabContent.querySelector("#sideGaugeMax_picker");
   if (sgEntityPicker) sgEntityPicker.hass = hass;
   if (sgMaxPicker) sgMaxPicker.hass = hass;
   
