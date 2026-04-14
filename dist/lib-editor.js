@@ -281,6 +281,15 @@ export function subtabRender(box, config, hass, appendTo) {
     
   const subTabContent = appendTo.shadowRoot.querySelector('#subTab-content');
   subTabContent.innerHTML = ''; // Clear previous content
+  
+  // CRITICAL: Store hass on appendTo (the editor element) so pickers can find it
+  appendTo._currentHass = hass;
+  
+  // Also try to expose it globally for the picker to access
+  if (!window.__hassDashboard) {
+    window.__hassDashboard = {};
+  }
+  window.__hassDashboard.hass = hass;
     
   let leftQty = 0, topQty = 0, bottomQty = 0, rightQty = 0;
     
@@ -531,6 +540,87 @@ export function subtabRender(box, config, hass, appendTo) {
   };
   upgradeAllElements(subTabContent);
   
+  // NEW APPROACH: Use MutationObserver to catch pickers as they're added and immediately set hass
+  const observerCallback = (mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'childList') {
+        // Look for any newly added pickers
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === 1) { // Element node
+            // Check if this is a picker
+            if (node.tagName && node.tagName.includes('picker')) {
+              console.log('[venus-editor] Detected picker addition:', node.tagName);
+              setPickerHass(node, hass);
+            }
+            // Also check descendants
+            if (node.querySelectorAll) {
+              node.querySelectorAll('*').forEach(el => {
+                if (el.tagName && el.tagName.includes('picker')) {
+                  console.log('[venus-editor] Detected picker in descendants:', el.tagName);
+                  setPickerHass(el, hass);
+                }
+              });
+            }
+          }
+        });
+      }
+    });
+  };
+  
+  const observer = new MutationObserver(observerCallback);
+  observer.observe(subTabContent, { childList: true, subtree: true });
+  
+  // Wait briefly for DOM to settle, then disconnect observer and set hass on all existing pickers
+  setTimeout(() => {
+    observer.disconnect();
+    
+    // Now aggressively set hass on ALL pickers in the subtree
+    const allPickers = subTabContent.querySelectorAll('[tagname*="picker"], ha-entity-picker, ha-icon-picker');
+    console.log('[venus-editor] Found pickers after rendering:', allPickers.length);
+    
+    allPickers.forEach(picker => {
+      setPickerHass(picker, hass);
+    });
+  }, 50);
+  
+  // Helper function to set hass with maximum force
+  function setPickerHass(picker, hasObj) {
+    if (!picker) return;
+    
+    try {
+      // Try direct property assignment
+      picker.hass = hasObj;
+      
+      // Try using Object.defineProperty to force it
+      Object.defineProperty(picker, 'hass', {
+        value: hasObj,
+        writable: true,
+        configurable: true,
+        enumerable: true
+      });
+      
+      // Try requestUpdate if available
+      if (typeof picker.requestUpdate === 'function') {
+        picker.requestUpdate();
+      }
+      
+      // Try performUpdate if available
+      if (typeof picker.performUpdate === 'function') {
+        picker.performUpdate();
+      }
+      
+      // Try update if available  
+      if (typeof picker.update === 'function' && typeof picker.update !== 'undefined') {
+        picker.update();
+      }
+      
+      // Log success
+      console.log('[venus-editor] Set hass on', picker.tagName, '- hass available:', !!picker.hass);
+    } catch (e) {
+      console.error('[venus-editor] Error setting hass on picker:', e);
+    }
+  }
+  
   // Reapply the "expanded" attribute to panels that had it before
   expandedPanelsState.forEach(id => {
     const panel = subTabContent.querySelector(`ha-expansion-panel#${id}`);
@@ -553,6 +643,8 @@ export function subtabRender(box, config, hass, appendTo) {
   const anchorTop = subTabContent.querySelector('#anchor_top');
   const anchorbottom = subTabContent.querySelector('#anchor_bottom');
   const anchorRight = subTabContent.querySelector('#anchor_right');
+  const sgEntityPicker = subTabContent.querySelector("#sideGaugeEntity_picker");
+  const sgMaxPicker = subTabContent.querySelector("#sideGaugeMax_picker");
 
   console.log('[venus-editor] Element queries:', {
     entityPicker: !!entityPicker,
@@ -570,71 +662,7 @@ export function subtabRender(box, config, hass, appendTo) {
     stateKeys: Object.keys(hass?.states || {}).slice(0, 10)
   });
   
-  // Immediately set .hass on all pickers BEFORE further operations
-  const allPickersToInit = [iconPicker, entityPicker, entity2Picker, headerEntity, footer1Entity, footer2Entity];
-  allPickersToInit.forEach(picker => {
-    if (picker && picker.tagName.includes('picker')) {
-      picker.hass = hass;
-    }
-  });
-  
-  // Query side gauge pickers
-  const sgEntityPicker = subTabContent.querySelector("#sideGaugeEntity_picker");
-  const sgMaxPicker = subTabContent.querySelector("#sideGaugeMax_picker");
-  
-  // Set .hass BEFORE .value - required for HA entity/icon pickers to work
-  if (iconPicker) {
-    iconPicker.hass = hass;
-    console.log('[venus-editor] Set hass on iconPicker:', !!iconPicker.hass);
-  }
-  if (entityPicker) {
-    entityPicker.hass = hass;
-    // Force update after setting hass
-    if (entityPicker.requestUpdate) entityPicker.requestUpdate();
-    console.log('[venus-editor] Set hass on entityPicker:', {
-      hasHass: !!entityPicker.hass,
-      disabled: entityPicker.disabled,
-      readOnly: entityPicker.readOnly,
-      type: entityPicker.tagName
-    });
-  }
-  if (entity2Picker) entity2Picker.hass = hass;
-  if (headerEntity) headerEntity.hass = hass;  
-  if (footer1Entity) footer1Entity.hass = hass;
-  if (footer2Entity) footer2Entity.hass = hass;
-  if (footer3Entity) footer3Entity.hass = hass;
-  
-  if (sgEntityPicker) sgEntityPicker.hass = hass;
-  if (sgMaxPicker) sgMaxPicker.hass = hass;
-  
-  // Collect all entity pickers for aggressive initialization
-  const allPickers = [entityPicker, entity2Picker, headerEntity, footer1Entity, footer2Entity, footer3Entity, sgEntityPicker, sgMaxPicker];
-  
-  // Force requestUpdate on all entity pickers to trigger proper rendering
-  allPickers.forEach(picker => {
-    if (picker) {
-      // Ensure hass is set
-      picker.hass = hass;
-      // Call requestUpdate if available
-      if (typeof picker.requestUpdate === 'function') {
-        picker.requestUpdate();
-      }
-      // Remove disabled/readonly attributes if present
-      picker.removeAttribute('disabled');
-      picker.removeAttribute('readonly');
-      picker.removeAttribute('readonly-attributes');
-      // Explicitly set the element's internals
-      if (picker.hasUpdated === false) {
-        try {
-          picker.performUpdate?.();
-        } catch (e) {
-          // Ignore if performUpdate doesn't exist
-        }
-      }
-    }
-  });
-  
-  // Now set values after hass is configured
+  // Now set values after hass should be available
   if (nameField) nameField.value = config?.devices?.[box]?.name ?? "";
   if (iconPicker) iconPicker.value = config?.devices?.[box]?.icon ?? ""; 
   if (entityPicker) entityPicker.value = config?.devices?.[box]?.entity ?? "";
