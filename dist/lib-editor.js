@@ -19,11 +19,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.72`);
+    const response = await import(`./lang-${lang}.js?v=0.2.73`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.72`);
+    const response = await import(`./lang-en.js?v=0.2.73`);
     translations = response.default;
   }
 }
@@ -215,19 +215,16 @@ export function tabColRender(col, appendTo) {
   tabContent.innerHTML = '';
 
   let tabsHTML = '';
-  let panelsHTML = '';
   
   for (let i = 1; i <= boxCol; i++) {
-    tabsHTML += `<sl-tab slot="nav" panel="box-${i - 1}">Box ${i}</sl-tab>`;
-    panelsHTML += `<sl-tab-panel name="box-${i - 1}"></sl-tab-panel>`;
+    tabsHTML += `<paper-tab name="box-${i - 1}">Box ${i}</paper-tab>`;
   }
             
   tabContent.innerHTML = `
         <div class="devices-editor">
-            <sl-tab-group id="subTab-group">
+            <paper-tabs id="subTab-group" selected="0" attr-for-selected="name">
                 ${tabsHTML}
-                ${panelsHTML}
-            </sl-tab-group>
+            </paper-tabs>
         
             <div id="subTab-content" class="subTab-content">
               <!-- Active section content will be displayed here -->
@@ -1085,23 +1082,31 @@ export function attachLinkClick(renderTabContent, appendTo) {
 /* dans les onglets secondaires */
 /********************************/
 export function attachSubLinkClick(appendTo) {
-  appendTo.shadowRoot.querySelectorAll('#subTab-group sl-tab').forEach((sublink) => {
-    if (eventHandlers.has(sublink)) {
-      console.log("Event already attached to this sub-tab element:", sublink);
-      return;
-    }
+  const subTabGroup = appendTo.shadowRoot.querySelector('#subTab-group');
+  
+  if (!subTabGroup) {
+    console.warn('[venus-editor] subTab-group not found');
+    return;
+  }
+  
+  // paper-tabs uses iron-select event
+  if (eventHandlers.has(subTabGroup)) {
+    console.log("Event already attached to subTab-group element");
+    return;
+  }
 
-    const handleClick = (e) => {
-      const panel = e.currentTarget.getAttribute('panel');
-      const tab = parseInt(panel.replace('box-', ''), 10);
-      appendTo._currentSubTab = tab;
-      
-      // Render the sub-tab content
-      renderSubTabContent(appendTo._currentTab, appendTo);
-    };
+  const handleTabChange = (event) => {
+    const selectedName = event.detail.item.getAttribute('name');
+    const tab = parseInt(selectedName.replace('box-', ''), 10);
+    appendTo._currentSubTab = tab;
+    
+    console.log('[venus-editor] Box tab changed to:', tab);
+    
+    // Render the sub-tab content
+    renderSubTabContent(appendTo._currentTab, appendTo);
+  };
 
-    sublink.addEventListener("click", handleClick);
-    eventHandlers.set(sublink, handleClick);
-  });
+  subTabGroup.addEventListener('iron-select', handleTabChange);
+  eventHandlers.set(subTabGroup, handleTabChange);
 }
     

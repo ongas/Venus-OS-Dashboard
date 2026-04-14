@@ -146,13 +146,10 @@ export function css() {
                 color: var(--text-primary-color);
             }
 
-            #subTab-group sl-tab.selected-tab {
-                background-color: #4CAF50 !important;
-                color: var(--text-primary-color) !important;
-                border-bottom: 2px solid #4CAF50 !important;
-                box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4) !important;
-                border-left: 3px solid #4CAF50 !important;
-                border-right: 3px solid #4CAF50 !important;
+            #subTab-group paper-tab[iron-selected] {
+                --paper-tab-ink: #4CAF50 !important;
+                color: #4CAF50 !important;
+                border-bottom: 3px solid #4CAF50 !important;
             }
             
   `

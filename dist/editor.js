@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.2.72';
+import {css} from './css-editor.js?v=0.2.73';
 
-import * as libEditor from './lib-editor.js?v=0.2.72';
+import * as libEditor from './lib-editor.js?v=0.2.73';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -34,33 +34,35 @@ class venusOsDashBoardEditor extends HTMLElement {
             
       this.shadowRoot.innerHTML = `
               <style>
-                sl-tab-group {
+                paper-tabs {
                   width: 100%;
+                  --paper-tabs-selection-color: #0ea5e9;
+                }
+                paper-tab {
+                  --paper-tab-ink: #0ea5e9;
                 }
               </style>
             
-              <sl-tab-group id="tab-group">
-                <sl-tab slot="nav" panel="conf-0">Main</sl-tab>
-                <sl-tab slot="nav" panel="conf-1">Col. 1</sl-tab>
-                <sl-tab slot="nav" panel="conf-2">Col. 2</sl-tab>
-                <sl-tab slot="nav" panel="conf-3">Col. 3</sl-tab>
-                <sl-tab-panel name="conf-0"><div id="tab-content"></div></sl-tab-panel>
-                <sl-tab-panel name="conf-1"></sl-tab-panel>
-                <sl-tab-panel name="conf-2"></sl-tab-panel>
-                <sl-tab-panel name="conf-3"></sl-tab-panel>
-              </sl-tab-group>
+              <paper-tabs id="tab-group" selected="0" attr-for-selected="name">
+                <paper-tab name="conf-0">Main</paper-tab>
+                <paper-tab name="conf-1">Col. 1</paper-tab>
+                <paper-tab name="conf-2">Col. 2</paper-tab>
+                <paper-tab name="conf-3">Col. 3</paper-tab>
+              </paper-tabs>
+            
+              <div id="tab-content" class="content"></div>
             `;
             
       tabGroup = this.shadowRoot.querySelector('#tab-group');
       
-      // Set up event listener for tab changes
-      tabGroup.addEventListener('sl-change', (event) => {
-        const selectedValue = event.detail.value;
-        const dataTab = parseInt(selectedValue.replace('conf-', ''), 10);
-        this._currentTab = dataTab;
-        this._config.currentTab = dataTab;
+      // Set up event listener for tab changes using iron-select (native HA event)
+      tabGroup.addEventListener('iron-select', (event) => {
+        const selectedName = event.detail.item.getAttribute('name');
+        const selectedTab = parseInt(selectedName.replace('conf-', ''), 10);
+        this._currentTab = selectedTab;
+        this._config.currentTab = selectedTab;
         
-        console.log('[venus-editor] Tab changed to:', dataTab, 'from value:', selectedValue);
+        console.log('[venus-editor] Tab changed to:', selectedTab, 'from name:', selectedName);
         
         this.renderTabContent();
         libEditor.notifyConfigChange(this);
@@ -74,8 +76,7 @@ class venusOsDashBoardEditor extends HTMLElement {
       
       console.log('[venus-editor] Tab initialization:', {
         configCurrentTab: this._config.currentTab,
-        currentTabValue: this._currentTab,
-        tabToActivate: `conf-${this._currentTab}`
+        currentTabValue: this._currentTab
       });
       
       libEditor.attachLinkClick(this.renderTabContent.bind(this), this);
@@ -84,7 +85,7 @@ class venusOsDashBoardEditor extends HTMLElement {
     }
     
     if (tabGroup) {
-      tabGroup.value = `conf-${this._currentTab}`;
+      tabGroup.selected = this._currentTab;
       console.log('[venus-editor] Setting tab to:', this._currentTab);
     }
     
