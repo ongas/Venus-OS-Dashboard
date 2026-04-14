@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.54`);
+    const response = await import(`./lang-${lang}.js?v=0.2.55`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.54`);
+    const response = await import(`./lang-en.js?v=0.2.55`);
     translations = response.default;
   }
 }
@@ -606,6 +606,12 @@ export function subtabRender(box, config, hass, appendTo) {
   linksContainer.appendChild(linkContainer);
   
   subTabContent.appendChild(linksContainer);
+  
+  // CRITICAL: Upgrade all custom elements after DOM construction
+  // This MUST happen before setting .hass property
+  if (customElements && customElements.upgrade) {
+    customElements.upgrade(subTabContent);
+  }
   
   // Reapply the "expanded" attribute to panels that had it before
   expandedPanelsState.forEach(id => {
