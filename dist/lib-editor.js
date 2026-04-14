@@ -19,11 +19,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.67`);
+    const response = await import(`./lang-${lang}.js?v=0.2.68`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.67`);
+    const response = await import(`./lang-en.js?v=0.2.68`);
     translations = response.default;
   }
 }
@@ -1104,6 +1104,16 @@ export function attachSubLinkClick(appendTo) {
       const tab = parseInt(e.currentTarget.getAttribute('data-tab'), 10);
       appendTo._currentSubTab = tab;
       renderSubTabContent(appendTo._currentTab, appendTo);
+      
+      // CRITICAL: Re-sync main tab state after Box button click to keep it visually selected
+      // This ensures the main Col tab stays teal/blue even after Box button selection
+      const tabGroup = appendTo.shadowRoot.querySelector('#tab-group');
+      if (tabGroup) {
+        const selectedValue = `conf-${appendTo._currentTab}`;
+        setTimeout(() => {
+          tabGroup.value = selectedValue;
+        }, 0);
+      }
     };
 
     sublink.addEventListener("click", handleClick);
