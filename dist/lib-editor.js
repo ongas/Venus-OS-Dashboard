@@ -517,40 +517,40 @@ export function subtabRender(box, config, hass, appendTo) {
   const anchorRight = subTabContent.querySelector('#anchor_right');
 	
   // Set .hass BEFORE .value - required for HA entity/icon pickers to work
-  iconPicker.hass = hass;
-  entityPicker.hass = hass;
-  entity2Picker.hass = hass;
-  headerEntity.hass = hass;  
-  footerEntity1.hass = hass;
-  footerEntity2.hass = hass;
-  footerEntity3.hass = hass;
+  if (iconPicker) iconPicker.hass = hass;
+  if (entityPicker) entityPicker.hass = hass;
+  if (entity2Picker) entity2Picker.hass = hass;
+  if (headerEntity) headerEntity.hass = hass;  
+  if (footerEntity1) footerEntity1.hass = hass;
+  if (footerEntity2) footerEntity2.hass = hass;
+  if (footerEntity3) footerEntity3.hass = hass;
   
   const sgEntityPicker = subTabContent.querySelector("#sideGaugeEntity_picker");
   const sgMaxPicker = subTabContent.querySelector("#sideGaugeMax_picker");
-  sgEntityPicker.hass = hass;
-  sgMaxPicker.hass = hass;
+  if (sgEntityPicker) sgEntityPicker.hass = hass;
+  if (sgMaxPicker) sgMaxPicker.hass = hass;
   
   // Now set values after hass is configured
-  nameField.value = config?.devices?.[box]?.name ?? "";
-  iconPicker.value = config?.devices?.[box]?.icon ?? ""; 
-  entityPicker.value = config?.devices?.[box]?.entity ?? "";
-  entity2Picker.value = config?.devices?.[box]?.entity2 ?? "";
-  headerEntity.value = config?.devices?.[box]?.headerEntity ?? "";
-  footerEntity1.value = config?.devices?.[box]?.footerEntity1 ?? "";
-  footerEntity2.value = config?.devices?.[box]?.footerEntity2 ?? "";
-  footerEntity3.value = config?.devices?.[box]?.footerEntity3 ?? "";
-  sgEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
-  sgMaxPicker.value = config?.devices?.[box]?.sideGaugeMax ?? "";
+  if (nameField) nameField.value = config?.devices?.[box]?.name ?? "";
+  if (iconPicker) iconPicker.value = config?.devices?.[box]?.icon ?? ""; 
+  if (entityPicker) entityPicker.value = config?.devices?.[box]?.entity ?? "";
+  if (entity2Picker) entity2Picker.value = config?.devices?.[box]?.entity2 ?? "";
+  if (headerEntity) headerEntity.value = config?.devices?.[box]?.headerEntity ?? "";
+  if (footerEntity1) footerEntity1.value = config?.devices?.[box]?.footerEntity1 ?? "";
+  if (footerEntity2) footerEntity2.value = config?.devices?.[box]?.footerEntity2 ?? "";
+  if (footerEntity3) footerEntity3.value = config?.devices?.[box]?.footerEntity3 ?? "";
+  if (sgEntityPicker) sgEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
+  if (sgMaxPicker) sgMaxPicker.value = config?.devices?.[box]?.sideGaugeMax ?? "";
   
   // Retrieve values for each side
-  anchorLeft.value = leftQty;
-  anchorTop.value = topQty;
-  anchorbottom.value = bottomQty;
-  anchorRight.value = rightQty;
+  if (anchorLeft) anchorLeft.value = leftQty;
+  if (anchorTop) anchorTop.value = topQty;
+  if (anchorbottom) anchorbottom.value = bottomQty;
+  if (anchorRight) anchorRight.value = rightQty;
            
-  if (config?.devices?.[box]?.graph === true) graphSwitch.setAttribute('checked', '');
+  if (config?.devices?.[box]?.graph === true && graphSwitch) graphSwitch.setAttribute('checked', '');
     
-  const entity = hass.states?.[entityPicker.value];
+  const entity = entityPicker ? hass.states?.[entityPicker.value] : null;
   const unit = entity?.attributes?.unit_of_measurement;
 
   if (config.devices?.[box]?.gauge === true) gaugeSwitch.setAttribute('checked', '');
