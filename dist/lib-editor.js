@@ -516,13 +516,21 @@ export function subtabRender(box, config, hass, appendTo) {
   const anchorbottom = subTabContent.querySelector('#anchor_bottom');
   const anchorRight = subTabContent.querySelector('#anchor_right');
 	
-  // Retrieve values for each side
-  anchorLeft.value = leftQty;
-  anchorTop.value = topQty;
-  anchorbottom.value = bottomQty;
-  anchorRight.value = rightQty;
-    
-  // After inserting content, configure values for ha-icon-picker and ha-entity-picker
+  // Set .hass BEFORE .value - required for HA entity/icon pickers to work
+  iconPicker.hass = hass;
+  entityPicker.hass = hass;
+  entity2Picker.hass = hass;
+  headerEntity.hass = hass;  
+  footerEntity1.hass = hass;
+  footerEntity2.hass = hass;
+  footerEntity3.hass = hass;
+  
+  const sgEntityPicker = subTabContent.querySelector("#sideGaugeEntity_picker");
+  const sgMaxPicker = subTabContent.querySelector("#sideGaugeMax_picker");
+  sgEntityPicker.hass = hass;
+  sgMaxPicker.hass = hass;
+  
+  // Now set values after hass is configured
   nameField.value = config?.devices?.[box]?.name ?? "";
   iconPicker.value = config?.devices?.[box]?.icon ?? ""; 
   entityPicker.value = config?.devices?.[box]?.entity ?? "";
@@ -531,21 +539,14 @@ export function subtabRender(box, config, hass, appendTo) {
   footerEntity1.value = config?.devices?.[box]?.footerEntity1 ?? "";
   footerEntity2.value = config?.devices?.[box]?.footerEntity2 ?? "";
   footerEntity3.value = config?.devices?.[box]?.footerEntity3 ?? "";
-  
-  const sgEntityPicker = subTabContent.querySelector("#sideGaugeEntity_picker");
-  const sgMaxPicker = subTabContent.querySelector("#sideGaugeMax_picker");
-  sgEntityPicker.hass = hass;
-  sgMaxPicker.hass = hass;
   sgEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
   sgMaxPicker.value = config?.devices?.[box]?.sideGaugeMax ?? "";
-    
-  iconPicker.hass = hass; // Pass the object directly here
-  entityPicker.hass = hass; // Pass the object directly here
-  entity2Picker.hass = hass; // Pass the object directly here
-  headerEntity.hass = hass; // Pass the object directly here  
-  footerEntity1.hass = hass; // Pass the object directly here
-  footerEntity2.hass = hass; // Pass the object directly here
-  footerEntity3.hass = hass; // Pass the object directly here
+  
+  // Retrieve values for each side
+  anchorLeft.value = leftQty;
+  anchorTop.value = topQty;
+  anchorbottom.value = bottomQty;
+  anchorRight.value = rightQty;
            
   if (config?.devices?.[box]?.graph === true) graphSwitch.setAttribute('checked', '');
     

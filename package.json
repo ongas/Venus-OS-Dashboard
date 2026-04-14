@@ -3,7 +3,8 @@
   "version": "0.1.1",
   "description": "Home Assistant Lovelace custom card for Venus OS Dashboard (ongas)",
   "devDependencies": {
-    "eslint": "^8.0.0"
+    "eslint": "^8.0.0",
+    "puppeteer": "^24.40.0"
   },
   "scripts": {
     "lint": "eslint dist/*.js",
