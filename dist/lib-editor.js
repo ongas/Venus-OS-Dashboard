@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.58`);
+    const response = await import(`./lang-${lang}.js?v=0.2.48`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.58`);
+    const response = await import(`./lang-en.js?v=0.2.48`);
     translations = response.default;
   }
 }
@@ -559,6 +559,15 @@ export function subtabRender(box, config, hass, appendTo) {
     entity2Picker: !!entity2Picker,
     headerEntity: !!headerEntity,
     footerEntity1: !!footer1Entity
+  });
+  
+  // CRITICAL DIAGNOSTIC: Log hass object structure
+  console.log('[venus-editor] HASS OBJECT DIAGNOSTIC:', {
+    hasHass: !!hass,
+    typeof: typeof hass,
+    hasStates: !!hass?.states,
+    stateCount: Object.keys(hass?.states || {}).length,
+    stateKeys: Object.keys(hass?.states || {}).slice(0, 10)
   });
   
   // Immediately set .hass on all pickers BEFORE further operations
