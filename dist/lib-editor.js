@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.44`);
+    const response = await import(`./lang-${lang}.js?v=0.2.45`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.44`);
+    const response = await import(`./lang-en.js?v=0.2.45`);
     translations = response.default;
   }
 }
@@ -338,24 +338,28 @@ export function subtabRender(box, config, hass, appendTo) {
                     label="${t("subtabRender", "entity_choice")}"
                     id="device_sensor"
                     data-path="devices.${box}.entity"
+                    allow-custom-entity
                 >
                 </ha-entity-picker>
                 <ha-entity-picker
                     label="${t("subtabRender", "entity2_choice")}"
                     id="device_sensor2"
                     data-path="devices.${box}.entity2"
+                    allow-custom-entity
                 >
                 </ha-entity-picker>
                 <ha-entity-picker
                     label="${t("subtabRender", "side_gauge_entity")}"
                     id="sideGaugeEntity_picker"
                     data-path="devices.${box}.sideGaugeEntity"
+                    allow-custom-entity
                 >
                 </ha-entity-picker>
                 <ha-entity-picker
                     label="${t("subtabRender", "side_gauge_max")}"
                     id="sideGaugeMax_picker"
                     data-path="devices.${box}.sideGaugeMax"
+                    allow-custom-entity
                 >
                 </ha-entity-picker>
     
@@ -402,12 +406,14 @@ export function subtabRender(box, config, hass, appendTo) {
                         label="${t("subtabRender", "entity_header")}"
                         id="header_sensor"
                         data-path="devices.${box}.headerEntity"
+                        allow-custom-entity
                     >
                     </ha-entity-picker>
                     <ha-entity-picker
                         label="${t("subtabRender", "entity_footer")}"
                         id="footer1_sensor"
                         data-path="devices.${box}.footerEntity1"
+                        allow-custom-entity
                     >
                     </ha-entity-picker>
                 </div>
@@ -418,12 +424,14 @@ export function subtabRender(box, config, hass, appendTo) {
                         label="${t("subtabRender", "entity2_footer")}"
                         id="footer2_sensor"
                         data-path="devices.${box}.footerEntity2"
+                        allow-custom-entity
                     >
                     </ha-entity-picker>
                     <ha-entity-picker
                         label="${t("subtabRender", "entity3_footer")}"
                         id="footer3_sensor"
                         data-path="devices.${box}.footerEntity3"
+                        allow-custom-entity
                     >
                     </ha-entity-picker>
                 </div>
@@ -534,6 +542,8 @@ export function subtabRender(box, config, hass, appendTo) {
   }
   if (entityPicker) {
     entityPicker.hass = hass;
+    // Force update after setting hass
+    if (entityPicker.requestUpdate) entityPicker.requestUpdate();
     console.log('[venus-editor] Set hass on entityPicker:', {
       hasHass: !!entityPicker.hass,
       disabled: entityPicker.disabled,
@@ -670,7 +680,8 @@ export function addLink(index, box, hass, thisAllAnchors, OtherAllAnchors, appen
                     <ha-entity-picker class="cell"
                         label="${t("addLink", "entity_picker")}"
                         id="entity_link_${index}"
-                        data-path="devices.${box}.link.${index}.entity" 
+                        data-path="devices.${box}.link.${index}.entity"
+                        allow-custom-entity
                     >
                     </ha-entity-picker>
                     
