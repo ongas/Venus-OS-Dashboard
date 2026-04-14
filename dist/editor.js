@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.2.48';
+import {css} from './css-editor.js?v=0.2.49';
 
-import * as libEditor from './lib-editor.js?v=0.2.48';
+import * as libEditor from './lib-editor.js?v=0.2.49';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -70,7 +70,8 @@ class venusOsDashBoardEditor extends HTMLElement {
         }
               
         this.renderTabContent();
-      });        
+      });
+        
       const style = document.createElement('style');
       style.textContent = css();
       tabGroup.appendChild(style);

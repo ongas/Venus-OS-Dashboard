@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.48`);
+    const response = await import(`./lang-${lang}.js?v=0.2.49`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.48`);
+    const response = await import(`./lang-en.js?v=0.2.49`);
     translations = response.default;
   }
 }
@@ -336,37 +336,37 @@ export function subtabRender(box, config, hass, appendTo) {
             <div class="col inner">
                 <div class="row">
                     <ha-entity-picker
+                        class="cell"
                         label="${t("subtabRender", "entity_choice")}"
                         id="device_sensor"
                         data-path="devices.${box}.entity"
-                        allow-custom-entity
                     >
                     </ha-entity-picker>
                 </div>
                 <div class="row">
                     <ha-entity-picker
+                        class="cell"
                         label="${t("subtabRender", "entity2_choice")}"
                         id="device_sensor2"
                         data-path="devices.${box}.entity2"
-                        allow-custom-entity
                     >
                     </ha-entity-picker>
                 </div>
                 <div class="row">
                     <ha-entity-picker
+                        class="cell"
                         label="${t("subtabRender", "side_gauge_entity")}"
                         id="sideGaugeEntity_picker"
                         data-path="devices.${box}.sideGaugeEntity"
-                        allow-custom-entity
                     >
                     </ha-entity-picker>
                 </div>
                 <div class="row">
                     <ha-entity-picker
+                        class="cell"
                         label="${t("subtabRender", "side_gauge_max")}"
                         id="sideGaugeMax_picker"
                         data-path="devices.${box}.sideGaugeMax"
-                        allow-custom-entity
                     >
                     </ha-entity-picker>
                 </div>
@@ -411,17 +411,17 @@ export function subtabRender(box, config, hass, appendTo) {
             <div class="col inner">
                 <div class="row">
                     <ha-entity-picker
+                        class="cell"
                         label="${t("subtabRender", "entity_header")}"
                         id="header_sensor"
                         data-path="devices.${box}.headerEntity"
-                        allow-custom-entity
                     >
                     </ha-entity-picker>
                     <ha-entity-picker
+                        class="cell"
                         label="${t("subtabRender", "entity_footer")}"
                         id="footer1_sensor"
                         data-path="devices.${box}.footerEntity1"
-                        allow-custom-entity
                     >
                     </ha-entity-picker>
                 </div>
@@ -429,17 +429,17 @@ export function subtabRender(box, config, hass, appendTo) {
                 <!-- FOOTER 2 ET 3 -->
                 <div class="row">
                     <ha-entity-picker
+                        class="cell"
                         label="${t("subtabRender", "entity2_footer")}"
                         id="footer2_sensor"
                         data-path="devices.${box}.footerEntity2"
-                        allow-custom-entity
                     >
                     </ha-entity-picker>
                     <ha-entity-picker
+                        class="cell"
                         label="${t("subtabRender", "entity3_footer")}"
                         id="footer3_sensor"
                         data-path="devices.${box}.footerEntity3"
-                        allow-custom-entity
                     >
                     </ha-entity-picker>
                 </div>
@@ -660,76 +660,107 @@ export function addLink(index, box, hass, thisAllAnchors, OtherAllAnchors, appen
   panel.setAttribute('outlined', '');
   panel.setAttribute('expanded', '');
   panel.setAttribute('style', 'margin: 0px 0px 8px 0px');
-        
-  panel.innerHTML = `
-        <div slot="header" style="display: flex; justify-content: space-between; align-items: center;">
-            <span>Link ${index}</span>
-            <ha-icon-button id="add-link-button" aria-label="Add a link">
-                <ha-icon icon="mdi:trash-can" style="display: flex;"></ha-icon>
-            </ha-icon-button>
-        </div>
-        <div id="link-container" class="inner">
-            <div class="col">
-                <div class="row">
-                    <ha-combo-box class="cell" 
-                        label="${t("addLink", "start")}" 
-                        id="start_link_${index}"
-                        data-path="devices.${box}.link.${index}.start" 
-                    ></ha-combo-box>
-                    
-                    <ha-combo-box class="cell" 
-                        label="${t("addLink", "end")}" 
-                        id="end_link_${index}"
-                        data-path="devices.${box}.link.${index}.end" 
-                    ></ha-combo-box>
-                </div>
-                
-                <div class="row">
-                    <ha-entity-picker class="cell"
-                        label="${t("addLink", "entity_picker")}"
-                        id="entity_link_${index}"
-                        data-path="devices.${box}.link.${index}.entity"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                    
-                    <div class="row cell">
-                        ${t("addLink", "reverse")} :
-                        <ha-switch class="cell right" 
-                            id="inv_link_${index}"
-                            data-path="devices.${box}.link.${index}.inv" 
-                        ></ha-switch>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-  const startLink = panel.querySelector(`#start_link_${index}`);
-  startLink.items = thisAllAnchors.map(anchor => ({ label: anchor, value: anchor })); // Convertit en objets
-  startLink.value = appendTo._config.devices?.[box]?.link?.[index]?.start ?? "";
-    
-  const endLink = panel.querySelector(`#end_link_${index}`);
-  endLink.items = OtherAllAnchors.map(anchor => ({ label: anchor, value: anchor }));
-  endLink.value = appendTo._config.devices?.[box]?.link?.[index]?.end ?? "";
-    
-  const entityLink = panel.querySelector(`#entity_link_${index}`);
-  entityLink.hass = hass;
-  entityLink.value = appendTo._config.devices[box]?.link?.[index]?.entity ?? "";
-    
-  const invLink = panel.querySelector(`#inv_link_${index}`);
-  if (appendTo._config.devices[box]?.link?.[index]?.inv === true) invLink.setAttribute('checked', '');
-    
+  
+  // Create header with delete button
+  const headerDiv = document.createElement('div');
+  headerDiv.setAttribute('slot', 'header');
+  headerDiv.style.display = 'flex';
+  headerDiv.style.justifyContent = 'space-between';
+  headerDiv.style.alignItems = 'center';
+  
+  const headerSpan = document.createElement('span');
+  headerSpan.textContent = `Link ${index}`;
+  headerDiv.appendChild(headerSpan);
+  
+  const deleteButton = document.createElement('ha-icon-button');
+  deleteButton.id = 'add-link-button';
+  deleteButton.setAttribute('aria-label', t("addLink", "delete_link") || 'Delete link');
+  const deleteIcon = document.createElement('ha-icon');
+  deleteIcon.setAttribute('icon', 'mdi:trash-can');
+  deleteIcon.style.display = 'flex';
+  deleteButton.appendChild(deleteIcon);
+  headerDiv.appendChild(deleteButton);
+  
+  panel.appendChild(headerDiv);
+  
+  // Create content container
+  const contentDiv = document.createElement('div');
+  contentDiv.id = 'link-container';
+  contentDiv.className = 'inner';
+  
+  const colDiv = document.createElement('div');
+  colDiv.className = 'col';
+  
+  // Create first row with combo boxes
+  const row1 = document.createElement('div');
+  row1.className = 'row';
+  
+  const startCombo = document.createElement('ha-combo-box');
+  startCombo.className = 'cell';
+  startCombo.setAttribute('label', t("addLink", "start"));
+  startCombo.id = `start_link_${index}`;
+  startCombo.setAttribute('data-path', `devices.${box}.link.${index}.start`);
+  row1.appendChild(startCombo);
+  
+  const endCombo = document.createElement('ha-combo-box');
+  endCombo.className = 'cell';
+  endCombo.setAttribute('label', t("addLink", "end"));
+  endCombo.id = `end_link_${index}`;
+  endCombo.setAttribute('data-path', `devices.${box}.link.${index}.end`);
+  row1.appendChild(endCombo);
+  
+  colDiv.appendChild(row1);
+  
+  // Create second row with entity picker and switch
+  const row2 = document.createElement('div');
+  row2.className = 'row';
+  
+  const entityPicker = document.createElement('ha-entity-picker');
+  entityPicker.className = 'cell';
+  entityPicker.setAttribute('label', t("addLink", "entity_picker"));
+  entityPicker.id = `entity_link_${index}`;
+  entityPicker.setAttribute('data-path', `devices.${box}.link.${index}.entity`);
+  entityPicker.setAttribute('allow-custom-entity', '');
+  row2.appendChild(entityPicker);
+  
+  const switchRow = document.createElement('div');
+  switchRow.className = 'row cell';
+  switchRow.textContent = `${t("addLink", "reverse")} :`;
+  
+  const switchToggle = document.createElement('ha-switch');
+  switchToggle.className = 'cell right';
+  switchToggle.id = `inv_link_${index}`;
+  switchToggle.setAttribute('data-path', `devices.${box}.link.${index}.inv`);
+  switchRow.appendChild(switchToggle);
+  
+  row2.appendChild(switchRow);
+  
+  colDiv.appendChild(row2);
+  contentDiv.appendChild(colDiv);
+  panel.appendChild(contentDiv);
+  
+  // NOW configure the web components with hass and values
+  startCombo.items = thisAllAnchors.map(anchor => ({ label: anchor, value: anchor }));
+  startCombo.value = appendTo._config.devices?.[box]?.link?.[index]?.start ?? "";
+  
+  endCombo.items = OtherAllAnchors.map(anchor => ({ label: anchor, value: anchor }));
+  endCombo.value = appendTo._config.devices?.[box]?.link?.[index]?.end ?? "";
+  
+  entityPicker.hass = hass;
+  entityPicker.value = appendTo._config.devices[box]?.link?.[index]?.entity ?? "";
+  
+  if (appendTo._config.devices[box]?.link?.[index]?.inv === true) {
+    switchToggle.setAttribute('checked', '');
+  }
+  
   const path = `devices.${box}.link.${index}`;
-        
-  const deleteButton = panel.querySelector('ha-icon-button');
+  
   deleteButton.addEventListener('click', () => {
     appendTo._config = updateConfigRecursively(appendTo._config, path, null, true);
     notifyConfigChange(appendTo);
-        
     panel.remove();
   });
-    
+  
   // Add the panel to the container
   linkContainer.appendChild(panel);
     
@@ -1230,7 +1261,8 @@ export function attachSubLinkClick(appendTo) {
       const tab = parseInt(e.currentTarget.getAttribute('data-tab'), 10);
       appendTo._currentSubTab = tab;
       renderSubTabContent(appendTo._currentTab, appendTo);
-    };
+    };
+
     sublink.addEventListener("click", handleClick);
     eventHandlers.set(sublink, handleClick);
   });
