@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.40`);
+    const response = await import(`./lang-${lang}.js?v=0.2.41`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.40`);
+    const response = await import(`./lang-en.js?v=0.2.41`);
     translations = response.default;
   }
 }
@@ -258,10 +258,14 @@ export function tabColRender(col, appendTo) {
 export function renderSubTabContent(col, appendTo) {
   try {
     const boxId = `${col}-${appendTo._currentSubTab+1}`;
+    console.log('[venus-editor] renderSubTabContent:', { boxId, hasHass: !!appendTo._hass });
     subtabRender(boxId, appendTo._config, appendTo._hass, appendTo);
+    const pickerCount = appendTo.shadowRoot.querySelectorAll('ha-entity-picker').length;
+    console.log('[venus-editor] After subtabRender, found entity pickers:', pickerCount);
     attachInputs(appendTo); // Call the existing attachInputs function
+    console.log('[venus-editor] attachInputs completed');
   } catch (error) {
-    console.error("Error in renderSubTabContent:", error);
+    console.error("[venus-editor] Error in renderSubTabContent:", error);
     const subTabContent = appendTo.shadowRoot.querySelector('#subTab-content');
     if (subTabContent) {
       subTabContent.innerHTML = `<p style="color: red; padding: 20px;">Error loading editor: ${error.message}</p>`;
