@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.2.65';
+import {css} from './css-editor.js?v=0.2.66';
 
-import * as libEditor from './lib-editor.js?v=0.2.65';
+import * as libEditor from './lib-editor.js?v=0.2.66';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -73,17 +73,14 @@ class venusOsDashBoardEditor extends HTMLElement {
         this._config.currentTab = dataTab;
               
         console.log('[venus-editor] Tab changed to:', dataTab, 'config.currentTab:', this._config.currentTab);
-        
-        // Manually manage 'selected-tab' class
-        this.shadowRoot.querySelectorAll('sl-tab[slot="nav"]').forEach(tab => {
-          tab.classList.remove('selected-tab');
-        });
-        const newlySelectedTab = this.shadowRoot.querySelector(`sl-tab[panel="${selectedValue}"]`);
-        if (newlySelectedTab) {
-          newlySelectedTab.classList.add('selected-tab');
-        }
               
         this.renderTabContent();
+        
+        // CRITICAL: Re-set the tab value after renderTabContent to ensure Shoelace maintains selection
+        // Shoelace needs explicit value assignment to keep the tab visually selected
+        setTimeout(() => {
+          tabGroup.value = selectedValue;
+        }, 0);
         
         // Persist the tab selection to Home Assistant
         libEditor.notifyConfigChange(this);
