@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.2.64';
+import {css} from './css-editor.js?v=0.2.65';
 
-import * as libEditor from './lib-editor.js?v=0.2.64';
+import * as libEditor from './lib-editor.js?v=0.2.65';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -11,11 +11,17 @@ class venusOsDashBoardEditor extends HTMLElement {
     
   async setConfig(config) {
     
-    this._config = { ...config, entities: { ...(config.entities || {}) } };
+    // CRITICAL: Preserve currentTab explicitly so Home Assistant recognizes it as a configuration value
+    this._config = { 
+      ...config, 
+      entities: { ...(config.entities || {}) },
+      currentTab: config.currentTab !== undefined ? config.currentTab : 0
+    };
     
     console.log('[venus-editor] setConfig called with:', { 
       hasCurrentTab: !!config.currentTab,
       currentTabValue: config.currentTab,
+      preservedCurrentTab: this._config.currentTab,
       fullConfig: config 
     });
         
@@ -88,6 +94,12 @@ class venusOsDashBoardEditor extends HTMLElement {
       tabGroup.appendChild(style);
         
       this._currentTab = this._config.currentTab || 0;
+      
+      console.log('[venus-editor] Tab initialization:', {
+        configCurrentTab: this._config.currentTab,
+        currentTabValue: this._currentTab,
+        tabToActivate: `conf-${this._currentTab}`
+      });
         
       libEditor.attachLinkClick(this.renderTabContent.bind(this), this);
         
