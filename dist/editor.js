@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.2.70';
+import {css} from './css-editor.js?v=0.2.71';
 
-import * as libEditor from './lib-editor.js?v=0.2.70';
+import * as libEditor from './lib-editor.js?v=0.2.71';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -34,87 +34,59 @@ class venusOsDashBoardEditor extends HTMLElement {
             
       this.shadowRoot.innerHTML = `
               <style>
-                sl-tab-group {
+                ha-tabs {
                   width: 100%;
-                  --sl-tab-border-color: var(--divider-color, #ccc);
-                }
-                sl-tab-panel {
-                  padding: 1em;
-                }
-                sl-tab[aria-selected="true"] {
-                  background-color: #0ea5e9 !important;
-                  color: white !important;
-                }
-                sl-tab[aria-selected="true"]::part(base) {
-                  background-color: #0ea5e9 !important;
-                  color: white !important;
+                  --mdc-tab-text-label-color-default: var(--text-primary-color, #000);
+                  --mdc-tab__text-label: { color: var(--text-primary-color, #000); };
+                  --mdc-tab-color-default: var(--text-primary-color, #000);
+                  --mdc-theme-primary: #0ea5e9;
                 }
               </style>
             
-              <sl-tab-group id="tab-group">
-                <sl-tab slot="nav" panel="conf-0" data-tab="0" id="main-tab">Main</sl-tab>
-                <sl-tab slot="nav" panel="conf-1" data-tab="1" id="col1-tab">Col. 1</sl-tab>
-                <sl-tab slot="nav" panel="conf-2" data-tab="2" id="col2-tab">Col. 2</sl-tab>
-                <sl-tab slot="nav" panel="conf-3" data-tab="3" id="col3-tab">Col. 3</sl-tab>
+              <ha-tabs id="tab-group" scrollable attr="activeTab">
+                <ha-tab id="main-tab" icon="mdi:home">Main</ha-tab>
+                <ha-tab id="col1-tab" icon="mdi:table">Col. 1</ha-tab>
+                <ha-tab id="col2-tab" icon="mdi:table">Col. 2</ha-tab>
+                <ha-tab id="col3-tab" icon="mdi:table">Col. 3</ha-tab>
+              </ha-tabs>
             
-                <sl-tab-panel id="sl-tab-content-0" name="conf-0">
-                  <div id="tab-content" class="content"></div>
-                </sl-tab-panel>
-                <sl-tab-panel id="sl-tab-content-1" name="conf-1">
-                  <div id="tab-content" class="content"></div>
-                </sl-tab-panel>
-                <sl-tab-panel id="sl-tab-content-2" name="conf-2">
-                  <div id="tab-content" class="content"></div>
-                </sl-tab-panel>
-                <sl-tab-panel id="sl-tab-content-3" name="conf-3">
-                  <div id="tab-content" class="content"></div>
-                </sl-tab-panel>
-              </sl-tab-group>
+              <div id="tab-content" class="content"></div>
             `;
             
       tabGroup = this.shadowRoot.querySelector('#tab-group');
-            
-      tabGroup.addEventListener('sl-change', (event) => {
-        const selectedValue = event.detail.value;
-        const dataTab = parseInt(selectedValue.replace('conf-', ''), 10);
-        this._currentTab = dataTab;
-        this._config.currentTab = dataTab;
-              
-        console.log('[venus-editor] Tab changed to:', dataTab, 'config.currentTab:', this._config.currentTab);
-              
+      
+      // Set up event listener for tab changes using ha-tabs native event
+      tabGroup.addEventListener('iron-activate', (event) => {
+        const selectedTab = event.detail.selected;
+        this._currentTab = selectedTab;
+        this._config.currentTab = selectedTab;
+        
+        console.log('[venus-editor] Tab changed to:', selectedTab, 'config.currentTab:', this._config.currentTab);
+        
         this.renderTabContent();
-        
-        // CRITICAL: Re-set the tab value after renderTabContent to ensure Shoelace maintains selection
-        // Shoelace needs explicit value assignment to keep the tab visually selected
-        setTimeout(() => {
-          tabGroup.value = selectedValue;
-        }, 0);
-        
-        // Persist the tab selection to Home Assistant
         libEditor.notifyConfigChange(this);
       });
-        
+      
       const style = document.createElement('style');
       style.textContent = css();
       tabGroup.appendChild(style);
-        
+      
       this._currentTab = this._config.currentTab || 0;
       
       console.log('[venus-editor] Tab initialization:', {
         configCurrentTab: this._config.currentTab,
-        currentTabValue: this._currentTab,
-        tabToActivate: `conf-${this._currentTab}`
+        currentTabValue: this._currentTab
       });
-        
+      
       libEditor.attachLinkClick(this.renderTabContent.bind(this), this);
-        
     } else {
       tabGroup = this.shadowRoot.querySelector('#tab-group');
     }
+    
     if (tabGroup) {
-      tabGroup.value = `conf-${this._currentTab}`;
-      console.log('[venus-editor] Setting tab to:', this._currentTab, 'value:', `conf-${this._currentTab}`);
-    }        
+      tabGroup.activeTab = this._currentTab;
+      console.log('[venus-editor] Setting tab to:', this._currentTab);
+    }
     
     this.renderTabContent();
   }

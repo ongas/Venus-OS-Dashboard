@@ -19,11 +19,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.70`);
+    const response = await import(`./lang-${lang}.js?v=0.2.71`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.70`);
+    const response = await import(`./lang-en.js?v=0.2.71`);
     translations = response.default;
   }
 }
@@ -214,30 +214,23 @@ export function tabColRender(col, appendTo) {
   const tabContent = appendTo.shadowRoot.querySelector('#tab-content');
   tabContent.innerHTML = '';
 
-  let tabsHTML = ''; // Initialise une variable pour stocker les onglets
+  let tabsHTML = ''; // Store all tab elements
   for (let i = 1; i <= boxCol; i++) {
-    tabsHTML += `<sl-tab slot="nav" panel="anchor" label="${i}" data-tab="${i - 1}">Box ${i}</sl-tab>`;
+    tabsHTML += `<ha-tab data-tab="${i - 1}">Box ${i}</ha-tab>`;
   }
             
   tabContent.innerHTML = `
         <div class="devices-editor">
-            <sl-tab-group id="subTab-group">
+            <ha-tabs id="subTab-group" scrollable attr="activeTab">
                 ${tabsHTML}
-            </sl-tab-group>
+            </ha-tabs>
         
-            <sl-tab-panel id="sl-subTab-content" name="anchor">
-              <div id="subTab-content" class="subTab-content">
-                <!-- Active section content will be displayed here -->
-              </div>
-            </sl-tab-panel>
+            <div id="subTab-content" class="subTab-content">
+              <!-- Active section content will be displayed here -->
+            </div>
         </div>
     `;
             
-  const tabBar = tabContent.querySelector('#subLink-container');
-  if (tabBar && typeof appendTo._currentSubTab === 'number') {
-    tabBar.activeIndex = appendTo._currentSubTab; // Set the active tab
-  }
-    
   attachSubLinkClick(appendTo);
   renderSubTabContent(col, appendTo);
 }
@@ -1088,9 +1081,9 @@ export function attachLinkClick(renderTabContent, appendTo) {
 /* dans les onglets secondaires */
 /********************************/
 export function attachSubLinkClick(appendTo) {
-  appendTo.shadowRoot.querySelectorAll('#subTab-group sl-tab').forEach((sublink) => {
+  appendTo.shadowRoot.querySelectorAll('#subTab-group ha-tab').forEach((sublink) => {
     if (eventHandlers.has(sublink)) {
-      console.log("Event already attached to this #sublink-container mwc-tab element:", sublink);
+      console.log("Event already attached to this sub-tab element:", sublink);
       return;
     }
 
@@ -1098,38 +1091,8 @@ export function attachSubLinkClick(appendTo) {
       const tab = parseInt(e.currentTarget.getAttribute('data-tab'), 10);
       appendTo._currentSubTab = tab;
       
-      // Store the current main tab BEFORE rendering
-      const currentMainTab = appendTo._currentTab;
-      const tabGroup = appendTo.shadowRoot.querySelector('#tab-group');
-      const currentMainTabValue = `conf-${currentMainTab}`;
-      
-      // CRITICAL: Store the currently selected main tab element before rendering
-      const selectedMainTab = appendTo.shadowRoot.querySelector(`sl-tab[panel="${currentMainTabValue}"]`);
-      
-      // Manually manage 'selected-tab' class for sub-tabs
-      appendTo.shadowRoot.querySelectorAll('#subTab-group sl-tab').forEach(tab => {
-        tab.classList.remove('selected-tab');
-      });
-      e.currentTarget.classList.add('selected-tab');
-      
       // Render the sub-tab content
-      renderSubTabContent(currentMainTab, appendTo);
-      
-      // CRITICAL: Force Shoelace to maintain main tab selection after rendering
-      // Use requestAnimationFrame to wait for render cycle, then update both value and aria-selected
-      requestAnimationFrame(() => {
-        if (tabGroup) {
-          tabGroup.value = currentMainTabValue;
-          
-          // Also update aria-selected on all main tabs to ensure visual state is correct
-          appendTo.shadowRoot.querySelectorAll('#tab-group sl-tab').forEach(mainTab => {
-            const isSelected = mainTab.getAttribute('panel') === currentMainTabValue;
-            mainTab.setAttribute('aria-selected', isSelected);
-          });
-          
-          console.log('[venus-editor] Re-synced main tab after Box click:', currentMainTabValue);
-        }
-      });
+      renderSubTabContent(appendTo._currentTab, appendTo);
     };
 
     sublink.addEventListener("click", handleClick);
