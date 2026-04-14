@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.49`);
+    const response = await import(`./lang-${lang}.js?v=0.2.48`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.49`);
+    const response = await import(`./lang-en.js?v=0.2.48`);
     translations = response.default;
   }
 }
@@ -280,6 +280,7 @@ export function renderSubTabContent(col, appendTo) {
 export function subtabRender(box, config, hass, appendTo) {
     
   const subTabContent = appendTo.shadowRoot.querySelector('#subTab-content');
+  subTabContent.innerHTML = ''; // Clear previous content
     
   let leftQty = 0, topQty = 0, bottomQty = 0, rightQty = 0;
     
@@ -336,37 +337,37 @@ export function subtabRender(box, config, hass, appendTo) {
             <div class="col inner">
                 <div class="row">
                     <ha-entity-picker
-                        class="cell"
                         label="${t("subtabRender", "entity_choice")}"
                         id="device_sensor"
                         data-path="devices.${box}.entity"
+                        allow-custom-entity
                     >
                     </ha-entity-picker>
                 </div>
                 <div class="row">
                     <ha-entity-picker
-                        class="cell"
                         label="${t("subtabRender", "entity2_choice")}"
                         id="device_sensor2"
                         data-path="devices.${box}.entity2"
+                        allow-custom-entity
                     >
                     </ha-entity-picker>
                 </div>
                 <div class="row">
                     <ha-entity-picker
-                        class="cell"
                         label="${t("subtabRender", "side_gauge_entity")}"
                         id="sideGaugeEntity_picker"
                         data-path="devices.${box}.sideGaugeEntity"
+                        allow-custom-entity
                     >
                     </ha-entity-picker>
                 </div>
                 <div class="row">
                     <ha-entity-picker
-                        class="cell"
                         label="${t("subtabRender", "side_gauge_max")}"
                         id="sideGaugeMax_picker"
                         data-path="devices.${box}.sideGaugeMax"
+                        allow-custom-entity
                     >
                     </ha-entity-picker>
                 </div>
@@ -411,17 +412,17 @@ export function subtabRender(box, config, hass, appendTo) {
             <div class="col inner">
                 <div class="row">
                     <ha-entity-picker
-                        class="cell"
                         label="${t("subtabRender", "entity_header")}"
                         id="header_sensor"
                         data-path="devices.${box}.headerEntity"
+                        allow-custom-entity
                     >
                     </ha-entity-picker>
                     <ha-entity-picker
-                        class="cell"
                         label="${t("subtabRender", "entity_footer")}"
                         id="footer1_sensor"
                         data-path="devices.${box}.footerEntity1"
+                        allow-custom-entity
                     >
                     </ha-entity-picker>
                 </div>
@@ -429,17 +430,17 @@ export function subtabRender(box, config, hass, appendTo) {
                 <!-- FOOTER 2 ET 3 -->
                 <div class="row">
                     <ha-entity-picker
-                        class="cell"
                         label="${t("subtabRender", "entity2_footer")}"
                         id="footer2_sensor"
                         data-path="devices.${box}.footerEntity2"
+                        allow-custom-entity
                     >
                     </ha-entity-picker>
                     <ha-entity-picker
-                        class="cell"
                         label="${t("subtabRender", "entity3_footer")}"
                         id="footer3_sensor"
                         data-path="devices.${box}.footerEntity3"
+                        allow-custom-entity
                     >
                     </ha-entity-picker>
                 </div>
@@ -513,6 +514,12 @@ export function subtabRender(box, config, hass, appendTo) {
         </div>
     `;
     
+  // Force custom element upgrade after setting innerHTML
+  // This ensures Home Assistant's component system properly initializes the pickers
+  if (customElements && customElements.upgrade) {
+    customElements.upgrade(subTabContent);
+  }
+  
   // Reapply the "expanded" attribute to panels that had it before
   expandedPanelsState.forEach(id => {
     const panel = subTabContent.querySelector(`ha-expansion-panel#${id}`);
@@ -569,6 +576,13 @@ export function subtabRender(box, config, hass, appendTo) {
   const sgMaxPicker = subTabContent.querySelector("#sideGaugeMax_picker");
   if (sgEntityPicker) sgEntityPicker.hass = hass;
   if (sgMaxPicker) sgMaxPicker.hass = hass;
+  
+  // Force requestUpdate on all entity pickers to trigger proper rendering
+  [entityPicker, entity2Picker, headerEntity, footerEntity1, footerEntity2, footerEntity3, sgEntityPicker, sgMaxPicker].forEach(picker => {
+    if (picker && typeof picker.requestUpdate === 'function') {
+      picker.requestUpdate();
+    }
+  });
   
   // Now set values after hass is configured
   if (nameField) nameField.value = config?.devices?.[box]?.name ?? "";
