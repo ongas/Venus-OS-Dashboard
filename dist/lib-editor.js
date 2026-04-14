@@ -19,11 +19,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.64`);
+    const response = await import(`./lang-${lang}.js?v=0.2.70`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.64`);
+    const response = await import(`./lang-en.js?v=0.2.70`);
     translations = response.default;
   }
 }
@@ -1103,6 +1103,9 @@ export function attachSubLinkClick(appendTo) {
       const tabGroup = appendTo.shadowRoot.querySelector('#tab-group');
       const currentMainTabValue = `conf-${currentMainTab}`;
       
+      // CRITICAL: Store the currently selected main tab element before rendering
+      const selectedMainTab = appendTo.shadowRoot.querySelector(`sl-tab[panel="${currentMainTabValue}"]`);
+      
       // Manually manage 'selected-tab' class for sub-tabs
       appendTo.shadowRoot.querySelectorAll('#subTab-group sl-tab').forEach(tab => {
         tab.classList.remove('selected-tab');
@@ -1112,14 +1115,21 @@ export function attachSubLinkClick(appendTo) {
       // Render the sub-tab content
       renderSubTabContent(currentMainTab, appendTo);
       
-      // CRITICAL: Re-sync main tab state after rendering
-      // Use a longer delay to ensure DOM updates are complete
-      if (tabGroup) {
-        setTimeout(() => {
+      // CRITICAL: Force Shoelace to maintain main tab selection after rendering
+      // Use requestAnimationFrame to wait for render cycle, then update both value and aria-selected
+      requestAnimationFrame(() => {
+        if (tabGroup) {
           tabGroup.value = currentMainTabValue;
+          
+          // Also update aria-selected on all main tabs to ensure visual state is correct
+          appendTo.shadowRoot.querySelectorAll('#tab-group sl-tab').forEach(mainTab => {
+            const isSelected = mainTab.getAttribute('panel') === currentMainTabValue;
+            mainTab.setAttribute('aria-selected', isSelected);
+          });
+          
           console.log('[venus-editor] Re-synced main tab after Box click:', currentMainTabValue);
-        }, 100);
-      }
+        }
+      });
     };
 
     sublink.addEventListener("click", handleClick);
