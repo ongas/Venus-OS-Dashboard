@@ -28,7 +28,12 @@ Venus OS Dashboard is a card that replicates the look and feel of the Venus OS G
 
 ### HACS
 
-*Not available yet (coming soon).*
+1. Open HACS in Home Assistant (Settings → Devices & Services → HACS)
+2. Click **Explore & Download Repositories**
+3. Search for "**Venus OS Dashboard**"
+4. Click on the repository and select **Download**
+5. Restart Home Assistant
+6. Add the custom card resource in your dashboard
 
 ### Manual Installation
 
