@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.45`);
+    const response = await import(`./lang-${lang}.js?v=0.2.46`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.45`);
+    const response = await import(`./lang-en.js?v=0.2.46`);
     translations = response.default;
   }
 }
@@ -1061,8 +1061,9 @@ export function attachInputs(appendTo) {
       }
     }
             
-    // Add the event listener
+    // Add the event listener - try both value-changed and change events
     iconPicker.addEventListener("value-changed", handleChange);
+    iconPicker.addEventListener("change", handleChange);
         
     // Register the handler in the WeakMap
     eventHandlers.set(iconPicker, handleChange);
@@ -1094,8 +1095,9 @@ export function attachInputs(appendTo) {
       }
     }
         
-    // Add the event listener
+    // Add the event listener - try both value-changed and change events
     entityPicker.addEventListener("value-changed", handleChange);
+    entityPicker.addEventListener("change", handleChange);
     console.log('[venus-editor] Attached value-changed listener to entity picker:', entityPicker.id);
         
     // Register the handler in the WeakMap
