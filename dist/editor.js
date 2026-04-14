@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.2.62';
+import {css} from './css-editor.js?v=0.2.64';
 
-import * as libEditor from './lib-editor.js?v=0.2.62';
+import * as libEditor from './lib-editor.js?v=0.2.64';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -12,6 +12,12 @@ class venusOsDashBoardEditor extends HTMLElement {
   async setConfig(config) {
     
     this._config = { ...config, entities: { ...(config.entities || {}) } };
+    
+    console.log('[venus-editor] setConfig called with:', { 
+      hasCurrentTab: !!config.currentTab,
+      currentTabValue: config.currentTab,
+      fullConfig: config 
+    });
         
     await libEditor.loadTranslations(this);
     
@@ -60,6 +66,8 @@ class venusOsDashBoardEditor extends HTMLElement {
         this._currentTab = dataTab;
         this._config.currentTab = dataTab;
               
+        console.log('[venus-editor] Tab changed to:', dataTab, 'config.currentTab:', this._config.currentTab);
+        
         // Manually manage 'selected-tab' class
         this.shadowRoot.querySelectorAll('sl-tab[slot="nav"]').forEach(tab => {
           tab.classList.remove('selected-tab');
@@ -70,6 +78,9 @@ class venusOsDashBoardEditor extends HTMLElement {
         }
               
         this.renderTabContent();
+        
+        // Persist the tab selection to Home Assistant
+        libEditor.notifyConfigChange(this);
       });
         
       const style = document.createElement('style');
@@ -85,6 +96,7 @@ class venusOsDashBoardEditor extends HTMLElement {
     }
     if (tabGroup) {
       tabGroup.value = `conf-${this._currentTab}`;
+      console.log('[venus-editor] Setting tab to:', this._currentTab, 'value:', `conf-${this._currentTab}`);
       // Manually manage 'selected-tab' class for initial load
       this.shadowRoot.querySelectorAll('sl-tab[slot="nav"]').forEach(tab => {
         tab.classList.remove('selected-tab');

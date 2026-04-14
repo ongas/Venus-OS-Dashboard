@@ -52,36 +52,83 @@ The script handles: version bump (`?v=` params), CRLF normalization, syntax vali
 
 ## Home Assistant Web Component Initialization in `lib-editor.js`
 
-**CRITICAL: Define web components in the HTML template, never dynamically via `innerHTML`.**
+**CRITICAL: Use `ha-form` component to manage all entity pickers, never manually manage them.**
 
-Home Assistant's custom element system does NOT properly initialize web components created dynamically at runtime. This causes pickers to not appear, not respond to input, and can break other pickers on the page.
+Home Assistant's Web Components **cannot** be manually initialized properly through property assignment. Manual approaches fail because they bypass the component lifecycle management. The solution is to delegate all picker management to Home Assistant's `ha-form` component, which:
+- Automatically creates entity pickers from schema definitions
+- Handles initialization, rendering, and hass binding reactively
+- Manages value changes through standard events
+- Properly integrates with Home Assistant's state system
 
-### ❌ DO NOT DO THIS (Broken):
+**Proven working in v0.2.62 after 13 failed releases (v0.2.49-v0.2.61) trying manual picker management.**
+
+### ❌ DO NOT DO THIS (All Broken - Manual Picker Management):
 ```javascript
-// Empty container in HTML
-<div id="picker_container"></div>
-
-// Dynamic creation in JavaScript - BROKEN
-const container = subTabContent.querySelector("#picker_container");
-container.innerHTML = `<ha-entity-picker id="picker" data-path="..." ...></ha-entity-picker>`;
-const picker = container.querySelector("#picker");
-picker.hass = hass;
-picker.addEventListener("value-changed", handler);  // Won't work properly
-```
-
-### ✅ DO THIS INSTEAD (Works):
-```javascript
-// Define in HTML template upfront (like header/footer pickers do)
-<ha-entity-picker id="picker" data-path="config.field" ...></ha-entity-picker>
-
-// In initialization code: only set values
+// Fails: innerHTML templates with manual hass assignment
+subTabContent.innerHTML = `<ha-entity-picker id="picker" ...></ha-entity-picker>`;
 const picker = subTabContent.querySelector("#picker");
-picker.value = config?.field ?? "";
-// ✅ Generic event listener loop (line ~1033) handles change events automatically
+picker.hass = hass;  // ❌ Won't work properly - misses lifecycle
+
+// Fails: Object.defineProperty forcing
+Object.defineProperty(picker, 'hass', {
+  value: hass,
+  writable: true,
+  configurable: true
+});
+
+// Fails: MutationObserver waiting for DOM changes
+const observer = new MutationObserver(() => {
+  picker.hass = hass;  // ❌ Still won't work
+});
 ```
+
+### ✅ DO THIS INSTEAD (Works - ha-form Delegation):
+```javascript
+// Define picker schema
+const schema = [
+  {
+    type: 'grid',
+    column_min_width: '200px',
+    schema: [
+      {
+        name: 'entity',
+        label: 'Entity',
+        selector: { entity: {} }
+      },
+      {
+        name: 'icon',
+        label: 'Icon',
+        selector: { icon: {} }
+      }
+    ]
+  }
+];
+
+// Create ha-form element (handles everything automatically)
+const form = document.createElement('ha-form');
+form.schema = schema;
+form.hass = hass;  // ✅ ha-form manages proper binding
+form.data = config || {};
+form.computeLabel = (schema) => schema.name?.charAt(0).toUpperCase() + schema.name?.slice(1) || '';
+
+// Listen for value changes
+form.addEventListener('value-changed', (e) => {
+  const newConfig = e.detail.value;
+  // Update parent config with form data
+});
+
+subTabContent.appendChild(form);
+```
+
+### Why ha-form Works
+1. **Delegated Lifecycle**: ha-form manages Web Component initialization internally
+2. **Reactive Binding**: Property changes trigger proper re-renders
+3. **Event-Driven**: `value-changed` events provide stable config updates
+4. **Framework Integration**: Properly integrated with Home Assistant's architecture
+5. **Proven Pattern**: Used by Power Flow Card Plus and other working cards
 
 ### Pattern
-All working entity pickers in `lib-editor.js` are defined in the HTML template section of `subtabRender()`. Never create picker elements dynamically.
+All entity pickers in `lib-editor.js` are created by `ha-form` from schema definitions. Never manually create, upgrade, or manage picker elements.
 
 ## Project Structure
 
