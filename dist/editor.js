@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.2.62';
+import {css} from './css-editor.js?v=0.2.63';
 
-import * as libEditor from './lib-editor.js?v=0.2.62';
+import * as libEditor from './lib-editor.js?v=0.2.63';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -70,6 +70,9 @@ class venusOsDashBoardEditor extends HTMLElement {
         }
               
         this.renderTabContent();
+        
+        // Persist the tab selection to Home Assistant
+        libEditor.notifyConfigChange(this);
       });
         
       const style = document.createElement('style');
