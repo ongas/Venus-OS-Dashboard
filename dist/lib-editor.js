@@ -1,10 +1,4 @@
 /**********************************************/
-/* Variable to track which panels   */
-/* are expanded                      */
-/**********************************************/
-let expandedPanelsState = new Set();
-
-/**********************************************/
 /* Variable to track event handlers  */
 /* on objects to avoid duplicates     */
 /**********************************************/
@@ -280,34 +274,167 @@ export function renderSubTabContent(col, appendTo) {
 export function subtabRender(box, config, hass, appendTo) {
     
   const subTabContent = appendTo.shadowRoot.querySelector('#subTab-content');
-  subTabContent.innerHTML = ''; // Clear previous content
+  subTabContent.innerHTML = '';
   
-  // CRITICAL: Store hass on appendTo (the editor element) so pickers can find it
-  appendTo._currentHass = hass;
+  // Define schema for ha-form - this is the CORRECT approach
+  const schema = [
+    {
+      type: 'grid',
+      column_min_width: '200px',
+      schema: [
+        {
+          name: 'icon',
+          label: 'Icon',
+          selector: { icon: {} }
+        },
+        {
+          name: 'name',
+          label: 'Name',
+          selector: { text: {} }
+        }
+      ]
+    },
+    {
+      type: 'expandable',
+      title: 'Main Entity',
+      schema: [
+        {
+          name: 'entity',
+          label: 'Main Entity',
+          selector: { entity: {} }
+        },
+        {
+          name: 'entity2',
+          label: 'Secondary Entity',
+          selector: { entity: {} }
+        },
+        {
+          type: 'grid',
+          column_min_width: '200px',
+          schema: [
+            {
+              name: 'sideGaugeEntity',
+              label: 'Side Gauge Entity',
+              selector: { entity: {} }
+            },
+            {
+              name: 'sideGaugeMax',
+              label: 'Side Gauge Max',
+              selector: { entity: {} }
+            }
+          ]
+        },
+        {
+          type: 'grid',
+          column_min_width: '200px',
+          schema: [
+            {
+              name: 'graph',
+              label: 'Enable Graph',
+              selector: { boolean: {} }
+            },
+            {
+              name: 'gauge',
+              label: 'Enable Gauge',
+              selector: { boolean: {} }
+            }
+          ]
+        },
+        {
+          name: 'gaugeMax',
+          label: 'Gauge Max Value',
+          selector: { number: { mode: 'box', min: 0, step: 1 } }
+        },
+        {
+          name: 'sideGauge',
+          label: 'Enable Side Gauge',
+          selector: { boolean: {} }
+        }
+      ]
+    },
+    {
+      type: 'expandable',
+      title: 'Header & Footer',
+      schema: [
+        {
+          type: 'grid',
+          column_min_width: '200px',
+          schema: [
+            {
+              name: 'headerEntity',
+              label: 'Header Entity',
+              selector: { entity: {} }
+            },
+            {
+              name: 'footerEntity1',
+              label: 'Footer 1 Entity',
+              selector: { entity: {} }
+            }
+          ]
+        },
+        {
+          type: 'grid',
+          column_min_width: '200px',
+          schema: [
+            {
+              name: 'footerEntity2',
+              label: 'Footer 2 Entity',
+              selector: { entity: {} }
+            },
+            {
+              name: 'footerEntity3',
+              label: 'Footer 3 Entity',
+              selector: { entity: {} }
+            }
+          ]
+        }
+      ]
+    }
+  ];
   
-  // Also try to expose it globally for the picker to access
-  if (!window.__hassDashboard) {
-    window.__hassDashboard = {};
-  }
-  window.__hassDashboard.hass = hass;
+  // Create ha-form element
+  const form = document.createElement('ha-form');
+  form.schema = schema;
+  form.hass = hass;
+  form.data = config?.devices?.[box] || {};
+  form.computeLabel = (schema) => {
+    return schema.name ? schema.name.charAt(0).toUpperCase() + schema.name.slice(1) : '';
+  };
+  
+  // Listen for value changes
+  form.addEventListener('value-changed', (e) => {
+    const newDeviceConfig = e.detail.value;
+    console.log('[venus-editor] Form value-changed:', newDeviceConfig);
     
-  let leftQty = 0, topQty = 0, bottomQty = 0, rightQty = 0;
+    // Update the config
+    if (!config.devices) config.devices = {};
+    config.devices[box] = newDeviceConfig;
+    
+    // Notify parent of change
+    if (appendTo._notifyConfigChange) {
+      appendTo._notifyConfigChange(config);
+    }
+  });
+  
+  subTabContent.appendChild(form);
+  
+  console.log('[venus-editor] Created ha-form for box:', box, {
+    hasForm: !!form,
+    hasHass: !!hass,
+    hasData: !!form.data,
+    statesCount: Object.keys(hass?.states || {}).length
+  });
     
   // Check if anchors exist in the configuration
   const anchors = config?.devices?.[box]?.anchors ? config?.devices?.[box]?.anchors.split(', ') : [];
     
   let thisAllAnchors = [];
 
-  // Iterate over anchors to extract quantities per side
+  // Iterate over anchors to extract and build anchor list
   anchors.forEach((anchor) => {
     const [side, qtyStr] = anchor.split('-'); // Exemple : "L-2" devient ["L", "2"]
     const qty = parseInt(qtyStr, 10); // Convert quantity to number
     
-    if (side === 'L') leftQty += qty;
-    else if (side === 'T') topQty += qty;
-    else if (side === 'B') bottomQty += qty;
-    else if (side === 'R') rightQty += qty;
-        
     for (let i = 1; i <= qty; i++) {
       thisAllAnchors.push(`${side}-${i}`);
     }
@@ -317,408 +444,32 @@ export function subtabRender(box, config, hass, appendTo) {
     
   const OtherAllAnchors = getAllAnchorsExceptCurrent(config, box);
   
-  subTabContent.innerHTML = `
-        
-        <!-- ICON ET NOM -->
-        <ha-expansion-panel expanded outlined id="subPanel_header" header="${t("subtabRender", "header_title")}">
-            <div class="col inner">
-                <div class="row">
-                    <ha-icon-picker
-                        class="cell"
-                        label="${t("subtabRender", "icon_choice")}"
-                        id="device_icon"
-                        data-path="devices.${box}.icon"
-                    >
-                    </ha-icon-picker>
-                    <ha-textfield 
-                        class="cell"
-                        label="${t("subtabRender", "name_choice")}"
-                        id="device_name"
-                        data-path="devices.${box}.name"
-                    ></ha-textfield>
-                </div>
-            </div>
-        </ha-expansion-panel>
-        
-        <!-- ENTITE 1 et 2-->
-        <ha-expansion-panel outlined id="subPanel_entities" header="${t("subtabRender", "sensor_title")}" expanded>
-            <div class="col inner">
-                <div class="row">
-                    <ha-entity-picker
-                        label="${t("subtabRender", "entity_choice")}"
-                        id="device_sensor"
-                        data-path="devices.${box}.entity"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                </div>
-                <div class="row">
-                    <ha-entity-picker
-                        label="${t("subtabRender", "entity2_choice")}"
-                        id="device_sensor2"
-                        data-path="devices.${box}.entity2"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                </div>
-                <div class="row">
-                    <ha-entity-picker
-                        label="${t("subtabRender", "side_gauge_entity")}"
-                        id="sideGaugeEntity_picker"
-                        data-path="devices.${box}.sideGaugeEntity"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                </div>
-                <div class="row">
-                    <ha-entity-picker
-                        label="${t("subtabRender", "side_gauge_max")}"
-                        id="sideGaugeMax_picker"
-                        data-path="devices.${box}.sideGaugeMax"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                </div>
-    
-                <!-- SWITCHS GRAPH ET GAUGE -->
-                <div class="row">
-                    <div class="row cell">
-                        ${t("subtabRender", "enable_graph")} :
-                        <ha-switch class="cell right" 
-                            id="graph_switch"
-                            data-path="devices.${box}.graph" 
-                        ></ha-switch>
-                    </div>
-                    <div id="gauge_div" class="row cell">
-                        ${t("subtabRender", "enable_gauge")} :
-                        <ha-switch class="cell right"
-                            id="gauge_switch"
-                            data-path="devices.${box}.gauge" 
-                        ></ha-switch>
-                    </div>
-                    <div id="gaugeMax_div" class="row cell">
-                        ${t("subtabRender", "gauge_max")} :
-                        <ha-textfield class="cell right"
-                            id="gaugeMax_field"
-                            type="number"
-                            data-path="devices.${box}.gaugeMax"
-                        ></ha-textfield>
-                    </div>
-                </div>
-                <div class="row cell">
-                    ${t("subtabRender", "enable_side_gauge")} :
-                    <ha-switch class="cell right"
-                        id="sideGauge_switch"
-                        data-path="devices.${box}.sideGauge"
-                    ></ha-switch>
-                </div>
-            </div>
-        </ha-expansion-panel>
-        
-        <!-- HEADER ET FOOTER 1 -->
-        <ha-expansion-panel outlined id="subPanel_entities2" header="${t("subtabRender", "header_footer_title")}">
-            <div class="col inner">
-                <div class="row">
-                    <ha-entity-picker
-                        label="${t("subtabRender", "entity_header")}"
-                        id="header_sensor"
-                        data-path="devices.${box}.headerEntity"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                    <ha-entity-picker
-                        label="${t("subtabRender", "entity_footer")}"
-                        id="footer1_sensor"
-                        data-path="devices.${box}.footerEntity1"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                </div>
-                
-                <!-- FOOTER 2 ET 3 -->
-                <div class="row">
-                    <ha-entity-picker
-                        label="${t("subtabRender", "entity2_footer")}"
-                        id="footer2_sensor"
-                        data-path="devices.${box}.footerEntity2"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                    <ha-entity-picker
-                        label="${t("subtabRender", "entity3_footer")}"
-                        id="footer3_sensor"
-                        data-path="devices.${box}.footerEntity3"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                </div>
-
-            </div>
-        </ha-expansion-panel>
-        
-        <!-- ANCHORS -->
-        <ha-expansion-panel outlined id="subPanel_anchors" header="${t("subtabRender", "anchor_title")}">
-            <div class="col inner">
-                <div class="row">
-                    <div class="col cell">
-                        <ha-textfield class="anchor cell"
-                            id="anchor_left"
-                            data-path="devices.${box}.anchors" 
-                            label="${t("subtabRender", "left_qtyBox")}"
-                            value=""
-                            type="number"
-                            min="0"
-                            max="3"
-                            step="1"
-                        ></ha-textfield>
-                    </div>
-                    <div class="col cell">
-                        <ha-textfield class="anchor cell"
-                            id="anchor_top"
-                            data-path="devices.${box}.anchors" 
-                            label="${t("subtabRender", "top_qtyBox")}"
-                            value=""
-                            type="number"
-                            min="0"
-                            max="3"
-                            step="1"
-                        ></ha-textfield>
-                        <ha-textfield class="anchor cell"
-                            id="anchor_bottom"
-                            data-path="devices.${box}.anchors" 
-                            label="${t("subtabRender", "bottom_qtyBox")}"
-                            value=""
-                            type="number"
-                            min="0"
-                            max="3"
-                            step="1"
-                        ></ha-textfield>
-                    </div>
-                    <div class="col cell">
-                        <ha-textfield class="anchor cell"
-                            id="anchor_right"
-                            data-path="devices.${box}.anchors" 
-                            label="${t("subtabRender", "right_qtyBox")}"
-                            value=""
-                            type="number"
-                            min="0"
-                            max="3"
-                            step="1"
-                        ></ha-textfield>
-                    </div>
-                </div>
-            </div>
-        </ha-expansion-panel>
-        
-        <!-- LINKS -->
-        <div class="contMenu">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div class="headerMenu">${t("subtabRender", "add_links")}</div>
-                <ha-icon-button id="add-link-button" aria-label="${t("subtabRender", "add_link")}">
-                    <ha-icon icon="mdi:plus" style="display: flex;"></ha-icon>
-                </ha-icon-button>
-            </div>
-            <div id="link-container" class="col noGap"></div>
-        </div>
-    `;
-    
-  // Force custom element upgrade after setting innerHTML
-  // This ensures Home Assistant's component system properly initializes the pickers
-  if (customElements && customElements.upgrade) {
-    customElements.upgrade(subTabContent);
-  }
+  // Create links section
+  const linksSection = document.createElement('div');
+  linksSection.className = 'contMenu';
+  linksSection.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="headerMenu">${t("subtabRender", "add_links")}</div>
+      <ha-icon-button id="add-link-button" aria-label="${t("subtabRender", "add_link")}">
+        <ha-icon icon="mdi:plus" style="display: flex;"></ha-icon>
+      </ha-icon-button>
+    </div>
+    <div id="link-container" class="col noGap"></div>
+  `;
   
-  // Aggressively upgrade all custom elements recursively
-  const upgradeAllElements = (root) => {
-    root.querySelectorAll('*').forEach(el => {
-      if (el.tagName && el.tagName.includes('-')) {
-        if (customElements && customElements.upgrade) {
-          customElements.upgrade(el);
-        }
-      }
-    });
-  };
-  upgradeAllElements(subTabContent);
+  subTabContent.appendChild(linksSection);
   
-  // NEW APPROACH: Use MutationObserver to catch pickers as they're added and immediately set hass
-  const observerCallback = (mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.type === 'childList') {
-        // Look for any newly added pickers
-        mutation.addedNodes.forEach((node) => {
-          if (node.nodeType === 1) { // Element node
-            // Check if this is a picker
-            if (node.tagName && node.tagName.includes('picker')) {
-              console.log('[venus-editor] Detected picker addition:', node.tagName);
-              setPickerHass(node, hass);
-            }
-            // Also check descendants
-            if (node.querySelectorAll) {
-              node.querySelectorAll('*').forEach(el => {
-                if (el.tagName && el.tagName.includes('picker')) {
-                  console.log('[venus-editor] Detected picker in descendants:', el.tagName);
-                  setPickerHass(el, hass);
-                }
-              });
-            }
-          }
-        });
-      }
-    });
-  };
-  
-  const observer = new MutationObserver(observerCallback);
-  observer.observe(subTabContent, { childList: true, subtree: true });
-  
-  // Wait briefly for DOM to settle, then disconnect observer and set hass on all existing pickers
-  setTimeout(() => {
-    observer.disconnect();
-    
-    // Now aggressively set hass on ALL pickers in the subtree
-    const allPickers = subTabContent.querySelectorAll('[tagname*="picker"], ha-entity-picker, ha-icon-picker');
-    console.log('[venus-editor] Found pickers after rendering:', allPickers.length);
-    
-    allPickers.forEach(picker => {
-      setPickerHass(picker, hass);
-    });
-  }, 50);
-  
-  // Helper function to set hass with maximum force
-  function setPickerHass(picker, hasObj) {
-    if (!picker) return;
-    
-    try {
-      // Try direct property assignment
-      picker.hass = hasObj;
-      
-      // Try using Object.defineProperty to force it
-      Object.defineProperty(picker, 'hass', {
-        value: hasObj,
-        writable: true,
-        configurable: true,
-        enumerable: true
-      });
-      
-      // Try requestUpdate if available
-      if (typeof picker.requestUpdate === 'function') {
-        picker.requestUpdate();
-      }
-      
-      // Try performUpdate if available
-      if (typeof picker.performUpdate === 'function') {
-        picker.performUpdate();
-      }
-      
-      // Try update if available  
-      if (typeof picker.update === 'function' && typeof picker.update !== 'undefined') {
-        picker.update();
-      }
-      
-      // Log success
-      console.log('[venus-editor] Set hass on', picker.tagName, '- hass available:', !!picker.hass);
-    } catch (e) {
-      console.error('[venus-editor] Error setting hass on picker:', e);
-    }
-  }
-  
-  // Reapply the "expanded" attribute to panels that had it before
-  expandedPanelsState.forEach(id => {
-    const panel = subTabContent.querySelector(`ha-expansion-panel#${id}`);
-    if (panel) {
-      panel.setAttribute("expanded", "");
-    }
-  });
-            
-  const iconPicker = subTabContent.querySelector('#device_icon');
-  const nameField = subTabContent.querySelector('#device_name');
-  const entityPicker = subTabContent.querySelector('#device_sensor');
-  const entity2Picker = subTabContent.querySelector('#device_sensor2');
-  const graphSwitch = subTabContent.querySelector('#graph_switch');
-  const gaugeSwitch = subTabContent.querySelector('#gauge_switch');
-  const headerEntity = subTabContent.querySelector('#header_sensor');
-  const footer1Entity = subTabContent.querySelector('#footer1_sensor');
-  const footer2Entity = subTabContent.querySelector('#footer2_sensor');
-  const footer3Entity = subTabContent.querySelector('#footer3_sensor');
-  const anchorLeft = subTabContent.querySelector('#anchor_left');
-  const anchorTop = subTabContent.querySelector('#anchor_top');
-  const anchorbottom = subTabContent.querySelector('#anchor_bottom');
-  const anchorRight = subTabContent.querySelector('#anchor_right');
-  const sgEntityPicker = subTabContent.querySelector("#sideGaugeEntity_picker");
-  const sgMaxPicker = subTabContent.querySelector("#sideGaugeMax_picker");
-
-  console.log('[venus-editor] Element queries:', {
-    entityPicker: !!entityPicker,
-    entity2Picker: !!entity2Picker,
-    headerEntity: !!headerEntity,
-    footerEntity1: !!footer1Entity
-  });
-  
-  // CRITICAL DIAGNOSTIC: Log hass object structure
-  console.log('[venus-editor] HASS OBJECT DIAGNOSTIC:', {
-    hasHass: !!hass,
-    typeof: typeof hass,
-    hasStates: !!hass?.states,
-    stateCount: Object.keys(hass?.states || {}).length,
-    stateKeys: Object.keys(hass?.states || {}).slice(0, 10)
-  });
-  
-  // Now set values after hass should be available
-  if (nameField) nameField.value = config?.devices?.[box]?.name ?? "";
-  if (iconPicker) iconPicker.value = config?.devices?.[box]?.icon ?? ""; 
-  if (entityPicker) entityPicker.value = config?.devices?.[box]?.entity ?? "";
-  if (entity2Picker) entity2Picker.value = config?.devices?.[box]?.entity2 ?? "";
-  if (headerEntity) headerEntity.value = config?.devices?.[box]?.headerEntity ?? "";
-  if (footer1Entity) footer1Entity.value = config?.devices?.[box]?.footerEntity1 ?? "";
-  if (footer2Entity) footer2Entity.value = config?.devices?.[box]?.footerEntity2 ?? "";
-  if (footer3Entity) footer3Entity.value = config?.devices?.[box]?.footerEntity3 ?? "";
-  if (sgEntityPicker) sgEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
-  if (sgMaxPicker) sgMaxPicker.value = config?.devices?.[box]?.sideGaugeMax ?? "";
-  
-  // Retrieve values for each side
-  if (anchorLeft) anchorLeft.value = leftQty;
-  if (anchorTop) anchorTop.value = topQty;
-  if (anchorbottom) anchorbottom.value = bottomQty;
-  if (anchorRight) anchorRight.value = rightQty;
-           
-  if (config?.devices?.[box]?.graph === true && graphSwitch) graphSwitch.setAttribute('checked', '');
-    
-  const entity = entityPicker ? hass.states?.[entityPicker.value] : null;
-  const unit = entity?.attributes?.unit_of_measurement;
-
-  if (config.devices?.[box]?.gauge === true) gaugeSwitch.setAttribute('checked', '');
-  const gaugeMaxField = subTabContent.querySelector("#gaugeMax_field");
-  gaugeMaxField.value = config?.devices?.[box]?.gaugeMax ?? "";
-  const sideGaugeSwitch = subTabContent.querySelector("#sideGauge_switch");
-  if (config.devices?.[box]?.sideGauge === true) sideGaugeSwitch.setAttribute('checked', '');
-    
-    
+  // Initialize links
   const linkContainer = subTabContent.querySelector('#link-container');
   const addLinkButton = subTabContent.querySelector('#add-link-button');
-    
+  
   Object.entries(config.devices?.[box]?.link || {}).forEach(([linkKey]) => {
-        
     addLink(linkKey, box, hass, thisAllAnchors, OtherAllAnchors, appendTo);
-
   });
-    
+  
   addLinkButton.addEventListener('click', () => {
     addLink(linkContainer.children.length+1, box, hass, thisAllAnchors, OtherAllAnchors, appendTo);
   });
-    
-  function trackExpansionState() {
-    subTabContent.querySelectorAll("ha-expansion-panel").forEach(panel => {
-      panel.addEventListener("expanded-changed", (event) => {
-        if (event.detail.expanded) {
-          expandedPanelsState.add(panel.id); // Ajoute l'ID du panel s'il est expandu
-        } else {
-          expandedPanelsState.delete(panel.id); // Remove if collapsed
-        }
-      });
-    });
-  }
-    
-  // Call this function on initial load to capture events
-  trackExpansionState();
 }
 
 export function getAllAnchorsExceptCurrent(config, currentBox) {
