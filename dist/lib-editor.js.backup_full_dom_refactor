@@ -520,18 +520,6 @@ export function subtabRender(box, config, hass, appendTo) {
     customElements.upgrade(subTabContent);
   }
   
-  // Aggressively upgrade all custom elements recursively
-  const upgradeAllElements = (root) => {
-    root.querySelectorAll('*').forEach(el => {
-      if (el.tagName && el.tagName.includes('-')) {
-        if (customElements && customElements.upgrade) {
-          customElements.upgrade(el);
-        }
-      }
-    });
-  };
-  upgradeAllElements(subTabContent);
-  
   // Reapply the "expanded" attribute to panels that had it before
   expandedPanelsState.forEach(id => {
     const panel = subTabContent.querySelector(`ha-expansion-panel#${id}`);
@@ -562,14 +550,6 @@ export function subtabRender(box, config, hass, appendTo) {
     footerEntity1: !!footerEntity1
   });
   
-  // Immediately set .hass on all pickers BEFORE further operations
-  const allPickersToInit = [iconPicker, entityPicker, entity2Picker, headerEntity, footerEntity1, footerEntity2];
-  allPickersToInit.forEach(picker => {
-    if (picker && picker.tagName.includes('picker')) {
-      picker.hass = hass;
-    }
-  });
-  
   // Set .hass BEFORE .value - required for HA entity/icon pickers to work
   if (iconPicker) {
     iconPicker.hass = hass;
@@ -597,30 +577,10 @@ export function subtabRender(box, config, hass, appendTo) {
   if (sgEntityPicker) sgEntityPicker.hass = hass;
   if (sgMaxPicker) sgMaxPicker.hass = hass;
   
-  // Collect all entity pickers for aggressive initialization
-  const allPickers = [entityPicker, entity2Picker, headerEntity, footerEntity1, footerEntity2, footerEntity3, sgEntityPicker, sgMaxPicker];
-  
   // Force requestUpdate on all entity pickers to trigger proper rendering
-  allPickers.forEach(picker => {
-    if (picker) {
-      // Ensure hass is set
-      picker.hass = hass;
-      // Call requestUpdate if available
-      if (typeof picker.requestUpdate === 'function') {
-        picker.requestUpdate();
-      }
-      // Remove disabled/readonly attributes if present
-      picker.removeAttribute('disabled');
-      picker.removeAttribute('readonly');
-      picker.removeAttribute('readonly-attributes');
-      // Explicitly set the element's internals
-      if (picker.hasUpdated === false) {
-        try {
-          picker.performUpdate?.();
-        } catch (e) {
-          // Ignore if performUpdate doesn't exist
-        }
-      }
+  [entityPicker, entity2Picker, headerEntity, footerEntity1, footerEntity2, footerEntity3, sgEntityPicker, sgMaxPicker].forEach(picker => {
+    if (picker && typeof picker.requestUpdate === 'function') {
+      picker.requestUpdate();
     }
   });
   
