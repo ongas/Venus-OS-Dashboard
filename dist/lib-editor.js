@@ -19,11 +19,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.68`);
+    const response = await import(`./lang-${lang}.js?v=0.2.64`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.68`);
+    const response = await import(`./lang-en.js?v=0.2.64`);
     translations = response.default;
   }
 }
@@ -1095,24 +1095,30 @@ export function attachSubLinkClick(appendTo) {
     }
 
     const handleClick = (e) => {
+      const tab = parseInt(e.currentTarget.getAttribute('data-tab'), 10);
+      appendTo._currentSubTab = tab;
+      
+      // Store the current main tab BEFORE rendering
+      const currentMainTab = appendTo._currentTab;
+      const tabGroup = appendTo.shadowRoot.querySelector('#tab-group');
+      const currentMainTabValue = `conf-${currentMainTab}`;
+      
       // Manually manage 'selected-tab' class for sub-tabs
       appendTo.shadowRoot.querySelectorAll('#subTab-group sl-tab').forEach(tab => {
         tab.classList.remove('selected-tab');
       });
       e.currentTarget.classList.add('selected-tab');
-    
-      const tab = parseInt(e.currentTarget.getAttribute('data-tab'), 10);
-      appendTo._currentSubTab = tab;
-      renderSubTabContent(appendTo._currentTab, appendTo);
       
-      // CRITICAL: Re-sync main tab state after Box button click to keep it visually selected
-      // This ensures the main Col tab stays teal/blue even after Box button selection
-      const tabGroup = appendTo.shadowRoot.querySelector('#tab-group');
+      // Render the sub-tab content
+      renderSubTabContent(currentMainTab, appendTo);
+      
+      // CRITICAL: Re-sync main tab state after rendering
+      // Use a longer delay to ensure DOM updates are complete
       if (tabGroup) {
-        const selectedValue = `conf-${appendTo._currentTab}`;
         setTimeout(() => {
-          tabGroup.value = selectedValue;
-        }, 0);
+          tabGroup.value = currentMainTabValue;
+          console.log('[venus-editor] Re-synced main tab after Box click:', currentMainTabValue);
+        }, 100);
       }
     };
 
