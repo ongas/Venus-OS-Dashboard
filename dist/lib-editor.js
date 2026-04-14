@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.43`);
+    const response = await import(`./lang-${lang}.js?v=0.2.44`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.43`);
+    const response = await import(`./lang-en.js?v=0.2.44`);
     translations = response.default;
   }
 }
@@ -534,7 +534,12 @@ export function subtabRender(box, config, hass, appendTo) {
   }
   if (entityPicker) {
     entityPicker.hass = hass;
-    console.log('[venus-editor] Set hass on entityPicker:', !!entityPicker.hass);
+    console.log('[venus-editor] Set hass on entityPicker:', {
+      hasHass: !!entityPicker.hass,
+      disabled: entityPicker.disabled,
+      readOnly: entityPicker.readOnly,
+      type: entityPicker.tagName
+    });
   }
   if (entity2Picker) entity2Picker.hass = hass;
   if (headerEntity) headerEntity.hass = hass;  
