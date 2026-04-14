@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.55`);
+    const response = await import(`./lang-${lang}.js?v=0.2.56`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.55`);
+    const response = await import(`./lang-en.js?v=0.2.56`);
     translations = response.default;
   }
 }
@@ -612,6 +612,19 @@ export function subtabRender(box, config, hass, appendTo) {
   if (customElements && customElements.upgrade) {
     customElements.upgrade(subTabContent);
   }
+  
+  // Aggressively upgrade all custom elements recursively
+  // This ensures every HA component gets properly initialized
+  const upgradeAllElements = (root) => {
+    root.querySelectorAll('*').forEach(el => {
+      if (el.tagName && el.tagName.includes('-')) {
+        if (customElements && customElements.upgrade) {
+          customElements.upgrade(el);
+        }
+      }
+    });
+  };
+  upgradeAllElements(subTabContent);
   
   // Reapply the "expanded" attribute to panels that had it before
   expandedPanelsState.forEach(id => {
