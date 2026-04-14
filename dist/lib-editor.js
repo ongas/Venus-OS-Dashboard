@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.53`);
+    const response = await import(`./lang-${lang}.js?v=0.2.54`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.53`);
+    const response = await import(`./lang-en.js?v=0.2.54`);
     translations = response.default;
   }
 }
@@ -280,7 +280,11 @@ export function renderSubTabContent(col, appendTo) {
 export function subtabRender(box, config, hass, appendTo) {
     
   const subTabContent = appendTo.shadowRoot.querySelector('#subTab-content');
-  subTabContent.innerHTML = ''; // Clear previous content
+  
+  // Clear previous content
+  while (subTabContent.firstChild) {
+    subTabContent.removeChild(subTabContent.firstChild);
+  }
     
   let leftQty = 0, topQty = 0, bottomQty = 0, rightQty = 0;
     
@@ -307,230 +311,301 @@ export function subtabRender(box, config, hass, appendTo) {
   thisAllAnchors.sort();
     
   const OtherAllAnchors = getAllAnchorsExceptCurrent(config, box);
-  //console.log(box + " : " + OtherAllAnchors);
-    
-  subTabContent.innerHTML = `
-        
-        <!-- ICON ET NOM -->
-        <ha-expansion-panel expanded outlined id="subPanel_header" header="${t("subtabRender", "header_title")}">
-            <div class="col inner">
-                <div class="row">
-                    <ha-icon-picker
-                        class="cell"
-                        label="${t("subtabRender", "icon_choice")}"
-                        id="device_icon"
-                        data-path="devices.${box}.icon"
-                    >
-                    </ha-icon-picker>
-                    <ha-textfield 
-                        class="cell"
-                        label="${t("subtabRender", "name_choice")}"
-                        id="device_name"
-                        data-path="devices.${box}.name"
-                    ></ha-textfield>
-                </div>
-            </div>
-        </ha-expansion-panel>
-        
-        <!-- ENTITE 1 et 2-->
-        <ha-expansion-panel outlined id="subPanel_entities" header="${t("subtabRender", "sensor_title")}" expanded>
-            <div class="col inner">
-                <div class="row">
-                    <ha-entity-picker
-                        label="${t("subtabRender", "entity_choice")}"
-                        id="device_sensor"
-                        data-path="devices.${box}.entity"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                </div>
-                <div class="row">
-                    <ha-entity-picker
-                        label="${t("subtabRender", "entity2_choice")}"
-                        id="device_sensor2"
-                        data-path="devices.${box}.entity2"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                </div>
-                <div class="row">
-                    <ha-entity-picker
-                        label="${t("subtabRender", "side_gauge_entity")}"
-                        id="sideGaugeEntity_picker"
-                        data-path="devices.${box}.sideGaugeEntity"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                </div>
-                <div class="row">
-                    <ha-entity-picker
-                        label="${t("subtabRender", "side_gauge_max")}"
-                        id="sideGaugeMax_picker"
-                        data-path="devices.${box}.sideGaugeMax"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                </div>
-    
-                <!-- SWITCHS GRAPH ET GAUGE -->
-                <div class="row">
-                    <div class="row cell">
-                        ${t("subtabRender", "enable_graph")} :
-                        <ha-switch class="cell right" 
-                            id="graph_switch"
-                            data-path="devices.${box}.graph" 
-                        ></ha-switch>
-                    </div>
-                    <div id="gauge_div" class="row cell">
-                        ${t("subtabRender", "enable_gauge")} :
-                        <ha-switch class="cell right"
-                            id="gauge_switch"
-                            data-path="devices.${box}.gauge" 
-                        ></ha-switch>
-                    </div>
-                    <div id="gaugeMax_div" class="row cell">
-                        ${t("subtabRender", "gauge_max")} :
-                        <ha-textfield class="cell right"
-                            id="gaugeMax_field"
-                            type="number"
-                            data-path="devices.${box}.gaugeMax"
-                        ></ha-textfield>
-                    </div>
-                </div>
-                <div class="row cell">
-                    ${t("subtabRender", "enable_side_gauge")} :
-                    <ha-switch class="cell right"
-                        id="sideGauge_switch"
-                        data-path="devices.${box}.sideGauge"
-                    ></ha-switch>
-                </div>
-            </div>
-        </ha-expansion-panel>
-        
-        <!-- HEADER ET FOOTER 1 -->
-        <ha-expansion-panel outlined id="subPanel_entities2" header="${t("subtabRender", "header_footer_title")}">
-            <div class="col inner">
-                <div class="row">
-                    <ha-entity-picker
-                        label="${t("subtabRender", "entity_header")}"
-                        id="header_sensor"
-                        data-path="devices.${box}.headerEntity"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                    <ha-entity-picker
-                        label="${t("subtabRender", "entity_footer")}"
-                        id="footer1_sensor"
-                        data-path="devices.${box}.footerEntity1"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                </div>
-                
-                <!-- FOOTER 2 ET 3 -->
-                <div class="row">
-                    <ha-entity-picker
-                        label="${t("subtabRender", "entity2_footer")}"
-                        id="footer2_sensor"
-                        data-path="devices.${box}.footerEntity2"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                    <ha-entity-picker
-                        label="${t("subtabRender", "entity3_footer")}"
-                        id="footer3_sensor"
-                        data-path="devices.${box}.footerEntity3"
-                        allow-custom-entity
-                    >
-                    </ha-entity-picker>
-                </div>
-
-            </div>
-        </ha-expansion-panel>
-        
-        <!-- ANCHORS -->
-        <ha-expansion-panel outlined id="subPanel_anchors" header="${t("subtabRender", "anchor_title")}">
-            <div class="col inner">
-                <div class="row">
-                    <div class="col cell">
-                        <ha-textfield class="anchor cell"
-                            id="anchor_left"
-                            data-path="devices.${box}.anchors" 
-                            label="${t("subtabRender", "left_qtyBox")}"
-                            value=""
-                            type="number"
-                            min="0"
-                            max="3"
-                            step="1"
-                        ></ha-textfield>
-                    </div>
-                    <div class="col cell">
-                        <ha-textfield class="anchor cell"
-                            id="anchor_top"
-                            data-path="devices.${box}.anchors" 
-                            label="${t("subtabRender", "top_qtyBox")}"
-                            value=""
-                            type="number"
-                            min="0"
-                            max="3"
-                            step="1"
-                        ></ha-textfield>
-                        <ha-textfield class="anchor cell"
-                            id="anchor_bottom"
-                            data-path="devices.${box}.anchors" 
-                            label="${t("subtabRender", "bottom_qtyBox")}"
-                            value=""
-                            type="number"
-                            min="0"
-                            max="3"
-                            step="1"
-                        ></ha-textfield>
-                    </div>
-                    <div class="col cell">
-                        <ha-textfield class="anchor cell"
-                            id="anchor_right"
-                            data-path="devices.${box}.anchors" 
-                            label="${t("subtabRender", "right_qtyBox")}"
-                            value=""
-                            type="number"
-                            min="0"
-                            max="3"
-                            step="1"
-                        ></ha-textfield>
-                    </div>
-                </div>
-            </div>
-        </ha-expansion-panel>
-        
-        <!-- LINKS -->
-        <div class="contMenu">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div class="headerMenu">${t("subtabRender", "add_links")}</div>
-                <ha-icon-button id="add-link-button" aria-label="${t("subtabRender", "add_link")}">
-                    <ha-icon icon="mdi:plus" style="display: flex;"></ha-icon>
-                </ha-icon-button>
-            </div>
-            <div id="link-container" class="col noGap"></div>
-        </div>
-    `;
-    
-  // Force custom element upgrade after setting innerHTML
-  // This ensures Home Assistant's component system properly initializes the pickers
-  if (customElements && customElements.upgrade) {
-    customElements.upgrade(subTabContent);
-  }
   
-  // Aggressively upgrade all custom elements recursively
-  const upgradeAllElements = (root) => {
-    root.querySelectorAll('*').forEach(el => {
-      if (el.tagName && el.tagName.includes('-')) {
-        if (customElements && customElements.upgrade) {
-          customElements.upgrade(el);
-        }
-      }
-    });
-  };
-  upgradeAllElements(subTabContent);
+  // ==== BUILD ICON & NAME PANEL ====
+  const headerPanel = document.createElement('ha-expansion-panel');
+  headerPanel.setAttribute('expanded', '');
+  headerPanel.setAttribute('outlined', '');
+  headerPanel.setAttribute('id', 'subPanel_header');
+  headerPanel.setAttribute('header', t("subtabRender", "header_title"));
+  
+  const headerInner = document.createElement('div');
+  headerInner.className = 'col inner';
+  
+  const headerRow = document.createElement('div');
+  headerRow.className = 'row';
+  
+  const iconPicker = document.createElement('ha-icon-picker');
+  iconPicker.className = 'cell';
+  iconPicker.setAttribute('label', t("subtabRender", "icon_choice"));
+  iconPicker.setAttribute('id', 'device_icon');
+  iconPicker.setAttribute('data-path', `devices.${box}.icon`);
+  headerRow.appendChild(iconPicker);
+  
+  const nameField = document.createElement('ha-textfield');
+  nameField.className = 'cell';
+  nameField.setAttribute('label', t("subtabRender", "name_choice"));
+  nameField.setAttribute('id', 'device_name');
+  nameField.setAttribute('data-path', `devices.${box}.name`);
+  headerRow.appendChild(nameField);
+  
+  headerInner.appendChild(headerRow);
+  headerPanel.appendChild(headerInner);
+  subTabContent.appendChild(headerPanel);
+  
+  // ==== BUILD ENTITIES PANEL (Main sensors) ====
+  const entitiesPanel = document.createElement('ha-expansion-panel');
+  entitiesPanel.setAttribute('outlined', '');
+  entitiesPanel.setAttribute('id', 'subPanel_entities');
+  entitiesPanel.setAttribute('header', t("subtabRender", "sensor_title"));
+  entitiesPanel.setAttribute('expanded', '');
+  
+  const entitiesInner = document.createElement('div');
+  entitiesInner.className = 'col inner';
+  
+  // Entity picker 1
+  const row1 = document.createElement('div');
+  row1.className = 'row';
+  const entityPicker = document.createElement('ha-entity-picker');
+  entityPicker.setAttribute('label', t("subtabRender", "entity_choice"));
+  entityPicker.setAttribute('id', 'device_sensor');
+  entityPicker.setAttribute('data-path', `devices.${box}.entity`);
+  entityPicker.setAttribute('allow-custom-entity', '');
+  row1.appendChild(entityPicker);
+  entitiesInner.appendChild(row1);
+  
+  // Entity picker 2
+  const row2 = document.createElement('div');
+  row2.className = 'row';
+  const entity2Picker = document.createElement('ha-entity-picker');
+  entity2Picker.setAttribute('label', t("subtabRender", "entity2_choice"));
+  entity2Picker.setAttribute('id', 'device_sensor2');
+  entity2Picker.setAttribute('data-path', `devices.${box}.entity2`);
+  entity2Picker.setAttribute('allow-custom-entity', '');
+  row2.appendChild(entity2Picker);
+  entitiesInner.appendChild(row2);
+  
+  // Side gauge entity picker
+  const row3 = document.createElement('div');
+  row3.className = 'row';
+  const sgEntityPicker = document.createElement('ha-entity-picker');
+  sgEntityPicker.setAttribute('label', t("subtabRender", "side_gauge_entity"));
+  sgEntityPicker.setAttribute('id', 'sideGaugeEntity_picker');
+  sgEntityPicker.setAttribute('data-path', `devices.${box}.sideGaugeEntity`);
+  sgEntityPicker.setAttribute('allow-custom-entity', '');
+  row3.appendChild(sgEntityPicker);
+  entitiesInner.appendChild(row3);
+  
+  // Side gauge max picker
+  const row4 = document.createElement('div');
+  row4.className = 'row';
+  const sgMaxPicker = document.createElement('ha-entity-picker');
+  sgMaxPicker.setAttribute('label', t("subtabRender", "side_gauge_max"));
+  sgMaxPicker.setAttribute('id', 'sideGaugeMax_picker');
+  sgMaxPicker.setAttribute('data-path', `devices.${box}.sideGaugeMax`);
+  sgMaxPicker.setAttribute('allow-custom-entity', '');
+  row4.appendChild(sgMaxPicker);
+  entitiesInner.appendChild(row4);
+  
+  // Switches row
+  const switchesRow = document.createElement('div');
+  switchesRow.className = 'row';
+  
+  const graphDiv = document.createElement('div');
+  graphDiv.className = 'row cell';
+  graphDiv.textContent = t("subtabRender", "enable_graph") + ' :';
+  const graphSwitch = document.createElement('ha-switch');
+  graphSwitch.className = 'cell right';
+  graphSwitch.setAttribute('id', 'graph_switch');
+  graphSwitch.setAttribute('data-path', `devices.${box}.graph`);
+  graphDiv.appendChild(graphSwitch);
+  switchesRow.appendChild(graphDiv);
+  
+  const gaugeDiv = document.createElement('div');
+  gaugeDiv.className = 'row cell';
+  gaugeDiv.setAttribute('id', 'gauge_div');
+  gaugeDiv.textContent = t("subtabRender", "enable_gauge") + ' :';
+  const gaugeSwitch = document.createElement('ha-switch');
+  gaugeSwitch.className = 'cell right';
+  gaugeSwitch.setAttribute('id', 'gauge_switch');
+  gaugeSwitch.setAttribute('data-path', `devices.${box}.gauge`);
+  gaugeDiv.appendChild(gaugeSwitch);
+  switchesRow.appendChild(gaugeDiv);
+  
+  const gaugeMaxDiv = document.createElement('div');
+  gaugeMaxDiv.className = 'row cell';
+  gaugeMaxDiv.setAttribute('id', 'gaugeMax_div');
+  gaugeMaxDiv.textContent = t("subtabRender", "gauge_max") + ' :';
+  const gaugeMaxField = document.createElement('ha-textfield');
+  gaugeMaxField.className = 'cell right';
+  gaugeMaxField.setAttribute('id', 'gaugeMax_field');
+  gaugeMaxField.setAttribute('type', 'number');
+  gaugeMaxField.setAttribute('data-path', `devices.${box}.gaugeMax`);
+  gaugeMaxDiv.appendChild(gaugeMaxField);
+  switchesRow.appendChild(gaugeMaxDiv);
+  
+  entitiesInner.appendChild(switchesRow);
+  
+  // Side gauge switch
+  const sideGaugeRow = document.createElement('div');
+  sideGaugeRow.className = 'row cell';
+  sideGaugeRow.textContent = t("subtabRender", "enable_side_gauge") + ' :';
+  const sideGaugeSwitch = document.createElement('ha-switch');
+  sideGaugeSwitch.className = 'cell right';
+  sideGaugeSwitch.setAttribute('id', 'sideGauge_switch');
+  sideGaugeSwitch.setAttribute('data-path', `devices.${box}.sideGauge`);
+  sideGaugeRow.appendChild(sideGaugeSwitch);
+  entitiesInner.appendChild(sideGaugeRow);
+  
+  entitiesPanel.appendChild(entitiesInner);
+  subTabContent.appendChild(entitiesPanel);
+  
+  // ==== BUILD HEADER/FOOTER PANEL ====
+  const headerfooterPanel = document.createElement('ha-expansion-panel');
+  headerfooterPanel.setAttribute('outlined', '');
+  headerfooterPanel.setAttribute('id', 'subPanel_entities2');
+  headerfooterPanel.setAttribute('header', t("subtabRender", "header_footer_title"));
+  
+  const headerfooterInner = document.createElement('div');
+  headerfooterInner.className = 'col inner';
+  
+  // Header and footer 1 row
+  const hfRow1 = document.createElement('div');
+  hfRow1.className = 'row';
+  
+  const headerEntity = document.createElement('ha-entity-picker');
+  headerEntity.setAttribute('label', t("subtabRender", "entity_header"));
+  headerEntity.setAttribute('id', 'header_sensor');
+  headerEntity.setAttribute('data-path', `devices.${box}.headerEntity`);
+  headerEntity.setAttribute('allow-custom-entity', '');
+  hfRow1.appendChild(headerEntity);
+  
+  const footer1Entity = document.createElement('ha-entity-picker');
+  footer1Entity.setAttribute('label', t("subtabRender", "entity_footer"));
+  footer1Entity.setAttribute('id', 'footer1_sensor');
+  footer1Entity.setAttribute('data-path', `devices.${box}.footerEntity1`);
+  footer1Entity.setAttribute('allow-custom-entity', '');
+  hfRow1.appendChild(footer1Entity);
+  
+  headerfooterInner.appendChild(hfRow1);
+  
+  // Footer 2 and 3 row
+  const hfRow2 = document.createElement('div');
+  hfRow2.className = 'row';
+  
+  const footer2Entity = document.createElement('ha-entity-picker');
+  footer2Entity.setAttribute('label', t("subtabRender", "entity2_footer"));
+  footer2Entity.setAttribute('id', 'footer2_sensor');
+  footer2Entity.setAttribute('data-path', `devices.${box}.footerEntity2`);
+  footer2Entity.setAttribute('allow-custom-entity', '');
+  hfRow2.appendChild(footer2Entity);
+  
+  const footer3Entity = document.createElement('ha-entity-picker');
+  footer3Entity.setAttribute('label', t("subtabRender", "entity3_footer"));
+  footer3Entity.setAttribute('id', 'footer3_sensor');
+  footer3Entity.setAttribute('data-path', `devices.${box}.footerEntity3`);
+  footer3Entity.setAttribute('allow-custom-entity', '');
+  hfRow2.appendChild(footer3Entity);
+  
+  headerfooterInner.appendChild(hfRow2);
+  headerfooterPanel.appendChild(headerfooterInner);
+  subTabContent.appendChild(headerfooterPanel);
+  
+  // ==== BUILD ANCHORS PANEL ====
+  const anchorsPanel = document.createElement('ha-expansion-panel');
+  anchorsPanel.setAttribute('outlined', '');
+  anchorsPanel.setAttribute('id', 'subPanel_anchors');
+  anchorsPanel.setAttribute('header', t("subtabRender", "anchor_title"));
+  
+  const anchorsInner = document.createElement('div');
+  anchorsInner.className = 'col inner';
+  
+  const anchorsRow = document.createElement('div');
+  anchorsRow.className = 'row';
+  
+  // Left anchors
+  const anchorLeftCol = document.createElement('div');
+  anchorLeftCol.className = 'col cell';
+  const anchorLeft = document.createElement('ha-textfield');
+  anchorLeft.className = 'anchor cell';
+  anchorLeft.setAttribute('id', 'anchor_left');
+  anchorLeft.setAttribute('data-path', `devices.${box}.anchors`);
+  anchorLeft.setAttribute('label', t("subtabRender", "left_qtyBox"));
+  anchorLeft.setAttribute('type', 'number');
+  anchorLeft.setAttribute('min', '0');
+  anchorLeft.setAttribute('max', '3');
+  anchorLeft.setAttribute('step', '1');
+  anchorLeftCol.appendChild(anchorLeft);
+  anchorsRow.appendChild(anchorLeftCol);
+  
+  // Top/bottom anchors
+  const anchorTopBottomCol = document.createElement('div');
+  anchorTopBottomCol.className = 'col cell';
+  
+  const anchorTop = document.createElement('ha-textfield');
+  anchorTop.className = 'anchor cell';
+  anchorTop.setAttribute('id', 'anchor_top');
+  anchorTop.setAttribute('data-path', `devices.${box}.anchors`);
+  anchorTop.setAttribute('label', t("subtabRender", "top_qtyBox"));
+  anchorTop.setAttribute('type', 'number');
+  anchorTop.setAttribute('min', '0');
+  anchorTop.setAttribute('max', '3');
+  anchorTop.setAttribute('step', '1');
+  anchorTopBottomCol.appendChild(anchorTop);
+  
+  const anchorBottom = document.createElement('ha-textfield');
+  anchorBottom.className = 'anchor cell';
+  anchorBottom.setAttribute('id', 'anchor_bottom');
+  anchorBottom.setAttribute('data-path', `devices.${box}.anchors`);
+  anchorBottom.setAttribute('label', t("subtabRender", "bottom_qtyBox"));
+  anchorBottom.setAttribute('type', 'number');
+  anchorBottom.setAttribute('min', '0');
+  anchorBottom.setAttribute('max', '3');
+  anchorBottom.setAttribute('step', '1');
+  anchorTopBottomCol.appendChild(anchorBottom);
+  
+  anchorsRow.appendChild(anchorTopBottomCol);
+  
+  // Right anchors
+  const anchorRightCol = document.createElement('div');
+  anchorRightCol.className = 'col cell';
+  const anchorRight = document.createElement('ha-textfield');
+  anchorRight.className = 'anchor cell';
+  anchorRight.setAttribute('id', 'anchor_right');
+  anchorRight.setAttribute('data-path', `devices.${box}.anchors`);
+  anchorRight.setAttribute('label', t("subtabRender", "right_qtyBox"));
+  anchorRight.setAttribute('type', 'number');
+  anchorRight.setAttribute('min', '0');
+  anchorRight.setAttribute('max', '3');
+  anchorRight.setAttribute('step', '1');
+  anchorRightCol.appendChild(anchorRight);
+  anchorsRow.appendChild(anchorRightCol);
+  
+  anchorsInner.appendChild(anchorsRow);
+  anchorsPanel.appendChild(anchorsInner);
+  subTabContent.appendChild(anchorsPanel);
+  
+  // ==== BUILD LINKS SECTION ====
+  const linksContainer = document.createElement('div');
+  linksContainer.className = 'contMenu';
+  
+  const linksHeader = document.createElement('div');
+  linksHeader.style.display = 'flex';
+  linksHeader.style.justifyContent = 'space-between';
+  linksHeader.style.alignItems = 'center';
+  
+  const linksTitle = document.createElement('div');
+  linksTitle.className = 'headerMenu';
+  linksTitle.textContent = t("subtabRender", "add_links");
+  linksHeader.appendChild(linksTitle);
+  
+  const addLinkButton = document.createElement('ha-icon-button');
+  addLinkButton.setAttribute('id', 'add-link-button');
+  addLinkButton.setAttribute('aria-label', t("subtabRender", "add_link"));
+  const addLinkIcon = document.createElement('ha-icon');
+  addLinkIcon.setAttribute('icon', 'mdi:plus');
+  addLinkIcon.style.display = 'flex';
+  addLinkButton.appendChild(addLinkIcon);
+  linksHeader.appendChild(addLinkButton);
+  
+  linksContainer.appendChild(linksHeader);
+  
+  const linkContainer = document.createElement('div');
+  linkContainer.setAttribute('id', 'link-container');
+  linkContainer.className = 'col noGap';
+  linksContainer.appendChild(linkContainer);
+  
+  subTabContent.appendChild(linksContainer);
   
   // Reapply the "expanded" attribute to panels that had it before
   expandedPanelsState.forEach(id => {
@@ -539,66 +614,26 @@ export function subtabRender(box, config, hass, appendTo) {
       panel.setAttribute("expanded", "");
     }
   });
-            
-  const iconPicker = subTabContent.querySelector('#device_icon');
-  const nameField = subTabContent.querySelector('#device_name');
-  const entityPicker = subTabContent.querySelector('#device_sensor');
-  const entity2Picker = subTabContent.querySelector('#device_sensor2');
-  const graphSwitch = subTabContent.querySelector('#graph_switch');
-  const gaugeSwitch = subTabContent.querySelector('#gauge_switch');
-  const headerEntity = subTabContent.querySelector('#header_sensor');
-  const footerEntity1 = subTabContent.querySelector('#footer1_sensor');
-  const footerEntity2 = subTabContent.querySelector('#footer2_sensor');
-  const footerEntity3 = subTabContent.querySelector('#footer3_sensor');
-  const anchorLeft = subTabContent.querySelector('#anchor_left');
-  const anchorTop = subTabContent.querySelector('#anchor_top');
-  const anchorbottom = subTabContent.querySelector('#anchor_bottom');
-  const anchorRight = subTabContent.querySelector('#anchor_right');
-	
-  console.log('[venus-editor] Element queries:', {
-    entityPicker: !!entityPicker,
-    entity2Picker: !!entity2Picker,
-    headerEntity: !!headerEntity,
-    footerEntity1: !!footerEntity1
-  });
   
-  // Immediately set .hass on all pickers BEFORE further operations
-  const allPickersToInit = [iconPicker, entityPicker, entity2Picker, headerEntity, footerEntity1, footerEntity2];
-  allPickersToInit.forEach(picker => {
-    if (picker && picker.tagName.includes('picker')) {
-      picker.hass = hass;
-    }
-  });
-  
+  // Now set .hass on all pickers - this MUST happen after DOM insertion
   // Set .hass BEFORE .value - required for HA entity/icon pickers to work
   if (iconPicker) {
     iconPicker.hass = hass;
-    console.log('[venus-editor] Set hass on iconPicker:', !!iconPicker.hass);
   }
   if (entityPicker) {
     entityPicker.hass = hass;
-    // Force update after setting hass
     if (entityPicker.requestUpdate) entityPicker.requestUpdate();
-    console.log('[venus-editor] Set hass on entityPicker:', {
-      hasHass: !!entityPicker.hass,
-      disabled: entityPicker.disabled,
-      readOnly: entityPicker.readOnly,
-      type: entityPicker.tagName
-    });
   }
   if (entity2Picker) entity2Picker.hass = hass;
   if (headerEntity) headerEntity.hass = hass;  
-  if (footerEntity1) footerEntity1.hass = hass;
-  if (footerEntity2) footerEntity2.hass = hass;
-  if (footerEntity3) footerEntity3.hass = hass;
-  
-  const sgEntityPicker = subTabContent.querySelector("#sideGaugeEntity_picker");
-  const sgMaxPicker = subTabContent.querySelector("#sideGaugeMax_picker");
+  if (footer1Entity) footer1Entity.hass = hass;
+  if (footer2Entity) footer2Entity.hass = hass;
+  if (footer3Entity) footer3Entity.hass = hass;
   if (sgEntityPicker) sgEntityPicker.hass = hass;
   if (sgMaxPicker) sgMaxPicker.hass = hass;
   
-  // Collect all entity pickers for aggressive initialization
-  const allPickers = [entityPicker, entity2Picker, headerEntity, footerEntity1, footerEntity2, footerEntity3, sgEntityPicker, sgMaxPicker];
+  // Collect all entity pickers for initialization
+  const allPickers = [iconPicker, entityPicker, entity2Picker, headerEntity, footer1Entity, footer2Entity, footer3Entity, sgEntityPicker, sgMaxPicker];
   
   // Force requestUpdate on all entity pickers to trigger proper rendering
   allPickers.forEach(picker => {
@@ -609,18 +644,6 @@ export function subtabRender(box, config, hass, appendTo) {
       if (typeof picker.requestUpdate === 'function') {
         picker.requestUpdate();
       }
-      // Remove disabled/readonly attributes if present
-      picker.removeAttribute('disabled');
-      picker.removeAttribute('readonly');
-      picker.removeAttribute('readonly-attributes');
-      // Explicitly set the element's internals
-      if (picker.hasUpdated === false) {
-        try {
-          picker.performUpdate?.();
-        } catch (e) {
-          // Ignore if performUpdate doesn't exist
-        }
-      }
     }
   });
   
@@ -630,16 +653,16 @@ export function subtabRender(box, config, hass, appendTo) {
   if (entityPicker) entityPicker.value = config?.devices?.[box]?.entity ?? "";
   if (entity2Picker) entity2Picker.value = config?.devices?.[box]?.entity2 ?? "";
   if (headerEntity) headerEntity.value = config?.devices?.[box]?.headerEntity ?? "";
-  if (footerEntity1) footerEntity1.value = config?.devices?.[box]?.footerEntity1 ?? "";
-  if (footerEntity2) footerEntity2.value = config?.devices?.[box]?.footerEntity2 ?? "";
-  if (footerEntity3) footerEntity3.value = config?.devices?.[box]?.footerEntity3 ?? "";
+  if (footer1Entity) footer1Entity.value = config?.devices?.[box]?.footerEntity1 ?? "";
+  if (footer2Entity) footer2Entity.value = config?.devices?.[box]?.footerEntity2 ?? "";
+  if (footer3Entity) footer3Entity.value = config?.devices?.[box]?.footerEntity3 ?? "";
   if (sgEntityPicker) sgEntityPicker.value = config?.devices?.[box]?.sideGaugeEntity ?? "";
   if (sgMaxPicker) sgMaxPicker.value = config?.devices?.[box]?.sideGaugeMax ?? "";
   
   // Retrieve values for each side
   if (anchorLeft) anchorLeft.value = leftQty;
   if (anchorTop) anchorTop.value = topQty;
-  if (anchorbottom) anchorbottom.value = bottomQty;
+  if (anchorBottom) anchorBottom.value = bottomQty;
   if (anchorRight) anchorRight.value = rightQty;
            
   if (config?.devices?.[box]?.graph === true && graphSwitch) graphSwitch.setAttribute('checked', '');
@@ -648,14 +671,12 @@ export function subtabRender(box, config, hass, appendTo) {
   const unit = entity?.attributes?.unit_of_measurement;
 
   if (config.devices?.[box]?.gauge === true) gaugeSwitch.setAttribute('checked', '');
-  const gaugeMaxField = subTabContent.querySelector("#gaugeMax_field");
   gaugeMaxField.value = config?.devices?.[box]?.gaugeMax ?? "";
-  const sideGaugeSwitch = subTabContent.querySelector("#sideGauge_switch");
   if (config.devices?.[box]?.sideGauge === true) sideGaugeSwitch.setAttribute('checked', '');
     
-    
-  const linkContainer = subTabContent.querySelector('#link-container');
-  const addLinkButton = subTabContent.querySelector('#add-link-button');
+  // linkContainer and addLinkButton were already created above
+  const actualLinkContainer = linkContainer;
+  const actualAddLinkButton = addLinkButton;
     
   Object.entries(config.devices?.[box]?.link || {}).forEach(([linkKey]) => {
         
@@ -663,8 +684,8 @@ export function subtabRender(box, config, hass, appendTo) {
 
   });
     
-  addLinkButton.addEventListener('click', () => {
-    addLink(linkContainer.children.length+1, box, hass, thisAllAnchors, OtherAllAnchors, appendTo);
+  actualAddLinkButton.addEventListener('click', () => {
+    addLink(actualLinkContainer.children.length+1, box, hass, thisAllAnchors, OtherAllAnchors, appendTo);
   });
     
   function trackExpansionState() {
