@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.47`);
+    const response = await import(`./lang-${lang}.js?v=0.2.48`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.47`);
+    const response = await import(`./lang-en.js?v=0.2.48`);
     translations = response.default;
   }
 }
@@ -334,34 +334,42 @@ export function subtabRender(box, config, hass, appendTo) {
         <!-- ENTITE 1 et 2-->
         <ha-expansion-panel outlined id="subPanel_entities" header="${t("subtabRender", "sensor_title")}">
             <div class="col inner">
-                <ha-entity-picker
-                    label="${t("subtabRender", "entity_choice")}"
-                    id="device_sensor"
-                    data-path="devices.${box}.entity"
-                    allow-custom-entity
-                >
-                </ha-entity-picker>
-                <ha-entity-picker
-                    label="${t("subtabRender", "entity2_choice")}"
-                    id="device_sensor2"
-                    data-path="devices.${box}.entity2"
-                    allow-custom-entity
-                >
-                </ha-entity-picker>
-                <ha-entity-picker
-                    label="${t("subtabRender", "side_gauge_entity")}"
-                    id="sideGaugeEntity_picker"
-                    data-path="devices.${box}.sideGaugeEntity"
-                    allow-custom-entity
-                >
-                </ha-entity-picker>
-                <ha-entity-picker
-                    label="${t("subtabRender", "side_gauge_max")}"
-                    id="sideGaugeMax_picker"
-                    data-path="devices.${box}.sideGaugeMax"
-                    allow-custom-entity
-                >
-                </ha-entity-picker>
+                <div class="row">
+                    <ha-entity-picker
+                        label="${t("subtabRender", "entity_choice")}"
+                        id="device_sensor"
+                        data-path="devices.${box}.entity"
+                        allow-custom-entity
+                    >
+                    </ha-entity-picker>
+                </div>
+                <div class="row">
+                    <ha-entity-picker
+                        label="${t("subtabRender", "entity2_choice")}"
+                        id="device_sensor2"
+                        data-path="devices.${box}.entity2"
+                        allow-custom-entity
+                    >
+                    </ha-entity-picker>
+                </div>
+                <div class="row">
+                    <ha-entity-picker
+                        label="${t("subtabRender", "side_gauge_entity")}"
+                        id="sideGaugeEntity_picker"
+                        data-path="devices.${box}.sideGaugeEntity"
+                        allow-custom-entity
+                    >
+                    </ha-entity-picker>
+                </div>
+                <div class="row">
+                    <ha-entity-picker
+                        label="${t("subtabRender", "side_gauge_max")}"
+                        id="sideGaugeMax_picker"
+                        data-path="devices.${box}.sideGaugeMax"
+                        allow-custom-entity
+                    >
+                    </ha-entity-picker>
+                </div>
     
                 <!-- SWITCHS GRAPH ET GAUGE -->
                 <div class="row">
