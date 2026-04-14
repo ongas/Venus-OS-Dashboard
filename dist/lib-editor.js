@@ -333,7 +333,7 @@ export function subtabRender(box, config, hass, appendTo) {
         </ha-expansion-panel>
         
         <!-- ENTITE 1 et 2-->
-        <ha-expansion-panel outlined id="subPanel_entities" header="${t("subtabRender", "sensor_title")}">
+        <ha-expansion-panel outlined id="subPanel_entities" header="${t("subtabRender", "sensor_title")}" expanded>
             <div class="col inner">
                 <div class="row">
                     <ha-entity-picker
