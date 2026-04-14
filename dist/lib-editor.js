@@ -25,11 +25,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.42`);
+    const response = await import(`./lang-${lang}.js?v=0.2.43`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.42`);
+    const response = await import(`./lang-en.js?v=0.2.43`);
     translations = response.default;
   }
 }
@@ -528,8 +528,14 @@ export function subtabRender(box, config, hass, appendTo) {
   });
   
   // Set .hass BEFORE .value - required for HA entity/icon pickers to work
-  if (iconPicker) iconPicker.hass = hass;
-  if (entityPicker) entityPicker.hass = hass;
+  if (iconPicker) {
+    iconPicker.hass = hass;
+    console.log('[venus-editor] Set hass on iconPicker:', !!iconPicker.hass);
+  }
+  if (entityPicker) {
+    entityPicker.hass = hass;
+    console.log('[venus-editor] Set hass on entityPicker:', !!entityPicker.hass);
+  }
   if (entity2Picker) entity2Picker.hass = hass;
   if (headerEntity) headerEntity.hass = hass;  
   if (footerEntity1) footerEntity1.hass = hass;
@@ -1059,6 +1065,7 @@ export function attachInputs(appendTo) {
     const handleChange = (e) => {
       const key = entityPicker.dataset.path; // Ensure the `name` matches the key in the config
       let value = e.detail.value;
+      console.log('[venus-editor] Entity picker value-changed:', { key, value, id: entityPicker.id });
             
       // If the value is an empty string, treat as icon removal
       if (!value || value.trim() === "") {
@@ -1073,6 +1080,7 @@ export function attachInputs(appendTo) {
         
     // Add the event listener
     entityPicker.addEventListener("value-changed", handleChange);
+    console.log('[venus-editor] Attached value-changed listener to entity picker:', entityPicker.id);
         
     // Register the handler in the WeakMap
     eventHandlers.set(entityPicker, handleChange);
