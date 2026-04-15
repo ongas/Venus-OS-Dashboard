@@ -19,11 +19,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.88`);
+    const response = await import(`./lang-${lang}.js?v=0.2.89`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.88`);
+    const response = await import(`./lang-en.js?v=0.2.89`);
     translations = response.default;
   }
 }
@@ -297,36 +297,18 @@ export function subtabRender(box, config, hass, appendTo) {
       ]
     },
     {
-      type: 'conditional',
-      conditions: [
-        {
-          condition: 'schema.icon_mode',
-          operator: 'is',
-          value: 'static'
-        }
-      ],
+      type: 'grid',
+      column_min_width: '200px',
       schema: [
         {
           name: 'icon',
-          label: 'Select Icon',
+          label: 'Select Icon (for Static mode)',
           selector: { icon: {} }
-        }
-      ]
-    },
-    {
-      type: 'conditional',
-      conditions: [
-        {
-          condition: 'schema.icon_mode',
-          operator: 'is',
-          value: 'dynamic'
-        }
-      ],
-      schema: [
+        },
         {
           name: 'iconEntity',
-          label: 'Icon Entity',
-          description: 'Select a template entity that outputs icon names (e.g., "mdi:battery-75"). Create a template sensor in Home Assistant that calculates the icon name based on SOC percentage.',
+          label: 'Icon Entity (for Dynamic mode)',
+          description: 'Template entity that outputs icon names (e.g., "mdi:battery-75")',
           selector: { 
             entity: {
               filter: {
@@ -440,6 +422,12 @@ export function subtabRender(box, config, hass, appendTo) {
   form.schema = schema;
   form.hass = hass;
   form.data = config?.devices?.[box] || {};
+  
+  // Ensure iconMode has a default value if not set
+  if (!form.data.iconMode) {
+    form.data.iconMode = 'static';
+  }
+  
   form.computeLabel = (schema) => {
     return schema.name ? schema.name.charAt(0).toUpperCase() + schema.name.slice(1) : '';
   };
