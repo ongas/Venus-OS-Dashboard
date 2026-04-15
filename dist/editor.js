@@ -27,21 +27,21 @@ class venusOsDashBoardEditor extends HTMLElement {
         
     await libEditor.loadTranslations(this);
     
-    let tabGroup;
     if (!this.shadowRoot) {
             
       this.attachShadow({ mode: 'open' });
             
       this.shadowRoot.innerHTML = `
               <style>
-                paper-tabs {
+                #tab-group {
                   width: 100%;
                   display: flex;
                   flex-direction: row;
                   border-bottom: 2px solid #ccc;
-                  --paper-tabs-selection-color: #0ea5e9;
+                  margin: 0;
+                  padding: 0;
                 }
-                paper-tab {
+                .native-tab {
                   flex: 1;
                   padding: 12px 16px;
                   cursor: pointer;
@@ -50,35 +50,35 @@ class venusOsDashBoardEditor extends HTMLElement {
                   color: #666;
                   border-bottom: 3px solid transparent;
                   transition: all 0.3s ease;
-                  --paper-tab-ink: #0ea5e9;
+                  background: none;
+                  border: none;
+                  font-size: 14px;
+                  font-family: inherit;
                 }
-                paper-tab:hover {
+                .native-tab:hover {
                   color: #333;
                   background-color: #f5f5f5;
                 }
-                paper-tab[active] {
+                .native-tab.active {
                   color: #0ea5e9;
                   border-bottom: 3px solid #0ea5e9;
                 }
               </style>
             
-              <paper-tabs id="tab-group" selected="conf-0" attr-for-selected="name">
-                <paper-tab name="conf-0">Main</paper-tab>
-                <paper-tab name="conf-1">Col. 1</paper-tab>
-                <paper-tab name="conf-2">Col. 2</paper-tab>
-                <paper-tab name="conf-3">Col. 3</paper-tab>
-              </paper-tabs>
+              <div id="tab-group" role="tablist">
+                <button class="native-tab active" data-tab="conf-0" role="tab" aria-selected="true">Main</button>
+                <button class="native-tab" data-tab="conf-1" role="tab" aria-selected="false">Col. 1</button>
+                <button class="native-tab" data-tab="conf-2" role="tab" aria-selected="false">Col. 2</button>
+                <button class="native-tab" data-tab="conf-3" role="tab" aria-selected="false">Col. 3</button>
+              </div>
             
               <div id="tab-content" class="content"></div>
             `;
             
-      tabGroup = this.shadowRoot.querySelector('#tab-group');
-      
-      console.log('[venus-editor] setConfig: Initializing tab system');
+      console.log('[venus-editor] setConfig: Initializing native tab system');
       
       // Store the last known selected value
-      let lastSelected = tabGroup.selected || 'conf-0';
-      console.log('[venus-editor] Initial selected tab:', lastSelected);
+      let lastSelected = 'conf-0';
       
       // Function to handle tab change
       const handleTabChange = (newTabName) => {
@@ -89,73 +89,61 @@ class venusOsDashBoardEditor extends HTMLElement {
         this._config.currentTab = selectedTab;
         lastSelected = newTabName;
         
+        // Update UI: remove active class from all tabs and add to clicked one
+        const allTabs = this.shadowRoot.querySelectorAll('.native-tab');
+        allTabs.forEach(tab => {
+          tab.classList.remove('active');
+          tab.setAttribute('aria-selected', 'false');
+        });
+        
+        const activeTab = this.shadowRoot.querySelector(`.native-tab[data-tab="${newTabName}"]`);
+        if (activeTab) {
+          activeTab.classList.add('active');
+          activeTab.setAttribute('aria-selected', 'true');
+        }
+        
         this.renderTabContent();
         libEditor.notifyConfigChange(this);
       };
       
-      // Try attaching click handlers to paper-tab elements
-      const paperTabs = this.shadowRoot.querySelectorAll('paper-tab');
-      console.log(`[venus-editor] Found ${paperTabs.length} paper-tab elements`);
+      // Attach click handlers to native tab buttons
+      const nativeTabs = this.shadowRoot.querySelectorAll('.native-tab');
+      console.log(`[venus-editor] Found ${nativeTabs.length} native tab buttons`);
       
-      paperTabs.forEach((tab, idx) => {
-        const tabName = tab.getAttribute('name');
-        console.log(`[venus-editor] Attaching handler to paper-tab[${idx}]: ${tabName}`);
+      nativeTabs.forEach((tab, idx) => {
+        const tabName = tab.getAttribute('data-tab');
+        console.log(`[venus-editor] Attaching handler to native-tab[${idx}]: ${tabName}`);
         
         // Add click listener
         tab.addEventListener('click', (e) => {
-          console.log('[venus-editor] CLICK on tab:', tabName);
+          console.log('[venus-editor] CLICK on native tab:', tabName);
           handleTabChange(tabName);
-          e.stopImmediatePropagation();
           e.preventDefault();
-        }, { capture: true, passive: false });
-        
-        // Also try pointerdown
-        tab.addEventListener('pointerdown', (e) => {
-          console.log('[venus-editor] POINTERDOWN on tab:', tabName);
-          handleTabChange(tabName);
-          e.stopImmediatePropagation();
-          e.preventDefault();
-        }, { capture: true, passive: false });
+        });
       });
       
-      // Fallback: Poll the selected attribute directly every 100ms
-      const pollInterval = setInterval(() => {
-        const currentSelected = tabGroup.selected || 'conf-0';
-        if (currentSelected !== lastSelected) {
-          console.log('[venus-editor] POLL DETECTED CHANGE from', lastSelected, 'to', currentSelected);
-          handleTabChange(currentSelected);
-        }
-      }, 100);
+      // Initialize with Main tab active
+      this._currentTab = this._config.currentTab || 0;
+      const initialTab = `conf-${this._currentTab}`;
       
-      // Store interval ID so it can be cleaned up if needed
-      this._tabPollInterval = pollInterval;
-      
-      // Also listen for iron-select event as additional fallback
-      tabGroup.addEventListener('iron-select', (event) => {
-        const selectedName = event.detail.item?.getAttribute('name') || 'conf-0';
-        console.log('[venus-editor] IRON-SELECT event:', selectedName);
-        handleTabChange(selectedName);
-      });
+      // Set initial active tab
+      const initialActiveTab = this.shadowRoot.querySelector(`.native-tab[data-tab="${initialTab}"]`);
+      if (initialActiveTab) {
+        initialActiveTab.classList.add('active');
+        initialActiveTab.setAttribute('aria-selected', 'true');
+      }
       
       const style = document.createElement('style');
       style.textContent = css();
       this.shadowRoot.appendChild(style);
       
-      this._currentTab = this._config.currentTab || 0;
-      
       console.log('[venus-editor] Tab initialization:', {
         configCurrentTab: this._config.currentTab,
-        currentTabValue: this._currentTab
+        currentTabValue: this._currentTab,
+        initialTab: initialTab
       });
       
       libEditor.attachLinkClick(this.renderTabContent.bind(this), this);
-    } else {
-      tabGroup = this.shadowRoot.querySelector('#tab-group');
-    }
-    
-    if (tabGroup) {
-      tabGroup.selected = `conf-${this._currentTab}`;
-      console.log('[venus-editor] Setting tab to:', `conf-${this._currentTab}`);
     }
     
     this.renderTabContent();
