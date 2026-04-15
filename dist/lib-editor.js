@@ -19,11 +19,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.87`);
+    const response = await import(`./lang-${lang}.js?v=0.2.88`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.87`);
+    const response = await import(`./lang-en.js?v=0.2.88`);
     translations = response.default;
   }
 }
@@ -278,14 +278,62 @@ export function subtabRender(box, config, hass, appendTo) {
       column_min_width: '200px',
       schema: [
         {
-          name: 'icon',
-          label: 'Icon',
-          selector: { icon: {} }
+          name: 'iconMode',
+          label: 'Icon Mode',
+          selector: {
+            select: {
+              options: [
+                { value: 'static', label: 'Static Icon' },
+                { value: 'dynamic', label: 'Dynamic Icon (Entity)' }
+              ]
+            }
+          }
         },
         {
           name: 'name',
           label: 'Name',
           selector: { text: {} }
+        }
+      ]
+    },
+    {
+      type: 'conditional',
+      conditions: [
+        {
+          condition: 'schema.icon_mode',
+          operator: 'is',
+          value: 'static'
+        }
+      ],
+      schema: [
+        {
+          name: 'icon',
+          label: 'Select Icon',
+          selector: { icon: {} }
+        }
+      ]
+    },
+    {
+      type: 'conditional',
+      conditions: [
+        {
+          condition: 'schema.icon_mode',
+          operator: 'is',
+          value: 'dynamic'
+        }
+      ],
+      schema: [
+        {
+          name: 'iconEntity',
+          label: 'Icon Entity',
+          description: 'Select a template entity that outputs icon names (e.g., "mdi:battery-75"). Create a template sensor in Home Assistant that calculates the icon name based on SOC percentage.',
+          selector: { 
+            entity: {
+              filter: {
+                domain: ['template', 'input_text']
+              }
+            }
+          }
         }
       ]
     },

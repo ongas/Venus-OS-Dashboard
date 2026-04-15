@@ -302,15 +302,20 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
       }
     }
             
-    // Handle dynamic icon from iconEntity
-    let iconToUse = device.icon || 'mdi:circle';  // Fallback icon if neither is set
-    if(device.iconEntity) {
+    // Handle dynamic icon from iconEntity or static icon
+    let iconToUse = device.icon || 'mdi:circle';  // Fallback icon
+    
+    // Check if iconMode is set to dynamic
+    if(device.iconMode === 'dynamic' && device.iconEntity) {
       const iconEntityState = hass.states[device.iconEntity];
       if(iconEntityState) {
         const iconName = iconEntityState.state.trim();  // Strip whitespace!
-        // If the icon name doesn't already start with 'mdi:', prepend it
-        iconToUse = iconName.startsWith('mdi:') ? iconName : `mdi:${iconName}`;
+        // If the icon name doesn't already start with 'mdi:' or 'custom:', prepend 'mdi:'
+        iconToUse = (iconName.startsWith('mdi:') || iconName.startsWith('custom:')) ? iconName : `mdi:${iconName}`;
       }
+    } else if(device.icon) {
+      // Use static icon if iconMode is not dynamic or not set
+      iconToUse = device.icon;
     }
 
     if(device.headerEntity) {
