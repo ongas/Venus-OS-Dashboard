@@ -50,6 +50,136 @@ The script handles: version bump (`?v=` params), CRLF normalization, syntax vali
 - **DO** validate syntax with `node -c dist/<name>.js` before committing.
 - After editing, always bump the cache-busting `?v=X.Y.Z` params in the import statements of `Venus-OS-Dashboard-ongas.js` to force HA to load the new version.
 
+## General Philosophy: Always Use the "HA Way"
+
+**MANDATORY RULE: When in doubt, follow Home Assistant's proven patterns.**
+
+This project has a history of failed approaches (13 releases of manual picker management, broken visibility toggles with DOM manipulation, etc.). Every failure was from trying to work around HA's architecture instead of working with it. **Never try to force a solution—always use the approach HA and other working cards use.**
+
+Key lessons:
+1. **Don't fight the framework** — HA's Web Components have specific lifecycle expectations
+2. **Use delegation, not manipulation** — Let `ha-form` and other HA components manage their own rendering
+3. **Avoid DOM tricks** — Directly setting styles, searching shadowRoot, using `setTimeout` to wait for rendering—these are red flags
+4. **Test in the browser before releasing** — Add debug logging, open DevTools, verify the feature works end-to-end before committing
+5. **When stuck, look at how HA internal cards do it** — Power Flow Card Plus, Power Distribution Card, etc. are excellent references
+
+This philosophy applies to **everything** in this codebase:
+- Form management → use `ha-form` with schema definitions
+- Conditional field visibility → use dynamic schema regeneration (not CSS hiding)
+- Initial value display → intelligently detect from populated fields (not hard-coded defaults)
+- Event handling → rely on HA's event system (not manual polling or observers)
+
+## Conditional Field Visibility in Card Editor Forms
+
+**HA Best Practice: Use dynamic schema generation, NOT DOM manipulation or CSS hiding.**
+
+When you need to show/hide fields based on user selection (e.g., showing only "Static Icon" OR "Dynamic Icon Entity" based on a radio button choice):
+
+### ❌ DO NOT DO THIS (Broken approaches):
+```javascript
+// Fails: CSS display manipulation
+const updateFieldVisibility = () => {
+  const mode = form.data.iconMode;
+  form.shadowRoot.querySelectorAll('*').forEach(el => {
+    if (el.textContent.includes('Select Icon')) {
+      el.closest('div').style.display = mode === 'static' ? '' : 'none';  // ❌ Doesn't work
+    }
+  });
+};
+setTimeout(updateFieldVisibility, 50);  // ❌ Race conditions
+
+// Fails: Trying to manually control form data after rendering
+form.data = {...};
+setTimeout(() => form.data = {...}, 0);  // ❌ Won't trigger re-render
+
+// Fails: Assuming form recognizes data set before DOM insertion
+form.data = config;
+container.appendChild(form);  // ❌ Timing issues
+```
+
+### ✅ DO THIS INSTEAD (Works - Dynamic Schema):
+```javascript
+// Helper function that generates schema with ONLY the relevant field
+function getIconSchema(mode = 'static') {
+  const baseSchema = [{
+    type: 'grid',
+    schema: [{
+      name: 'iconMode',
+      selector: { select: { options: [
+        { value: 'static', label: 'Static Icon' },
+        { value: 'dynamic', label: 'Dynamic Icon (Entity)' }
+      ]}}
+    }]
+  }];
+
+  // Conditionally add ONLY the field for the selected mode
+  if (mode === 'static') {
+    baseSchema.push({
+      type: 'grid',
+      schema: [{
+        name: 'icon',
+        label: 'Select Icon',
+        selector: { icon: {} }
+      }]
+    });
+  } else {
+    baseSchema.push({
+      type: 'grid',
+      schema: [{
+        name: 'iconEntity',
+        label: 'Icon Entity',
+        selector: { entity: { filter: { domain: ['template', 'input_text'] }}}
+      }]
+    });
+  }
+  return baseSchema;
+}
+
+// Create form with initial schema
+const initialMode = config?.iconMode || 'static';
+const form = document.createElement('ha-form');
+form.schema = getIconSchema(initialMode);
+form.hass = hass;
+form.data = config;  // ✅ Simple assignment—ha-form handles it
+container.appendChild(form);
+
+// When mode changes, regenerate schema
+form.addEventListener('value-changed', (e) => {
+  const newMode = e.detail.value.iconMode;
+  if (newMode !== currentMode) {
+    form.schema = getIconSchema(newMode);  // Schema rebuild = clean re-render
+    form.data = e.detail.value;            // Preserve data through schema change
+    currentMode = newMode;
+  }
+});
+```
+
+### Why Dynamic Schema Works
+1. **Framework manages rendering** — `ha-form` rebuilds itself when schema changes
+2. **No DOM manipulation** — No shadow root searching, no CSS hacks
+3. **Reactive and clean** — Field presence matches logical state exactly
+4. **Proven pattern** — Used by HA's own cards and third-party cards
+5. **No race conditions** — No timers or timing-dependent code
+
+**Proven in v0.2.91+ for icon mode selector.**
+
+### Intelligent Field Detection (Smart Defaults)
+
+When a field isn't explicitly saved, infer its value from what's populated:
+
+```javascript
+// Instead of: iconMode = config?.iconMode || 'static'
+// Which always defaults to 'static' even if iconEntity is filled
+
+// Do this:
+let initialMode = config?.iconMode || 'static';
+if (!config?.iconMode && config?.iconEntity) {
+  initialMode = 'dynamic';  // Detected from populated field
+}
+```
+
+This ensures the form shows the correct state even if the field wasn't explicitly saved to YAML.
+
 ## Home Assistant Web Component Initialization in `lib-editor.js`
 
 **CRITICAL: Use `ha-form` component to manage all entity pickers, never manually manage them.**
