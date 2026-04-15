@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.2.73';
+import {css} from './css-editor.js?v=0.2.78';
 
-import * as libEditor from './lib-editor.js?v=0.2.73';
+import * as libEditor from './lib-editor.js?v=0.2.78';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -74,20 +74,46 @@ class venusOsDashBoardEditor extends HTMLElement {
             
       tabGroup = this.shadowRoot.querySelector('#tab-group');
       
-      // Set up event listener for tab changes using iron-select (native HA event)
+      // CRITICAL: Add direct click handlers to each paper-tab since paper-tabs may not fire iron-select
+      const handleTabClick = (tabName) => {
+        const selectedTab = parseInt(tabName.replace('conf-', ''), 10);
+        this._currentTab = selectedTab;
+        this._config.currentTab = selectedTab;
+        
+        // Update the selected attribute on paper-tabs
+        tabGroup.selected = tabName;
+        
+        console.log('[venus-editor] Tab clicked:', selectedTab, 'from name:', tabName);
+        
+        this.renderTabContent();
+        libEditor.notifyConfigChange(this);
+      };
+      
+      // Attach click handlers to all paper-tabs
+      const paperTabs = this.shadowRoot.querySelectorAll('paper-tab');
+      paperTabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const tabName = tab.getAttribute('name');
+          handleTabClick(tabName);
+        });
+      });
+      
+      // Also set up event listener for iron-select as fallback
       tabGroup.addEventListener('iron-select', (event) => {
         const selectedName = event.detail.item.getAttribute('name');
         const selectedTab = parseInt(selectedName.replace('conf-', ''), 10);
         this._currentTab = selectedTab;
         this._config.currentTab = selectedTab;
         
-        console.log('[venus-editor] Tab changed to:', selectedTab, 'from name:', selectedName);
+        console.log('[venus-editor] Tab changed via iron-select to:', selectedTab, 'from name:', selectedName);
         
         this.renderTabContent();
         libEditor.notifyConfigChange(this);
       });
       
-      // Also watch for property changes as fallback (paper-tabs may not fire iron-select on all interactions)
+      // Also watch for property changes as additional fallback
       const handleTabSelectedChange = () => {
         const selectedName = tabGroup.selected;
         if (typeof selectedName === 'string' && selectedName.startsWith('conf-')) {
@@ -95,7 +121,7 @@ class venusOsDashBoardEditor extends HTMLElement {
           if (this._currentTab !== selectedTab) {
             this._currentTab = selectedTab;
             this._config.currentTab = selectedTab;
-            console.log('[venus-editor] Tab changed (via property watch) to:', selectedTab);
+            console.log('[venus-editor] Tab changed via property watch to:', selectedTab);
             this.renderTabContent();
             libEditor.notifyConfigChange(this);
           }
