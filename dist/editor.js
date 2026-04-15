@@ -74,67 +74,68 @@ class venusOsDashBoardEditor extends HTMLElement {
             
       tabGroup = this.shadowRoot.querySelector('#tab-group');
       
-      // CRITICAL: Add direct click handlers to each paper-tab since paper-tabs may not fire iron-select
-      const handleTabClick = (tabName) => {
-        const selectedTab = parseInt(tabName.replace('conf-', ''), 10);
+      console.log('[venus-editor] setConfig: Initializing tab system');
+      
+      // Store the last known selected value
+      let lastSelected = tabGroup.selected || 'conf-0';
+      console.log('[venus-editor] Initial selected tab:', lastSelected);
+      
+      // Function to handle tab change
+      const handleTabChange = (newTabName) => {
+        const selectedTab = parseInt(newTabName.replace('conf-', ''), 10);
+        console.log('[venus-editor] *** TAB CHANGE DETECTED ***: from', lastSelected, 'to', newTabName);
+        
         this._currentTab = selectedTab;
         this._config.currentTab = selectedTab;
-        
-        // Update the selected attribute on paper-tabs - this is THE KEY action
-        tabGroup.selected = tabName;
-        tabGroup.setAttribute('selected', tabName);
-        
-        console.log('[venus-editor] ===== TAB CLICKED ===== Tab:', tabName, 'Selected:', tabGroup.selected);
+        lastSelected = newTabName;
         
         this.renderTabContent();
         libEditor.notifyConfigChange(this);
       };
       
-      // Attach click handlers to all paper-tabs
+      // Try attaching click handlers to paper-tab elements
       const paperTabs = this.shadowRoot.querySelectorAll('paper-tab');
-      console.log(`[venus-editor] Initializing: Found ${paperTabs.length} paper-tabs`);
+      console.log(`[venus-editor] Found ${paperTabs.length} paper-tab elements`);
       
-      paperTabs.forEach((tab) => {
+      paperTabs.forEach((tab, idx) => {
         const tabName = tab.getAttribute('name');
+        console.log(`[venus-editor] Attaching handler to paper-tab[${idx}]: ${tabName}`);
         
-        // Direct click handler that WILL fire
-        tab.addEventListener('click', () => {
-          console.log(`[venus-editor] !!! CLICK HANDLER FIRED on ${tabName}`);
-          handleTabClick(tabName);
-        }, { passive: false });
+        // Add click listener
+        tab.addEventListener('click', (e) => {
+          console.log('[venus-editor] CLICK on tab:', tabName);
+          handleTabChange(tabName);
+          e.stopImmediatePropagation();
+          e.preventDefault();
+        }, { capture: true, passive: false });
+        
+        // Also try pointerdown
+        tab.addEventListener('pointerdown', (e) => {
+          console.log('[venus-editor] POINTERDOWN on tab:', tabName);
+          handleTabChange(tabName);
+          e.stopImmediatePropagation();
+          e.preventDefault();
+        }, { capture: true, passive: false });
       });
       
-      // Also set up event listener for iron-select as fallback
-      tabGroup.addEventListener('iron-select', (event) => {
-        const selectedName = event.detail.item.getAttribute('name');
-        const selectedTab = parseInt(selectedName.replace('conf-', ''), 10);
-        this._currentTab = selectedTab;
-        this._config.currentTab = selectedTab;
-        
-        console.log('[venus-editor] Tab changed via iron-select to:', selectedTab, 'from name:', selectedName);
-        
-        this.renderTabContent();
-        libEditor.notifyConfigChange(this);
-      });
-      
-      // Also watch for property changes as additional fallback
-      const handleTabSelectedChange = () => {
-        const selectedName = tabGroup.selected;
-        if (typeof selectedName === 'string' && selectedName.startsWith('conf-')) {
-          const selectedTab = parseInt(selectedName.replace('conf-', ''), 10);
-          if (this._currentTab !== selectedTab) {
-            this._currentTab = selectedTab;
-            this._config.currentTab = selectedTab;
-            console.log('[venus-editor] Tab changed via property watch to:', selectedTab);
-            this.renderTabContent();
-            libEditor.notifyConfigChange(this);
-          }
+      // Fallback: Poll the selected attribute directly every 100ms
+      const pollInterval = setInterval(() => {
+        const currentSelected = tabGroup.selected || 'conf-0';
+        if (currentSelected !== lastSelected) {
+          console.log('[venus-editor] POLL DETECTED CHANGE from', lastSelected, 'to', currentSelected);
+          handleTabChange(currentSelected);
         }
-      };
+      }, 100);
       
-      // Create a MutationObserver to watch for selected attribute changes
-      const observer = new MutationObserver(handleTabSelectedChange);
-      observer.observe(tabGroup, { attributes: true, attributeFilter: ['selected'] });
+      // Store interval ID so it can be cleaned up if needed
+      this._tabPollInterval = pollInterval;
+      
+      // Also listen for iron-select event as additional fallback
+      tabGroup.addEventListener('iron-select', (event) => {
+        const selectedName = event.detail.item?.getAttribute('name') || 'conf-0';
+        console.log('[venus-editor] IRON-SELECT event:', selectedName);
+        handleTabChange(selectedName);
+      });
       
       const style = document.createElement('style');
       style.textContent = css();
