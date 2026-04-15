@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.2.75';
+import {css} from './css-editor.js?v=0.2.76';
 
-import * as libEditor from './lib-editor.js?v=0.2.75';
+import * as libEditor from './lib-editor.js?v=0.2.76';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -43,7 +43,7 @@ class venusOsDashBoardEditor extends HTMLElement {
                 }
               </style>
             
-              <paper-tabs id="tab-group" selected="0" attr-for-selected="name">
+              <paper-tabs id="tab-group" selected="conf-0" attr-for-selected="name">
                 <paper-tab name="conf-0">Main</paper-tab>
                 <paper-tab name="conf-1">Col. 1</paper-tab>
                 <paper-tab name="conf-2">Col. 2</paper-tab>
