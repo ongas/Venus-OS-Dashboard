@@ -19,11 +19,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.92`);
+    const response = await import(`./lang-${lang}.js?v=0.2.93`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.92`);
+    const response = await import(`./lang-en.js?v=0.2.93`);
     translations = response.default;
   }
 }
@@ -426,6 +426,12 @@ export function subtabRender(box, config, hass, appendTo) {
   // Get initial icon mode from config (defaults to 'static')
   const initialIconMode = config?.devices?.[box]?.iconMode || 'static';
   
+  // DEBUG: Log what we're working with
+  console.log('[venus-editor] Box:', box);
+  console.log('[venus-editor] Config devices:', config?.devices);
+  console.log('[venus-editor] This box config:', config?.devices?.[box]);
+  console.log('[venus-editor] Initial icon mode:', initialIconMode);
+  
   // Define schema for ha-form - this is the CORRECT approach
   const schema = getBoxDeviceSchema(initialIconMode);
   
@@ -439,6 +445,9 @@ export function subtabRender(box, config, hass, appendTo) {
   if (!initialData.iconMode) {
     initialData.iconMode = 'static';
   }
+  
+  console.log('[venus-editor] Initial data being set:', initialData);
+  
   form.data = initialData;
   
   form.computeLabel = (schema) => {
@@ -471,11 +480,6 @@ export function subtabRender(box, config, hass, appendTo) {
   
   form._lastIconMode = initialIconMode;
   subTabContent.appendChild(form);
-  
-  // Force ha-form to recognize initial data values after DOM insertion
-  setTimeout(() => {
-    form.data = initialData;
-  }, 0);
   
   console.log('[venus-editor] Created ha-form for box:', box, {
     hasForm: !!form,
