@@ -81,10 +81,10 @@ class venusOsDashBoardEditor extends HTMLElement {
                   text-align: center;
                   font-weight: 400;
                   color: #666;
-                  border-bottom: 3px solid transparent;
                   transition: all 0.3s ease;
                   background: none;
                   border: none;
+                  border-bottom: 3px solid transparent;
                   font-size: 13px;
                   font-family: inherit;
                 }
