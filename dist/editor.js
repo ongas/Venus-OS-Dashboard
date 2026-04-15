@@ -91,11 +91,23 @@ class venusOsDashBoardEditor extends HTMLElement {
       
       // Attach click handlers to all paper-tabs
       const paperTabs = this.shadowRoot.querySelectorAll('paper-tab');
-      paperTabs.forEach(tab => {
-        tab.addEventListener('click', (e) => {
-          const tabName = tab.getAttribute('name');
-          console.log('[venus-editor] paper-tab click detected on:', tabName);
-          handleTabClick(tabName);
+      console.log(`[venus-editor] Attaching click handlers to ${paperTabs.length} paper-tab elements`);
+      
+      paperTabs.forEach((tab, index) => {
+        const tabName = tab.getAttribute('name');
+        console.log(`[venus-editor] Attaching handler to tab ${index}: ${tabName}`);
+        
+        // Try both click and pointerdown events
+        tab.addEventListener('click', () => {
+          const name = tab.getAttribute('name');
+          console.log(`[venus-editor] CLICK event fired on tab: ${name}`);
+          handleTabClick(name);
+        });
+        
+        tab.addEventListener('pointerdown', () => {
+          const name = tab.getAttribute('name');
+          console.log(`[venus-editor] POINTERDOWN event fired on tab: ${name}`);
+          handleTabClick(name);
         });
       });
       
