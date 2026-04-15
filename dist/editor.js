@@ -93,9 +93,8 @@ class venusOsDashBoardEditor extends HTMLElement {
       const paperTabs = this.shadowRoot.querySelectorAll('paper-tab');
       paperTabs.forEach(tab => {
         tab.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
           const tabName = tab.getAttribute('name');
+          console.log('[venus-editor] paper-tab click detected on:', tabName);
           handleTabClick(tabName);
         });
       });
