@@ -19,11 +19,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.89`);
+    const response = await import(`./lang-${lang}.js?v=0.2.90`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.89`);
+    const response = await import(`./lang-en.js?v=0.2.90`);
     translations = response.default;
   }
 }
@@ -448,6 +448,77 @@ export function subtabRender(box, config, hass, appendTo) {
   });
   
   subTabContent.appendChild(form);
+  
+  // Function to show/hide icon fields based on iconMode
+  const updateIconFieldVisibility = () => {
+    const iconMode = form.data?.iconMode || 'static';
+    
+    // Find the ha-form's shadow root to access the rendered form elements
+    const shadow = form.shadowRoot;
+    if (!shadow) {
+      console.log('[venus-editor] Waiting for form shadow DOM...');
+      return;
+    }
+    
+    // Alternative: look for field labels and hide their parent containers
+    const allElements = shadow.querySelectorAll('*');
+    let iconFieldFound = false;
+    let iconEntityFieldFound = false;
+    
+    allElements.forEach((el) => {
+      const text = el.textContent || '';
+      const parent = el.closest('div');
+      
+      if (text.includes('Select Icon') && parent && !iconFieldFound) {
+        // Found the static icon field - show/hide based on mode
+        const fieldParent = parent.closest('[class*="field"], .form-group') || parent;
+        if (fieldParent) {
+          fieldParent.style.display = iconMode === 'static' ? '' : 'none';
+          iconFieldFound = true;
+        }
+      }
+      
+      if (text.includes('Icon Entity') && parent && !iconEntityFieldFound) {
+        // Found the entity field - show/hide based on mode
+        const fieldParent = parent.closest('[class*="field"], .form-group') || parent;
+        if (fieldParent) {
+          fieldParent.style.display = iconMode === 'dynamic' ? '' : 'none';
+          iconEntityFieldFound = true;
+        }
+      }
+    });
+  };
+  
+  // Listen for form value changes and update field visibility
+  const oldValueChangedHandler = form._oldValueChangedHandler;
+  if (oldValueChangedHandler) {
+    form.removeEventListener('value-changed', oldValueChangedHandler);
+  }
+  
+  const handleFormChange = (e) => {
+    const newDeviceConfig = e.detail.value;
+    console.log('[venus-editor] Form value-changed:', newDeviceConfig);
+    
+    // Update visibility of icon fields
+    setTimeout(updateIconFieldVisibility, 50);
+    
+    // Update the config
+    if (!config.devices) config.devices = {};
+    config.devices[box] = newDeviceConfig;
+    
+    // Notify parent of change
+    if (appendTo._notifyConfigChange) {
+      appendTo._notifyConfigChange(config);
+    }
+  };
+  
+  form._oldValueChangedHandler = handleFormChange;
+  form.addEventListener('value-changed', handleFormChange);
+  
+  // Initial visibility update - needs to wait for form to render
+  setTimeout(updateIconFieldVisibility, 100);
+  setTimeout(updateIconFieldVisibility, 300);
+  setTimeout(updateIconFieldVisibility, 500);
   
   console.log('[venus-editor] Created ha-form for box:', box, {
     hasForm: !!form,
