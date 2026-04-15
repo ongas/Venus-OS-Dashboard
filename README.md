@@ -72,3 +72,59 @@ Venus OS Dashboard can be configured using Dashboard UI editor.
 3. Click Plus button to add a new card.
 4. Find the _Custom: Venus OS Dashboard card in the list.
 
+---
+
+## Configuration Guide
+
+### Icon Modes
+
+Each device/box in the dashboard supports two icon configuration modes:
+
+#### Static Icon
+- Uses the standard icon picker to select from Home Assistant's built-in Material Design Icons (MDI)
+- Best for devices that don't need dynamic updates
+- Examples: `mdi:battery-charging`, `mdi:home`, `mdi:solar-panel`
+
+#### Dynamic Icon (Entity-Based)
+- Reads icon names from a Home Assistant template entity
+- Perfect for devices like batteries where the icon should change based on SOC percentage
+- The entity's state should return an icon name (with or without `mdi:` prefix)
+- Entity picker is filtered to show only `template` and `input_text` entities for easier discovery
+
+**Example: Dynamic Battery Icon Setup**
+
+1. Create a template sensor in Home Assistant's `configuration.yaml`:
+
+```yaml
+template:
+  - sensor:
+      - name: "Battery Icon"
+        unique_id: battery_icon
+        unit_of_measurement: null
+        state: |
+          {% set soc = states('sensor.battery_soc') | float(0) %}
+          {% if soc >= 80 %}
+            mdi:battery
+          {% elif soc >= 60 %}
+            mdi:battery-60
+          {% elif soc >= 40 %}
+            mdi:battery-40
+          {% elif soc >= 20 %}
+            mdi:battery-20
+          {% else %}
+            mdi:battery-alert
+          {% endif %}
+```
+
+2. Restart Home Assistant to create the new entity (`sensor.battery_icon`)
+
+3. In the Venus OS Dashboard card editor:
+   - Select a box and go to its settings
+   - Choose **Icon Mode**: **Dynamic Icon (Entity)**
+   - Select Entity: **sensor.battery_icon** from the entity picker
+   - Save the configuration
+
+The battery icon will now automatically update as the SOC percentage changes!
+
+You can customize this template with any logic you need - different icons for charging/discharging states, different ranges, etc.
+
