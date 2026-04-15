@@ -80,10 +80,11 @@ class venusOsDashBoardEditor extends HTMLElement {
         this._currentTab = selectedTab;
         this._config.currentTab = selectedTab;
         
-        // Update the selected attribute on paper-tabs
+        // Update the selected attribute on paper-tabs - this is THE KEY action
         tabGroup.selected = tabName;
+        tabGroup.setAttribute('selected', tabName);
         
-        console.log('[venus-editor] Tab clicked:', selectedTab, 'from name:', tabName);
+        console.log('[venus-editor] ===== TAB CLICKED ===== Tab:', tabName, 'Selected:', tabGroup.selected);
         
         this.renderTabContent();
         libEditor.notifyConfigChange(this);
@@ -91,24 +92,16 @@ class venusOsDashBoardEditor extends HTMLElement {
       
       // Attach click handlers to all paper-tabs
       const paperTabs = this.shadowRoot.querySelectorAll('paper-tab');
-      console.log(`[venus-editor] Attaching click handlers to ${paperTabs.length} paper-tab elements`);
+      console.log(`[venus-editor] Initializing: Found ${paperTabs.length} paper-tabs`);
       
-      paperTabs.forEach((tab, index) => {
+      paperTabs.forEach((tab) => {
         const tabName = tab.getAttribute('name');
-        console.log(`[venus-editor] Attaching handler to tab ${index}: ${tabName}`);
         
-        // Try both click and pointerdown events
+        // Direct click handler that WILL fire
         tab.addEventListener('click', () => {
-          const name = tab.getAttribute('name');
-          console.log(`[venus-editor] CLICK event fired on tab: ${name}`);
-          handleTabClick(name);
-        });
-        
-        tab.addEventListener('pointerdown', () => {
-          const name = tab.getAttribute('name');
-          console.log(`[venus-editor] POINTERDOWN event fired on tab: ${name}`);
-          handleTabClick(name);
-        });
+          console.log(`[venus-editor] !!! CLICK HANDLER FIRED on ${tabName}`);
+          handleTabClick(tabName);
+        }, { passive: false });
       });
       
       // Also set up event listener for iron-select as fallback
