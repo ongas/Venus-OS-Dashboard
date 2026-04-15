@@ -19,11 +19,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.90`);
+    const response = await import(`./lang-${lang}.js?v=0.2.91`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.90`);
+    const response = await import(`./lang-en.js?v=0.2.91`);
     translations = response.default;
   }
 }
@@ -266,13 +266,12 @@ export function renderSubTabContent(col, appendTo) {
 /* Sub-tab content render function :        */
 /* all box configuration areas              */
 /************************************************/
-export function subtabRender(box, config, hass, appendTo) {
-    
-  const subTabContent = appendTo.shadowRoot.querySelector('#subTab-content');
-  subTabContent.innerHTML = '';
-  
-  // Define schema for ha-form - this is the CORRECT approach
-  const schema = [
+/**
+ * Helper: Generate schema based on icon mode
+ * Returns schema with only the relevant icon field (static OR dynamic, not both)
+ */
+function getBoxDeviceSchema(iconMode = 'static') {
+  return [
     {
       type: 'grid',
       column_min_width: '200px',
@@ -299,15 +298,16 @@ export function subtabRender(box, config, hass, appendTo) {
     {
       type: 'grid',
       column_min_width: '200px',
-      schema: [
+      schema: iconMode === 'static' ? [
         {
           name: 'icon',
-          label: 'Select Icon (for Static mode)',
+          label: 'Select Icon',
           selector: { icon: {} }
-        },
+        }
+      ] : [
         {
           name: 'iconEntity',
-          label: 'Icon Entity (for Dynamic mode)',
+          label: 'Icon Entity',
           description: 'Template entity that outputs icon names (e.g., "mdi:battery-75")',
           selector: { 
             entity: {
@@ -416,6 +416,18 @@ export function subtabRender(box, config, hass, appendTo) {
       ]
     }
   ];
+}
+
+export function subtabRender(box, config, hass, appendTo) {
+    
+  const subTabContent = appendTo.shadowRoot.querySelector('#subTab-content');
+  subTabContent.innerHTML = '';
+  
+  // Get initial icon mode from config (defaults to 'static')
+  const initialIconMode = config?.devices?.[box]?.iconMode || 'static';
+  
+  // Define schema for ha-form - this is the CORRECT approach
+  const schema = getBoxDeviceSchema(initialIconMode);
   
   // Create ha-form element
   const form = document.createElement('ha-form');
@@ -432,10 +444,17 @@ export function subtabRender(box, config, hass, appendTo) {
     return schema.name ? schema.name.charAt(0).toUpperCase() + schema.name.slice(1) : '';
   };
   
-  // Listen for value changes
+  // Listen for value changes and regenerate schema if iconMode changes
   form.addEventListener('value-changed', (e) => {
     const newDeviceConfig = e.detail.value;
     console.log('[venus-editor] Form value-changed:', newDeviceConfig);
+    
+    // If iconMode changed, regenerate schema with only the relevant field
+    const currentIconMode = newDeviceConfig.iconMode || 'static';
+    if (currentIconMode !== (form._lastIconMode || 'static')) {
+      form._lastIconMode = currentIconMode;
+      form.schema = getBoxDeviceSchema(currentIconMode);
+    }
     
     // Update the config
     if (!config.devices) config.devices = {};
@@ -447,78 +466,8 @@ export function subtabRender(box, config, hass, appendTo) {
     }
   });
   
+  form._lastIconMode = initialIconMode;
   subTabContent.appendChild(form);
-  
-  // Function to show/hide icon fields based on iconMode
-  const updateIconFieldVisibility = () => {
-    const iconMode = form.data?.iconMode || 'static';
-    
-    // Find the ha-form's shadow root to access the rendered form elements
-    const shadow = form.shadowRoot;
-    if (!shadow) {
-      console.log('[venus-editor] Waiting for form shadow DOM...');
-      return;
-    }
-    
-    // Alternative: look for field labels and hide their parent containers
-    const allElements = shadow.querySelectorAll('*');
-    let iconFieldFound = false;
-    let iconEntityFieldFound = false;
-    
-    allElements.forEach((el) => {
-      const text = el.textContent || '';
-      const parent = el.closest('div');
-      
-      if (text.includes('Select Icon') && parent && !iconFieldFound) {
-        // Found the static icon field - show/hide based on mode
-        const fieldParent = parent.closest('[class*="field"], .form-group') || parent;
-        if (fieldParent) {
-          fieldParent.style.display = iconMode === 'static' ? '' : 'none';
-          iconFieldFound = true;
-        }
-      }
-      
-      if (text.includes('Icon Entity') && parent && !iconEntityFieldFound) {
-        // Found the entity field - show/hide based on mode
-        const fieldParent = parent.closest('[class*="field"], .form-group') || parent;
-        if (fieldParent) {
-          fieldParent.style.display = iconMode === 'dynamic' ? '' : 'none';
-          iconEntityFieldFound = true;
-        }
-      }
-    });
-  };
-  
-  // Listen for form value changes and update field visibility
-  const oldValueChangedHandler = form._oldValueChangedHandler;
-  if (oldValueChangedHandler) {
-    form.removeEventListener('value-changed', oldValueChangedHandler);
-  }
-  
-  const handleFormChange = (e) => {
-    const newDeviceConfig = e.detail.value;
-    console.log('[venus-editor] Form value-changed:', newDeviceConfig);
-    
-    // Update visibility of icon fields
-    setTimeout(updateIconFieldVisibility, 50);
-    
-    // Update the config
-    if (!config.devices) config.devices = {};
-    config.devices[box] = newDeviceConfig;
-    
-    // Notify parent of change
-    if (appendTo._notifyConfigChange) {
-      appendTo._notifyConfigChange(config);
-    }
-  };
-  
-  form._oldValueChangedHandler = handleFormChange;
-  form.addEventListener('value-changed', handleFormChange);
-  
-  // Initial visibility update - needs to wait for form to render
-  setTimeout(updateIconFieldVisibility, 100);
-  setTimeout(updateIconFieldVisibility, 300);
-  setTimeout(updateIconFieldVisibility, 500);
   
   console.log('[venus-editor] Created ha-form for box:', box, {
     hasForm: !!form,
