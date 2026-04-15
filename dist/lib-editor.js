@@ -19,11 +19,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.93`);
+    const response = await import(`./lang-${lang}.js?v=0.2.73`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.93`);
+    const response = await import(`./lang-en.js?v=0.2.73`);
     translations = response.default;
   }
 }
@@ -423,10 +423,15 @@ export function subtabRender(box, config, hass, appendTo) {
   const subTabContent = appendTo.shadowRoot.querySelector('#subTab-content');
   subTabContent.innerHTML = '';
   
-  // Get initial icon mode from config (defaults to 'static')
-  const initialIconMode = config?.devices?.[box]?.iconMode || 'static';
+  // Detect icon mode based on what's populated in the config
+  // If iconEntity exists, it's dynamic; otherwise default to static
+  let initialIconMode = config?.devices?.[box]?.iconMode || 'static';
   
-  // DEBUG: Log what we're working with
+  // Smart detection: if no explicit iconMode but iconEntity is filled, assume dynamic
+  if (!config?.devices?.[box]?.iconMode && config?.devices?.[box]?.iconEntity) {
+    initialIconMode = 'dynamic';
+  }
+  
   console.log('[venus-editor] Box:', box);
   console.log('[venus-editor] Config devices:', config?.devices);
   console.log('[venus-editor] This box config:', config?.devices?.[box]);
@@ -443,7 +448,7 @@ export function subtabRender(box, config, hass, appendTo) {
   // Prepare initial data with iconMode
   const initialData = config?.devices?.[box] ? { ...config.devices[box] } : {};
   if (!initialData.iconMode) {
-    initialData.iconMode = 'static';
+    initialData.iconMode = initialIconMode;  // Use the detected mode
   }
   
   console.log('[venus-editor] Initial data being set:', initialData);
