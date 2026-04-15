@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.2.78';
+import {css} from './css-editor.js?v=0.2.84';
 
-import * as libEditor from './lib-editor.js?v=0.2.78';
+import * as libEditor from './lib-editor.js?v=0.2.84';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -17,6 +17,9 @@ class venusOsDashBoardEditor extends HTMLElement {
       entities: { ...(config.entities || {}) },
       currentTab: config.currentTab !== undefined ? config.currentTab : 0
     };
+    
+    // Initialize sub-tab (box) selection
+    this._currentSubTab = 0;
     
     console.log('[venus-editor] setConfig called with:', { 
       hasCurrentTab: !!config.currentTab,
@@ -60,6 +63,36 @@ class venusOsDashBoardEditor extends HTMLElement {
                   background-color: #f5f5f5;
                 }
                 .native-tab.active {
+                  color: #0ea5e9;
+                  border-bottom: 3px solid #0ea5e9;
+                }
+                .sub-tab-group {
+                  display: flex;
+                  flex-direction: row;
+                  border-bottom: 2px solid #ddd;
+                  margin: 12px 0 12px 0;
+                  padding: 0;
+                  gap: 0;
+                }
+                .native-box-tab {
+                  flex: 1;
+                  padding: 10px 12px;
+                  cursor: pointer;
+                  text-align: center;
+                  font-weight: 400;
+                  color: #666;
+                  border-bottom: 3px solid transparent;
+                  transition: all 0.3s ease;
+                  background: none;
+                  border: none;
+                  font-size: 13px;
+                  font-family: inherit;
+                }
+                .native-box-tab:hover {
+                  color: #333;
+                  background-color: #fafafa;
+                }
+                .native-box-tab.active {
                   color: #0ea5e9;
                   border-bottom: 3px solid #0ea5e9;
                 }

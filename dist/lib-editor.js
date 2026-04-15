@@ -19,11 +19,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.76`);
+    const response = await import(`./lang-${lang}.js?v=0.2.73`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.76`);
+    const response = await import(`./lang-en.js?v=0.2.73`);
     translations = response.default;
   }
 }
@@ -217,14 +217,15 @@ export function tabColRender(col, appendTo) {
   let tabsHTML = '';
   
   for (let i = 1; i <= boxCol; i++) {
-    tabsHTML += `<paper-tab name="box-${i - 1}">Box ${i}</paper-tab>`;
+    const isActive = i === 1 ? 'active' : '';
+    tabsHTML += `<button class="native-box-tab ${isActive}" data-box="box-${i - 1}" role="tab" aria-selected="${i === 1 ? 'true' : 'false'}">Box ${i}</button>`;
   }
             
   tabContent.innerHTML = `
         <div class="devices-editor">
-            <paper-tabs id="subTab-group" selected="0" attr-for-selected="name">
+            <div id="subTab-group" role="tablist" class="sub-tab-group">
                 ${tabsHTML}
-            </paper-tabs>
+            </div>
         
             <div id="subTab-content" class="subTab-content">
               <!-- Active section content will be displayed here -->
@@ -1089,24 +1090,38 @@ export function attachSubLinkClick(appendTo) {
     return;
   }
   
-  // paper-tabs uses iron-select event
+  // Clear old handlers for this element
   if (eventHandlers.has(subTabGroup)) {
     console.log("Event already attached to subTab-group element");
     return;
   }
 
   const handleTabChange = (event) => {
-    const selectedName = event.detail.item.getAttribute('name');
+    // Get the button that was clicked
+    const clickedButton = event.target.closest('.native-box-tab');
+    if (!clickedButton) return;
+    
+    const selectedName = clickedButton.getAttribute('data-box');
     const tab = parseInt(selectedName.replace('box-', ''), 10);
     appendTo._currentSubTab = tab;
     
     console.log('[venus-editor] Box tab changed to:', tab);
     
+    // Update UI: remove active class from all tabs and add to clicked one
+    const allTabs = subTabGroup.querySelectorAll('.native-box-tab');
+    allTabs.forEach(btn => {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-selected', 'false');
+    });
+    
+    clickedButton.classList.add('active');
+    clickedButton.setAttribute('aria-selected', 'true');
+    
     // Render the sub-tab content
     renderSubTabContent(appendTo._currentTab, appendTo);
   };
 
-  subTabGroup.addEventListener('iron-select', handleTabChange);
+  subTabGroup.addEventListener('click', handleTabChange);
   eventHandlers.set(subTabGroup, handleTabChange);
 }
     
