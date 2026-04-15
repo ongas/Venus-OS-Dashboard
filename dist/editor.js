@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.2.74';
+import {css} from './css-editor.js?v=0.2.75';
 
-import * as libEditor from './lib-editor.js?v=0.2.74';
+import * as libEditor from './lib-editor.js?v=0.2.75';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -67,6 +67,25 @@ class venusOsDashBoardEditor extends HTMLElement {
         this.renderTabContent();
         libEditor.notifyConfigChange(this);
       });
+      
+      // Also watch for property changes as fallback (paper-tabs may not fire iron-select on all interactions)
+      const handleTabSelectedChange = () => {
+        const selectedName = tabGroup.selected;
+        if (typeof selectedName === 'string' && selectedName.startsWith('conf-')) {
+          const selectedTab = parseInt(selectedName.replace('conf-', ''), 10);
+          if (this._currentTab !== selectedTab) {
+            this._currentTab = selectedTab;
+            this._config.currentTab = selectedTab;
+            console.log('[venus-editor] Tab changed (via property watch) to:', selectedTab);
+            this.renderTabContent();
+            libEditor.notifyConfigChange(this);
+          }
+        }
+      };
+      
+      // Create a MutationObserver to watch for selected attribute changes
+      const observer = new MutationObserver(handleTabSelectedChange);
+      observer.observe(tabGroup, { attributes: true, attributeFilter: ['selected'] });
       
       const style = document.createElement('style');
       style.textContent = css();
