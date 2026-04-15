@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.2.76';
+import {css} from './css-editor.js?v=0.2.73';
 
-import * as libEditor from './lib-editor.js?v=0.2.76';
+import * as libEditor from './lib-editor.js?v=0.2.73';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -36,10 +36,29 @@ class venusOsDashBoardEditor extends HTMLElement {
               <style>
                 paper-tabs {
                   width: 100%;
+                  display: flex;
+                  flex-direction: row;
+                  border-bottom: 2px solid #ccc;
                   --paper-tabs-selection-color: #0ea5e9;
                 }
                 paper-tab {
+                  flex: 1;
+                  padding: 12px 16px;
+                  cursor: pointer;
+                  text-align: center;
+                  font-weight: 500;
+                  color: #666;
+                  border-bottom: 3px solid transparent;
+                  transition: all 0.3s ease;
                   --paper-tab-ink: #0ea5e9;
+                }
+                paper-tab:hover {
+                  color: #333;
+                  background-color: #f5f5f5;
+                }
+                paper-tab[active] {
+                  color: #0ea5e9;
+                  border-bottom: 3px solid #0ea5e9;
                 }
               </style>
             
