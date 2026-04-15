@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.2.73';
+import {css} from './css-editor.js?v=0.2.74';
 
-import * as libEditor from './lib-editor.js?v=0.2.73';
+import * as libEditor from './lib-editor.js?v=0.2.74';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -85,8 +85,8 @@ class venusOsDashBoardEditor extends HTMLElement {
     }
     
     if (tabGroup) {
-      tabGroup.selected = this._currentTab;
-      console.log('[venus-editor] Setting tab to:', this._currentTab);
+      tabGroup.selected = `conf-${this._currentTab}`;
+      console.log('[venus-editor] Setting tab to:', `conf-${this._currentTab}`);
     }
     
     this.renderTabContent();
