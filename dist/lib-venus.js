@@ -303,7 +303,7 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     }
             
     // Handle dynamic icon from iconEntity or static icon
-    let iconToUse = device.icon || 'mdi:circle';  // Fallback icon
+    let iconToUse = 'mdi:circle';  // Fallback icon
     
     // Check if iconMode is set to dynamic
     if(device.iconMode === 'dynamic' && device.iconEntity) {
