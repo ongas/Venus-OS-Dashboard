@@ -19,11 +19,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.2.73`);
+    const response = await import(`./lang-${lang}.js?v=0.6.3`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.2.73`);
+    const response = await import(`./lang-en.js?v=0.6.3`);
     translations = response.default;
   }
 }
@@ -477,10 +477,11 @@ export function subtabRender(box, config, hass, appendTo) {
     if (!config.devices) config.devices = {};
     config.devices[box] = newDeviceConfig;
     
-    // Notify parent of change
-    if (appendTo._notifyConfigChange) {
-      appendTo._notifyConfigChange(config);
-    }
+    // Update the parent config
+    appendTo._config = config;
+    
+    // Notify Home Assistant of the configuration change
+    notifyConfigChange(appendTo);
   });
   
   form._lastIconMode = initialIconMode;
