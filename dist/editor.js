@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.6.3';
+import {css} from './css-editor.js?v=0.6.4';
 
-import * as libEditor from './lib-editor.js?v=0.6.3';
+import * as libEditor from './lib-editor.js?v=0.6.4';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -99,7 +99,7 @@ class venusOsDashBoardEditor extends HTMLElement {
               </style>
             
               <div id="tab-group" role="tablist">
-                <button class="native-tab active" data-tab="conf-0" role="tab" aria-selected="true">Main</button>
+                <button class="native-tab" data-tab="conf-0" role="tab" aria-selected="false">Main</button>
                 <button class="native-tab" data-tab="conf-1" role="tab" aria-selected="false">Col. 1</button>
                 <button class="native-tab" data-tab="conf-2" role="tab" aria-selected="false">Col. 2</button>
                 <button class="native-tab" data-tab="conf-3" role="tab" aria-selected="false">Col. 3</button>

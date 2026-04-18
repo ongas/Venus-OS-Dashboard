@@ -4,6 +4,28 @@
 /**********************************************/
 export const eventHandlers = new WeakMap();
 
+/**********************************************/
+/* Debounce timer for config changes */
+/* to prevent excessive notifications */
+/**********************************************/
+const debounceTimers = new WeakMap();
+
+function createDebouncedNotifyConfigChange(appendTo) {
+  return function notifyWithDebounce() {
+    // Clear existing timer
+    if (debounceTimers.has(appendTo)) {
+      clearTimeout(debounceTimers.get(appendTo));
+    }
+    
+    // Set new timer - notify after 300ms of inactivity
+    const timer = setTimeout(() => {
+      notifyConfigChange(appendTo);
+    }, 300);
+    
+    debounceTimers.set(appendTo, timer);
+  };
+}
+
 /**************************************/
 /* Functions for translation          */
 /* of the graphical editor            */
@@ -19,11 +41,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.6.3`);
+    const response = await import(`./lang-${lang}.js?v=0.6.4`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.6.3`);
+    const response = await import(`./lang-en.js?v=0.6.4`);
     translations = response.default;
   }
 }
@@ -459,10 +481,18 @@ export function subtabRender(box, config, hass, appendTo) {
     return schema.name ? schema.name.charAt(0).toUpperCase() + schema.name.slice(1) : '';
   };
   
+  // Create debounced notify function for this form
+  const debouncedNotify = createDebouncedNotifyConfigChange(appendTo);
+  
   // Listen for value changes and regenerate schema if iconMode changes
   form.addEventListener('value-changed', (e) => {
     const newDeviceConfig = e.detail.value;
     console.log('[venus-editor] Form value-changed:', newDeviceConfig);
+    
+    // Update the config immediately for all changes
+    if (!config.devices) config.devices = {};
+    config.devices[box] = newDeviceConfig;
+    appendTo._config = config;
     
     // If iconMode changed, regenerate schema with only the relevant field
     const currentIconMode = newDeviceConfig.iconMode || 'static';
@@ -471,17 +501,12 @@ export function subtabRender(box, config, hass, appendTo) {
       form.schema = getBoxDeviceSchema(currentIconMode);
       // Preserve the data when schema changes
       form.data = newDeviceConfig;
+      // Notify immediately on schema change
+      notifyConfigChange(appendTo);
+    } else {
+      // Notify with debounce for normal edits
+      debouncedNotify();
     }
-    
-    // Update the config
-    if (!config.devices) config.devices = {};
-    config.devices[box] = newDeviceConfig;
-    
-    // Update the parent config
-    appendTo._config = config;
-    
-    // Notify Home Assistant of the configuration change
-    notifyConfigChange(appendTo);
   });
   
   form._lastIconMode = initialIconMode;
