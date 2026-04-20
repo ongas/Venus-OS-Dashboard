@@ -225,22 +225,23 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
       const isExceeded = gaugeAbsVal > gaugeMax;
       const wasExceeded = gaugeExceededCache.get(boxId) || false;
       
-      if (isExceeded && !wasExceeded) {
+      if (isExceeded) {
         divGauge.classList.add('exceeded');
+        divGauge.classList.remove('warned');
         gaugeExceededCache.set(boxId, true);
+        clearTimeout(gaugeExceededTimers.get(boxId));
+        gaugeExceededTimers.delete(boxId);
+      } else if (!isExceeded && wasExceeded) {
+        divGauge.classList.remove('exceeded');
+        divGauge.classList.add('warned');
+        gaugeExceededCache.set(boxId, false);
         
         clearTimeout(gaugeExceededTimers.get(boxId));
         const timer = setTimeout(() => {
-          divGauge.classList.remove('exceeded');
-          gaugeExceededCache.set(boxId, false);
+          divGauge.classList.remove('warned');
           gaugeExceededTimers.delete(boxId);
         }, 3000);
         gaugeExceededTimers.set(boxId, timer);
-      } else if (!isExceeded && wasExceeded) {
-        divGauge.classList.remove('exceeded');
-        gaugeExceededCache.set(boxId, false);
-        clearTimeout(gaugeExceededTimers.get(boxId));
-        gaugeExceededTimers.delete(boxId);
       }
     } else {
       divGauge.style.height = `0px`;
