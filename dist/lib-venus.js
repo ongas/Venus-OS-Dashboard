@@ -277,7 +277,7 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
         sgFill.style.height = sgPct + '%';
         if(sgPct >= 90) sgFill.style.background = 'linear-gradient(to top, #d94a4a, #e06060)';
         else if(sgPct >= 70) sgFill.style.background = 'linear-gradient(to top, #d9944a, #e0a860)';
-        else sgFill.style.background = 'linear-gradient(to top, #4a90d9, #70a1d5)';
+        else sgFill.style.background = 'linear-gradient(to top, #4a8cc4, #5a9fd4)';
       }
       divSideGauge.style.display = '';
     } else if(divSideGauge) {

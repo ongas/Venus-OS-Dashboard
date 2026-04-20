@@ -3,9 +3,9 @@ export function cssDataDark() {
     
         ha-card {
             --box-background-color: #1f2a3c;  	/* Couleur de fond de la box */
-            --box-shadow-color: #38619b;      	/* Couleur de l'ombre de la box */
-            --anchor-color: #38619b;            /* Couleur du point d'accroche */
-	    --line-color: #4369a2; 				/* Couleur de la ligne */
+            --box-shadow-color: #4a8cc4;      	/* Couleur de l'ombre de la box */
+            --anchor-color: #4a8cc4;            /* Couleur du point d'accroche */
+	    --line-color: #4a8cc4; 				/* Couleur de la ligne */
         }
         
         .db-container {
@@ -215,7 +215,7 @@ export function cssDataDark() {
 			left: 0px;
 			bottom: 0px;
 			width: 100%;
-			background: linear-gradient(to bottom, #70a1d5, #547dbb);
+			background: linear-gradient(to bottom, #5a9fd4, #4a8cc4);
 			opacity: 0.8;
 			z-index: 1;
 			border-radius: 0 0 5px 5px;
@@ -292,7 +292,7 @@ export function cssDataDark() {
 			left: 0;
 			width: 100%;
 			height: 0%;
-			background: linear-gradient(to top, #4a90d9, #70a1d5);
+			background: linear-gradient(to top, #4a8cc4, #5a9fd4);
 			transition: height 0.5s ease, background 0.3s ease;
 		}
 
