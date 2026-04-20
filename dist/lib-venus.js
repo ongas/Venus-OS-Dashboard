@@ -222,7 +222,7 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
       const gaugeVal = Math.min(gaugeAbsVal / gaugeMax * 100, 100);
       divGauge.style.height = gaugeVal + `%`;
       
-      const isExceeded = gaugeAbsVal > gaugeMax;
+      const isExceeded = gaugeAbsVal >= gaugeMax;
       const wasExceeded = gaugeExceededCache.get(boxId) || false;
       const divBox = divGauge.closest('.box');
       
