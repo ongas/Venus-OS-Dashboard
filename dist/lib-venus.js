@@ -1035,7 +1035,7 @@ export function getDefaultConfig(hass) {
       boxCol1: 2,
       boxCol3: 2,
     },
-    theme: "dark",
+    theme: "auto",
     styles: {
       header: 10,
       sensor: 16,
