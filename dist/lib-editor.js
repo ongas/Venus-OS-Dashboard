@@ -41,11 +41,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.6.18`);
+    const response = await import(`./lang-${lang}.js?v=0.6.19`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.6.18`);
+    const response = await import(`./lang-en.js?v=0.6.19`);
     translations = response.default;
   }
 }
@@ -1148,6 +1148,7 @@ export function updateConfigRecursively(obj, path, value, removeIfNull = false) 
 /* function to update the yaml */
 /***********************************/
 export function notifyConfigChange(appendTo) {
+  appendTo._selfUpdate = true;
   const event = new Event('config-changed', {
     bubbles: true,
     composed: true,

@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.6.18';
+import {css} from './css-editor.js?v=0.6.19';
 
-import * as libEditor from './lib-editor.js?v=0.6.18';
+import * as libEditor from './lib-editor.js?v=0.6.19';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -17,6 +17,12 @@ class venusOsDashBoardEditor extends HTMLElement {
       entities: { ...(config.entities || {}) },
       currentTab: config.currentTab !== undefined ? config.currentTab : 0
     };
+    
+    // Skip re-render if this is our own config change (prevents expandable sections collapsing)
+    if (this._selfUpdate) {
+      this._selfUpdate = false;
+      return;
+    }
     
     // Initialize sub-tab (box) selection
     this._currentSubTab = 0;
