@@ -41,11 +41,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.6.21`);
+    const response = await import(`./lang-${lang}.js?v=0.6.22`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.6.21`);
+    const response = await import(`./lang-en.js?v=0.6.22`);
     translations = response.default;
   }
 }
@@ -1148,14 +1148,11 @@ export function updateConfigRecursively(obj, path, value, removeIfNull = false) 
 /* function to update the yaml */
 /***********************************/
 export function notifyConfigChange(appendTo) {
-  appendTo._selfUpdate = true;
-  // Use CustomEvent (HA's expected type) with a fresh object reference
-  // so HA's change detection always sees a new config
-  const event = new CustomEvent('config-changed', {
+  const event = new Event('config-changed', {
     bubbles: true,
     composed: true,
-    detail: { config: { ...appendTo._config } },
   });
+  event.detail = { config: appendTo._config };
   appendTo.dispatchEvent(event);
 }
 

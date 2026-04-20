@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.6.21';
+import {css} from './css-editor.js?v=0.6.22';
 
-import * as libEditor from './lib-editor.js?v=0.6.21';
+import * as libEditor from './lib-editor.js?v=0.6.22';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -12,17 +12,17 @@ class venusOsDashBoardEditor extends HTMLElement {
   async setConfig(config) {
     
     // CRITICAL: Preserve currentTab explicitly so Home Assistant recognizes it as a configuration value
-    this._config = { 
+    const newConfig = { 
       ...config, 
       entities: { ...(config.entities || {}) },
       currentTab: config.currentTab !== undefined ? config.currentTab : 0
     };
     
-    // Skip re-render if this is our own config change (prevents expandable sections collapsing)
-    if (this._selfUpdate) {
-      this._selfUpdate = false;
+    // Skip re-render if config hasn't changed (prevents expandable sections collapsing on round-trip)
+    if (this._config && JSON.stringify(newConfig) === JSON.stringify(this._config)) {
       return;
     }
+    this._config = newConfig;
     
     // Initialize sub-tab (box) selection
     this._currentSubTab = 0;
