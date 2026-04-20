@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.6.23';
+import {css} from './css-editor.js?v=0.6.24';
 
-import * as libEditor from './lib-editor.js?v=0.6.23';
+import * as libEditor from './lib-editor.js?v=0.6.24';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -133,6 +133,7 @@ class venusOsDashBoardEditor extends HTMLElement {
         console.log('[venus-editor] *** TAB CHANGE DETECTED ***: from', lastSelected, 'to', newTabName);
         
         this._currentTab = selectedTab;
+        this._currentSubTab = 0;
         this._config.currentTab = selectedTab;
         lastSelected = newTabName;
         

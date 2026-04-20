@@ -41,11 +41,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.6.23`);
+    const response = await import(`./lang-${lang}.js?v=0.6.24`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.6.23`);
+    const response = await import(`./lang-en.js?v=0.6.24`);
     translations = response.default;
   }
 }
@@ -232,6 +232,11 @@ export function tab1Render(appendTo) {
 export function tabColRender(col, appendTo) {
     
   const boxCol = appendTo._config.param[`boxCol${col}`] ?? 1;
+  
+  // Ensure sub-tab is within valid range for this column
+  if (appendTo._currentSubTab >= boxCol) {
+    appendTo._currentSubTab = 0;
+  }
     
   const tabContent = appendTo.shadowRoot.querySelector('#tab-content');
   tabContent.innerHTML = '';
