@@ -17,6 +17,8 @@ let editorOpen = false;
 let boxContentCache = new Map();
 let boxStateCache = new Map();
 let boxWidthCache = new Map();
+let gaugeExceededCache = new Map();
+let gaugeExceededTimers = new Map();
 
 /************************************************/
 /* function to render the card skeleton:          */
@@ -216,8 +218,30 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
         
     if(device.gauge && device.gaugeMax) {
       const gaugeMax = parseFloat(device.gaugeMax);
-      const gaugeVal = Math.min(Math.abs(parseFloat(value)) / gaugeMax * 100, 100);
+      const gaugeAbsVal = Math.abs(parseFloat(value));
+      const gaugeVal = Math.min(gaugeAbsVal / gaugeMax * 100, 100);
       divGauge.style.height = gaugeVal + `%`;
+      
+      const isExceeded = gaugeAbsVal > gaugeMax;
+      const wasExceeded = gaugeExceededCache.get(boxId) || false;
+      
+      if (isExceeded && !wasExceeded) {
+        divGauge.classList.add('exceeded');
+        gaugeExceededCache.set(boxId, true);
+        
+        clearTimeout(gaugeExceededTimers.get(boxId));
+        const timer = setTimeout(() => {
+          divGauge.classList.remove('exceeded');
+          gaugeExceededCache.set(boxId, false);
+          gaugeExceededTimers.delete(boxId);
+        }, 3000);
+        gaugeExceededTimers.set(boxId, timer);
+      } else if (!isExceeded && wasExceeded) {
+        divGauge.classList.remove('exceeded');
+        gaugeExceededCache.set(boxId, false);
+        clearTimeout(gaugeExceededTimers.get(boxId));
+        gaugeExceededTimers.delete(boxId);
+      }
     } else {
       divGauge.style.height = `0px`;
     }
