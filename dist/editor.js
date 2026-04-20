@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.6.17';
+import {css} from './css-editor.js?v=0.6.18';
 
-import * as libEditor from './lib-editor.js?v=0.6.17';
+import * as libEditor from './lib-editor.js?v=0.6.18';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -105,7 +105,12 @@ class venusOsDashBoardEditor extends HTMLElement {
                 <button class="native-tab" data-tab="conf-3" role="tab" aria-selected="false">Col. 3</button>
               </div>
             
-              <div id="tab-content" class="content"></div>
+              <div id="tab-content" class="content">
+                <div style="display: flex; align-items: center; justify-content: center; padding: 40px 20px; color: #888; gap: 12px;">
+                  <ha-circular-progress indeterminate size="small"></ha-circular-progress>
+                  <span>Loading editor...</span>
+                </div>
+              </div>
             `;
             
       console.log('[venus-editor] setConfig: Initializing native tab system');
