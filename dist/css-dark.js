@@ -227,25 +227,25 @@ export function cssDataDark() {
 			0%, 100% {
 				box-shadow:
 					0px 0px 1px 2px var(--box-shadow-color),
-					0 0 0 0 rgba(217, 74, 74, 0.0);
+					0 0 2px 1px rgba(217, 74, 74, 0.3);
 			}
 			50% {
 				box-shadow:
 					0px 0px 1px 2px var(--box-shadow-color),
-					0 0 10px 3px rgba(217, 74, 74, 0.8);
+					0 0 14px 5px rgba(217, 74, 74, 0.9);
 			}
 		}
 
 		.box.box-exceeded {
-			animation: boxExceededFlash 0.5s ease-in-out infinite;
+			animation: boxExceededFlash 0.6s ease-in-out infinite;
 		}
 
 		.gauge.exceeded {
-			box-shadow: inset 0 0 0 2px #d94a4a, 0 0 8px 2px rgba(217, 74, 74, 0.8);
+			box-shadow: inset 0 0 0 2px #d94a4a, 0 0 10px 3px rgba(217, 74, 74, 0.9) !important;
 		}
 
 		.gauge.warned {
-			box-shadow: inset 0 0 0 2px #d94a4a, 0 0 4px 1px rgba(217, 74, 74, 0.6);
+			box-shadow: inset 0 0 0 2px #d94a4a, 0 0 6px 2px rgba(217, 74, 74, 0.6) !important;
 		}
 
 		.sideGauge {
