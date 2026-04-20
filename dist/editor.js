@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.6.20';
+import {css} from './css-editor.js?v=0.6.21';
 
-import * as libEditor from './lib-editor.js?v=0.6.20';
+import * as libEditor from './lib-editor.js?v=0.6.21';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
@@ -102,6 +102,9 @@ class venusOsDashBoardEditor extends HTMLElement {
                   color: #0ea5e9;
                   border-bottom: 3px solid #0ea5e9;
                 }
+                @keyframes editor-spin {
+                  to { transform: rotate(360deg); }
+                }
               </style>
             
               <div id="tab-group" role="tablist">
@@ -113,7 +116,7 @@ class venusOsDashBoardEditor extends HTMLElement {
             
               <div id="tab-content" class="content">
                 <div style="display: flex; align-items: center; justify-content: center; padding: 40px 20px; color: #888; gap: 12px;">
-                  <ha-circular-progress indeterminate size="small"></ha-circular-progress>
+                  <div style="width: 24px; height: 24px; border: 3px solid #ddd; border-top-color: #0ea5e9; border-radius: 50%; animation: editor-spin 0.8s linear infinite;"></div>
                   <span>Loading editor...</span>
                 </div>
               </div>
