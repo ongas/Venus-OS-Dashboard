@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Editor Tab State Management Test</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        #test-container { border: 1px solid #ccc; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Editor Tab State Management Test</h1>
+    <div id="test-container"></div>
+
+    <script>
+        // Mock Home Assistant Web Components
+        class MockHaForm extends HTMLElement {
+            constructor() {
+                super();
+                this._data = {};
+                this._schema = [];
+            }
+            set data(value) {
+                this._data = value;
+            }
+            get data() {
+                return this._data;
+            }
+            set schema(value) {
+                this._schema = value;
+            }
+            get schema() {
+                return this._schema;
+            }
+            set hass(value) {
+                this._hass = value;
+            }
+        }
+        customElements.define('ha-form', MockHaForm);
+
+        // Mock event handler tracking
+        const mockEventHandlers = new Map();
+        const EventHandlersWeakMap = class {
+            has(obj) { return mockEventHandlers.has(obj); }
+            get(obj) { return mockEventHandlers.get(obj); }
+            set(obj, val) { return mockEventHandlers.set(obj, val); }
+        };
+
+        // Mock lib-editor exports that will be used in the test
+        const libEditor = {
+            eventHandlers: new EventHandlersWeakMap(),
+            loadTranslations: async (editor) => {},
+            tab1Render: (editor) => {},
+            tabColRender: (col, editor) => {
+                const boxCol = editor._config.param[`boxCol${col}`] ?? 1;
+                if (editor._currentSubTab >= boxCol) {
+                    editor._currentSubTab = 0;  // Safety net check
+                }
+                const tabContent = editor.shadowRoot.querySelector('#tab-content');
+                if (tabContent) {
+                    tabContent.innerHTML = `<p>Col ${col}, Sub-tab: ${editor._currentSubTab}</p>`;
+                }
+            },
+            attachLinkClick: (fn, editor) => {
+                editor._attachLinkClick = fn;
+            },
+            attachSubLinkClick: (editor) => {},
+            attachInputs: (editor) => {},
+            renderSubTabContent: (col, editor) => {},
+            notifyConfigChange: (editor) => {
+                const configCopy = JSON.parse(JSON.stringify(editor._config));
+                const event = new Event('config-changed', {
+                    bubbles: true,
+                    composed: true,
+                });
+                event.detail = { config: configCopy };
+                editor.dispatchEvent(event);
+            },
+        };
+
+        // Minimal editor implementation matching dist/editor.js behavior
+        class VenusEditorTestImpl extends HTMLElement {
+            constructor() {
+                super();
+            }
+
+            async setConfig(config) {
+                const newConfig = { 
+                    ...config, 
+                    entities: { ...(config.entities || {}) },
+                    currentTab: config.currentTab !== undefined ? config.currentTab : 0
+                };
+                
+                const isRoundTrip = this._config && JSON.stringify(newConfig) === JSON.stringify(this._config);
+                
+                if (isRoundTrip) {
+                    return;
+                }
+                this._config = newConfig;
+                this._currentSubTab = 0;
+                
+                // Dispatch config-changed event when config actually changes
+                if (!isRoundTrip) {
+                    libEditor.notifyConfigChange(this);
+                }
+                
+                await libEditor.loadTranslations(this);
+                
+                if (!this.shadowRoot) {
+                    this.attachShadow({ mode: 'open' });
+                    this.shadowRoot.innerHTML = `
+                        <div id="tab-group" role="tablist">
+                            <button class="native-tab" data-tab="conf-0" role="tab">Main</button>
+                            <button class="native-tab" data-tab="conf-1" role="tab">Col. 1</button>
+                            <button class="native-tab" data-tab="conf-2" role="tab">Col. 2</button>
+                            <button class="native-tab" data-tab="conf-3" role="tab">Col. 3</button>
+                        </div>
+                        <div id="tab-content"></div>
+                    `;
+                    
+                    this._currentTab = this._config.currentTab || 0;
+                    
+                    let lastSelected = 'conf-0';
+                    
+                    const handleTabChange = (newTabName) => {
+                        const selectedTab = parseInt(newTabName.replace('conf-', ''), 10);
+                        this._currentTab = selectedTab;
+                        this._currentSubTab = 0;  // KEY FIX: Reset sub-tab on main tab switch
+                        this._config.currentTab = selectedTab;
+                        lastSelected = newTabName;
+                        
+                        const allTabs = this.shadowRoot.querySelectorAll('.native-tab');
+                        allTabs.forEach(tab => {
+                            tab.classList.remove('active');
+                            tab.setAttribute('aria-selected', 'false');
+                        });
+                        
+                        const activeTab = this.shadowRoot.querySelector(`.native-tab[data-tab="${newTabName}"]`);
+                        if (activeTab) {
+                            activeTab.classList.add('active');
+                            activeTab.setAttribute('aria-selected', 'true');
+                        }
+                        
+                        this.renderTabContent();
+                        libEditor.notifyConfigChange(this);
+                    };
+                    
+                    const nativeTabs = this.shadowRoot.querySelectorAll('.native-tab');
+                    nativeTabs.forEach((tab) => {
+                        const tabName = tab.getAttribute('data-tab');
+                        tab.addEventListener('click', (e) => {
+                            handleTabChange(tabName);
+                            e.preventDefault();
+                        });
+                    });
+                    
+                    libEditor.attachLinkClick(this.renderTabContent.bind(this), this);
+                }
+                
+                this.renderTabContent();
+            }
+
+            renderTabContent() {
+                if (this._currentTab === 0) {
+                    libEditor.tab1Render(this);
+                } else if (this._currentTab === 1) {
+                    libEditor.tabColRender(1, this);
+                } else if (this._currentTab === 2) {
+                    libEditor.tabColRender(2, this);
+                } else if (this._currentTab === 3) {
+                    libEditor.tabColRender(3, this);
+                }
+                libEditor.attachInputs(this);
+            }
+
+            set hass(hass) {
+                this._hass = hass;
+            }
+
+            get hass() {
+                return this._hass;
+            }
+
+            get value() {
+                return this._config;
+            }
+        }
+
+        // Register test element
+        customElements.define('venus-os-editor-test', VenusEditorTestImpl);
+
+        // Global test helpers
+        window.testEditor = null;
+
+        async function initEditor(config) {
+            const container = document.querySelector('#test-container');
+            container.innerHTML = '';
+            window.testEditor = document.createElement('venus-os-editor-test');
+            await window.testEditor.setConfig(config);
+            container.appendChild(window.testEditor);
+            return window.testEditor;
+        }
+
+        function clickTab(tabIndex) {
+            const tab = window.testEditor.shadowRoot.querySelector(`[data-tab="conf-${tabIndex}"]`);
+            if (tab) tab.click();
+        }
+
+        function getCurrentState() {
+            return {
+                currentTab: window.testEditor._currentTab,
+                currentSubTab: window.testEditor._currentSubTab,
+                config: window.testEditor._config,
+                configRef: window.testEditor._config,
+            };
+        }
+    </script>
+</body>
+</html>

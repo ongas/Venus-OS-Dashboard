@@ -14,6 +14,13 @@ if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   exit 1
 fi
 
+# Check that the new version is higher than the last release
+LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
+if [[ $(printf '%s\n' "$LAST_TAG" "$VERSION" | sort -V | head -n1) == "$VERSION" ]] && [[ "$LAST_TAG" != "$VERSION" ]]; then
+  echo "Error: Version $VERSION is not higher than last release $LAST_TAG"
+  exit 1
+fi
+
 echo "==> Bumping cache-busting params to ?v=$VERSION"
 # Replace any existing ?v=X.Y.Z in all JS files that use them
 for f in dist/Venus-OS-Dashboard-ongas.js dist/editor.js dist/lib-editor.js; do

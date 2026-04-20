@@ -8,7 +8,7 @@
   },
   "scripts": {
     "lint": "eslint dist/*.js",
-    "test": "node test/gauge-exceeded.test.js",
+    "test": "node test/gauge-exceeded.test.js && node test/editor-tabs.test.js",
     "build": "npm run lint && for f in dist/*.js; do gzip -c \"$f\" > \"$f\".gz; done"
   },
   "keywords": [
