@@ -227,24 +227,38 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
       const divBox = divGauge.closest('.box');
       
       if (isExceeded) {
-        if (divBox) divBox.classList.add('box-exceeded');
-        divGauge.classList.add('exceeded');
-        divGauge.classList.remove('warned');
         gaugeExceededCache.set(boxId, true);
-        clearTimeout(gaugeExceededTimers.get(boxId));
-        gaugeExceededTimers.delete(boxId);
-      } else if (!isExceeded && wasExceeded) {
-        if (divBox) divBox.classList.remove('box-exceeded');
-        divGauge.classList.remove('exceeded');
-        divGauge.classList.add('warned');
+        // Gauge glow — inline style bypasses shadow DOM CSS scoping
+        divGauge.style.boxShadow = 'inset 0 0 0 2px #d94a4a, 0 0 8px 2px rgba(217, 74, 74, 0.8)';
+        // Box flash — JS interval (CSS @keyframes unreliable in HA slot context)
+        if (divBox && !gaugeExceededTimers.get(boxId + '_flash')) {
+          const raw = getComputedStyle(divBox).boxShadow;
+          const base = (raw && raw !== 'none') ? raw : '';
+          let on = false;
+          const fid = setInterval(() => {
+            on = !on;
+            divBox.style.boxShadow = on
+              ? (base ? base + ', ' : '') + '0 0 12px 4px rgba(217, 74, 74, 0.85)'
+              : base || '';
+          }, 300);
+          gaugeExceededTimers.set(boxId + '_flash', fid);
+        }
+        clearTimeout(gaugeExceededTimers.get(boxId + '_warn'));
+        gaugeExceededTimers.delete(boxId + '_warn');
+      } else if (wasExceeded) {
         gaugeExceededCache.set(boxId, false);
-        
-        clearTimeout(gaugeExceededTimers.get(boxId));
-        const timer = setTimeout(() => {
-          divGauge.classList.remove('warned');
-          gaugeExceededTimers.delete(boxId);
+        // Stop box flash
+        clearInterval(gaugeExceededTimers.get(boxId + '_flash'));
+        gaugeExceededTimers.delete(boxId + '_flash');
+        if (divBox) divBox.style.boxShadow = '';
+        // Gauge warned glow — persists 3s after returning to safe values
+        divGauge.style.boxShadow = 'inset 0 0 0 2px #d94a4a, 0 0 4px 1px rgba(217, 74, 74, 0.6)';
+        clearTimeout(gaugeExceededTimers.get(boxId + '_warn'));
+        const wid = setTimeout(() => {
+          divGauge.style.boxShadow = '';
+          gaugeExceededTimers.delete(boxId + '_warn');
         }, 3000);
-        gaugeExceededTimers.set(boxId, timer);
+        gaugeExceededTimers.set(boxId + '_warn', wid);
       }
     } else {
       divGauge.style.height = `0px`;
@@ -898,6 +912,11 @@ export function clearAllIntervals() {
   boxContentCache.clear();
   boxStateCache.clear();
   boxWidthCache.clear();
+  gaugeExceededTimers.forEach((id, key) => {
+    if (key.endsWith('_flash')) clearInterval(id); else clearTimeout(id);
+  });
+  gaugeExceededTimers.clear();
+  gaugeExceededCache.clear();
   historicData.clear();
   updateGraphTriggers.clear();
 }
