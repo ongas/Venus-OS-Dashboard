@@ -239,43 +239,28 @@ export function cssDataDark() {
 		    mask-repeat: no-repeat;
 		    mask-size: 100% 100%;
 		}
-		
 
-@keyframes gaugeExceeded {
-    0%, 100% {
-        opacity: 0.8;
-        box-shadow: 0 0 0 0 rgba(217, 74, 74, 0.7);
-    }
-    50% {
-        opacity: 1;
-        box-shadow: 0 0 8px 2px rgba(217, 74, 74, 0.8);
-    }
-}
+		@keyframes gaugeExceeded {
+			0%, 100% {
+				opacity: 0.8;
+				box-shadow: 0 0 0 0 rgba(217, 74, 74, 0.7);
+			}
+			50% {
+				opacity: 1;
+				box-shadow: 0 0 8px 2px rgba(217, 74, 74, 0.8);
+			}
+		}
 
-.gauge.exceeded {
-    animation: gaugeExceeded 0.4s ease-in-out infinite;
-    border: 2px solid #d94a4a;
+		.gauge.exceeded {
+			animation: gaugeExceeded 0.4s ease-in-out infinite;
+			border: 2px solid #d94a4a;
+		}
 
-@keyframes gaugeExceeded {
-    0%, 100% {
-        opacity: 0.8;
-        box-shadow: 0 0 0 0 rgba(217, 74, 74, 0.7);
-    }
-    50% {
-        opacity: 1;
-        box-shadow: 0 0 8px 2px rgba(217, 74, 74, 0.8);
-    }
-}
+		.gauge.warned {
+			border: 2px solid #d94a4a;
+			box-shadow: 0 0 4px 1px rgba(217, 74, 74, 0.6);
+		}
 
-.gauge.exceeded {
-    animation: gaugeExceeded 0.4s ease-in-out infinite;
-    border: 2px solid #d94a4a;
-}
-
-.gauge.warned {
-    border: 2px solid #d94a4a;
-    box-shadow: 0 0 4px 1px rgba(217, 74, 74, 0.6);
-}
 		.sideGauge {
 			position: absolute;
 			right: 5px;
