@@ -240,25 +240,29 @@ export function cssDataDark() {
 		    mask-size: 100% 100%;
 		}
 
-		@keyframes gaugeExceeded {
+		@keyframes boxExceededFlash {
 			0%, 100% {
-				opacity: 0.8;
-				box-shadow: 0 0 0 0 rgba(217, 74, 74, 0.7);
+				box-shadow:
+					0px 0px 1px 2px var(--box-shadow-color),
+					0 0 0 0 rgba(217, 74, 74, 0.0);
 			}
 			50% {
-				opacity: 1;
-				box-shadow: 0 0 8px 2px rgba(217, 74, 74, 0.8);
+				box-shadow:
+					0px 0px 1px 2px var(--box-shadow-color),
+					0 0 10px 3px rgba(217, 74, 74, 0.8);
 			}
+		}
+
+		.box.box-exceeded {
+			animation: boxExceededFlash 0.5s ease-in-out infinite;
 		}
 
 		.gauge.exceeded {
-			animation: gaugeExceeded 0.4s ease-in-out infinite;
-			border: 2px solid #d94a4a;
+			box-shadow: inset 0 0 0 2px #d94a4a, 0 0 8px 2px rgba(217, 74, 74, 0.8);
 		}
 
 		.gauge.warned {
-			border: 2px solid #d94a4a;
-			box-shadow: 0 0 4px 1px rgba(217, 74, 74, 0.6);
+			box-shadow: inset 0 0 0 2px #d94a4a, 0 0 4px 1px rgba(217, 74, 74, 0.6);
 		}
 
 		.sideGauge {

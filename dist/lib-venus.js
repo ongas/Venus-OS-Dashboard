@@ -224,14 +224,17 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
       
       const isExceeded = gaugeAbsVal > gaugeMax;
       const wasExceeded = gaugeExceededCache.get(boxId) || false;
+      const divBox = divGauge.closest('.box');
       
       if (isExceeded) {
+        if (divBox) divBox.classList.add('box-exceeded');
         divGauge.classList.add('exceeded');
         divGauge.classList.remove('warned');
         gaugeExceededCache.set(boxId, true);
         clearTimeout(gaugeExceededTimers.get(boxId));
         gaugeExceededTimers.delete(boxId);
       } else if (!isExceeded && wasExceeded) {
+        if (divBox) divBox.classList.remove('box-exceeded');
         divGauge.classList.remove('exceeded');
         divGauge.classList.add('warned');
         gaugeExceededCache.set(boxId, false);
