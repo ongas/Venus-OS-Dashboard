@@ -221,24 +221,7 @@ export function cssDataDark() {
 			border-radius: 0 0 5px 5px;
 		}
 
-		.gauge::before {
-		    content: "";
-		    position: absolute;
-		    top: 5px;
-						bottom: 5px;
-		    left: 0;
-		    width: 100%;
-		    height: 100%;
-		    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 154' preserveAspectRatio='xMidYMid meet'%3E%3Cg transform='translate(0,154) scale(0.1,-0.1)' fill='%23fff' stroke='none'%3E%3Cpath d='M945 1296 c-102 -44 -124 -181 -41 -254 140 -123 338 67 219 209 -47 55 -116 72 -178 45z'/%3E%3Cpath d='M2405 1296 c-42 -18 -83 -69 -91 -112 -14 -77 44 -166 118 -179 18 -3 288 -5 600 -3 554 3 567 3 594 24 51 38 69 71 69 129 0 58 -18 91 -69 129 -27 21 -39 21 -609 23 -469 2 -588 0 -612 -11z'/%3E%3Cpath d='M405 526 c-42 -18 -83 -69 -91 -112 -14 -77 44 -166 118 -179 18 -3 288 -5 600 -3 554 3 567 3 594 24 51 38 69 71 69 129 0 58 -18 91 -69 129 -27 21 -39 21 -609 23 -469 2 -588 0 -612 -11z'/%3E%3Cpath d='M2945 526 c-102 -44 -124 -181 -41 -254 140 -123 338 67 219 209 -47 55 -116 72 -178 45z'/%3E%3C/g%3E%3C/svg%3E");
-
-		    background-repeat: repeat;
-		    background-size: 30px 12px;
-
-		    /* Masque pour estomper */
-		    mask-image: linear-gradient(to bottom, #fff4, transparent);
-		    mask-repeat: no-repeat;
-		    mask-size: 100% 100%;
-		}
+		/* gauge texture overlay removed — clean fill matches Victron GX gui-v2 */
 
 		@keyframes boxExceededFlash {
 			0%, 100% {
