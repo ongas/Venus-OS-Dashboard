@@ -231,14 +231,26 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
         // Gauge red glow via CSS class
         divGauge.classList.add('exceeded');
         divGauge.classList.remove('warned');
-        // Box flash via CSS @keyframes animation
-        if (divBox) divBox.classList.add('box-exceeded');
+        // Box flash via Web Animations API (CSS @keyframes unreliable in HA context)
+        if (divBox && !gaugeExceededTimers.get(boxId + '_flash')) {
+          const baseBS = getComputedStyle(divBox).boxShadow;
+          const base = (baseBS && baseBS !== 'none') ? baseBS : '';
+          const dimShadow = base ? base + ', 0 0 2px 1px rgba(217, 74, 74, 0.3)' : '0 0 2px 1px rgba(217, 74, 74, 0.3)';
+          const brightShadow = base ? base + ', 0 0 16px 6px rgba(217, 74, 74, 0.95)' : '0 0 16px 6px rgba(217, 74, 74, 0.95)';
+          const anim = divBox.animate(
+            [{ boxShadow: dimShadow }, { boxShadow: brightShadow }],
+            { duration: 700, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }
+          );
+          gaugeExceededTimers.set(boxId + '_flash', anim);
+        }
         clearTimeout(gaugeExceededTimers.get(boxId + '_warn'));
         gaugeExceededTimers.delete(boxId + '_warn');
       } else if (wasExceeded) {
         gaugeExceededCache.set(boxId, false);
         // Stop box flash
-        if (divBox) divBox.classList.remove('box-exceeded');
+        const anim = gaugeExceededTimers.get(boxId + '_flash');
+        if (anim) anim.cancel();
+        gaugeExceededTimers.delete(boxId + '_flash');
         // Gauge warned glow — persists 2 minutes after returning to safe values
         divGauge.classList.remove('exceeded');
         divGauge.classList.add('warned');
@@ -904,8 +916,8 @@ export function clearAllIntervals() {
   boxContentCache.clear();
   boxStateCache.clear();
   boxWidthCache.clear();
-  gaugeExceededTimers.forEach((id) => {
-    clearTimeout(id);
+  gaugeExceededTimers.forEach((val, key) => {
+    if (key.endsWith('_flash') && val && val.cancel) val.cancel(); else clearTimeout(val);
   });
   gaugeExceededTimers.clear();
   gaugeExceededCache.clear();
