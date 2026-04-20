@@ -191,7 +191,7 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     const device = devices[boxId];
             
     // Fast-path: skip box if entity states haven't changed
-    const _ents = [device.entity, device.entity2, device.headerEntity, device.footerEntity1, device.footerEntity2, device.footerEntity3, device.iconEntity, device.sideGaugeEntity, device.sideGaugeMax].filter(Boolean);
+    const _ents = [device.entity, device.entity2, device.headerEntity, device.footerEntity1, device.footerEntity2, device.footerEntity3, device.iconEntity, device.sideGaugeEntity, device.sideGaugeMax, device.sideGaugeMin].filter(Boolean);
     const _stateKey = _ents.map(function(k) { var s = hass.states[k]; return s ? s.state + (s.attributes && s.attributes.unit_of_measurement || '') : ''; }).join('|');
     if (boxStateCache.get(boxId) === _stateKey) continue;
     boxStateCache.set(boxId, _stateKey);
@@ -270,8 +270,11 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
       var sgValue = sgState ? parseFloat(sgState.state) : 0;
       var sgMaxState = device.sideGaugeMax ? hass.states[device.sideGaugeMax] : null;
       var sgMax = sgMaxState ? parseFloat(sgMaxState.state) || 100 : 100;
+      var sgMinState = device.sideGaugeMin ? hass.states[device.sideGaugeMin] : null;
+      var sgMin = sgMinState ? parseFloat(sgMinState.state) || 0 : 0;
       if(isNaN(sgValue)) sgValue = 0;
-      var sgPct = Math.min(Math.abs(sgValue) / sgMax * 100, 100);
+      var sgRange = sgMax - sgMin;
+      var sgPct = sgRange > 0 ? Math.min(Math.max((Math.abs(sgValue) - sgMin) / sgRange * 100, 0), 100) : 0;
       var sgFill = divSideGauge.querySelector('.sideGaugeFill');
       if(sgFill) {
         sgFill.style.height = sgPct + '%';
