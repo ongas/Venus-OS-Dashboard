@@ -41,11 +41,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.6.22`);
+    const response = await import(`./lang-${lang}.js?v=0.6.23`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.6.22`);
+    const response = await import(`./lang-en.js?v=0.6.23`);
     translations = response.default;
   }
 }
@@ -1148,11 +1148,13 @@ export function updateConfigRecursively(obj, path, value, removeIfNull = false) 
 /* function to update the yaml */
 /***********************************/
 export function notifyConfigChange(appendTo) {
+  // Deep copy so HA always sees a new object reference (not a mutated original)
+  const configCopy = JSON.parse(JSON.stringify(appendTo._config));
   const event = new Event('config-changed', {
     bubbles: true,
     composed: true,
   });
-  event.detail = { config: appendTo._config };
+  event.detail = { config: configCopy };
   appendTo.dispatchEvent(event);
 }
 
