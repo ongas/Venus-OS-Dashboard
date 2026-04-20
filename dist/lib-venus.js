@@ -231,17 +231,33 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
         // Gauge red glow via CSS class
         divGauge.classList.add('exceeded');
         divGauge.classList.remove('warned');
+        console.warn('[GAUGE-EXCEED]', boxId, 'val=', gaugeAbsVal, 'max=', gaugeMax, 'divBox=', divBox, 'hasFlashTimer=', gaugeExceededTimers.has(boxId + '_flash'));
         // Box flash via Web Animations API (CSS @keyframes unreliable in HA context)
         if (divBox && !gaugeExceededTimers.get(boxId + '_flash')) {
           const baseBS = getComputedStyle(divBox).boxShadow;
           const base = (baseBS && baseBS !== 'none') ? baseBS : '';
           const dimShadow = base ? base + ', 0 0 2px 1px rgba(217, 74, 74, 0.3)' : '0 0 2px 1px rgba(217, 74, 74, 0.3)';
           const brightShadow = base ? base + ', 0 0 16px 6px rgba(217, 74, 74, 0.95)' : '0 0 16px 6px rgba(217, 74, 74, 0.95)';
-          const anim = divBox.animate(
-            [{ boxShadow: dimShadow }, { boxShadow: brightShadow }],
-            { duration: 700, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }
-          );
-          gaugeExceededTimers.set(boxId + '_flash', anim);
+          console.warn('[GAUGE-EXCEED] Starting animation on', divBox, 'dim=', dimShadow, 'bright=', brightShadow);
+          try {
+            const anim = divBox.animate(
+              [{ boxShadow: dimShadow }, { boxShadow: brightShadow }],
+              { duration: 700, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }
+            );
+            console.warn('[GAUGE-EXCEED] Animation created:', anim, 'playState=', anim.playState);
+            gaugeExceededTimers.set(boxId + '_flash', anim);
+          } catch (err) {
+            console.error('[GAUGE-EXCEED] Animation FAILED:', err);
+            // Fallback: setInterval with inline box-shadow
+            let flashOn = false;
+            const fid = setInterval(() => {
+              flashOn = !flashOn;
+              divBox.style.boxShadow = flashOn
+                ? (base ? base + ', ' : '') + '0 0 16px 6px rgba(217, 74, 74, 0.95)'
+                : base || '';
+            }, 500);
+            gaugeExceededTimers.set(boxId + '_flash', { cancel: () => { clearInterval(fid); divBox.style.boxShadow = ''; } });
+          }
         }
         clearTimeout(gaugeExceededTimers.get(boxId + '_warn'));
         gaugeExceededTimers.delete(boxId + '_warn');
