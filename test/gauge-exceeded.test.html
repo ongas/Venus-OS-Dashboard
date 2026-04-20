@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head><title>Gauge Exceeded Test</title></head>
+<body>
+<div id="dashboard">
+  <div id="column-1">
+    <div id="box_1-1" class="box" style="box-shadow: 0px 0px 1px 2px rgba(65,132,168,0.5); width:100px; height:100px; position:relative;">
+      <div id="gauge_1-1" class="gauge" style="position:absolute; bottom:0; left:0; width:100%; height:50%;"></div>
+    </div>
+  </div>
+</div>
+<script>
+// Exact logic extracted from lib-venus.js
+const gaugeExceededCache = new Map();
+const gaugeExceededTimers = new Map();
+
+function simulateGaugeUpdate(boxId, gaugeAbsVal, gaugeMax) {
+  const divGauge = document.querySelector(`#gauge_${boxId}`);
+  const gaugeVal = Math.min(gaugeAbsVal / gaugeMax * 100, 100);
+  divGauge.style.height = gaugeVal + '%';
+
+  const isExceeded = gaugeAbsVal >= gaugeMax;
+  const wasExceeded = gaugeExceededCache.get(boxId) || false;
+  const divBox = divGauge.closest('.box');
+
+  if (isExceeded) {
+    gaugeExceededCache.set(boxId, true);
+    divGauge.style.boxShadow = 'inset 0 0 0 2px #d94a4a, 0 0 8px 2px rgba(217, 74, 74, 0.8)';
+    if (divBox && !gaugeExceededTimers.get(boxId + '_flash')) {
+      const raw = getComputedStyle(divBox).boxShadow;
+      const base = (raw && raw !== 'none') ? raw : '';
+      let on = false;
+      const fid = setInterval(() => {
+        on = !on;
+        divBox.style.boxShadow = on
+          ? (base ? base + ', ' : '') + '0 0 12px 4px rgba(217, 74, 74, 0.85)'
+          : base || '';
+      }, 300);
+      gaugeExceededTimers.set(boxId + '_flash', fid);
+    }
+    clearTimeout(gaugeExceededTimers.get(boxId + '_warn'));
+    gaugeExceededTimers.delete(boxId + '_warn');
+  } else if (wasExceeded) {
+    gaugeExceededCache.set(boxId, false);
+    clearInterval(gaugeExceededTimers.get(boxId + '_flash'));
+    gaugeExceededTimers.delete(boxId + '_flash');
+    if (divBox) divBox.style.boxShadow = '';
+    divGauge.style.boxShadow = 'inset 0 0 0 2px #d94a4a, 0 0 4px 1px rgba(217, 74, 74, 0.6)';
+    clearTimeout(gaugeExceededTimers.get(boxId + '_warn'));
+    const wid = setTimeout(() => {
+      divGauge.style.boxShadow = '';
+      gaugeExceededTimers.delete(boxId + '_warn');
+    }, 3000);
+    gaugeExceededTimers.set(boxId + '_warn', wid);
+  }
+}
+
+// Expose for puppeteer
+window.simulateGaugeUpdate = simulateGaugeUpdate;
+window.gaugeExceededCache = gaugeExceededCache;
+window.gaugeExceededTimers = gaugeExceededTimers;
+</script>
+</body>
+</html>
