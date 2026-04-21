@@ -1,4 +1,3 @@
-console.warn('[VENUS-LIB] lib-venus.js v0.6.29 LOADED');
 export let pathControls = new Map();
 
 export let directionControls = new Map();
@@ -251,19 +250,30 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
       const sgIsExceeded = sgAbsValue > sgMax;
       const sgWasExceeded = gaugeExceededCache.get(boxId + "_sg") || false;
       const sgDivBox = divSideGauge.closest(".box");
-      console.warn("[SIDEGAUGE] boxId=", boxId, "val=", sgAbsValue, "max=", sgMax, "exceeded=", sgIsExceeded);
 
       if (sgIsExceeded) {
         gaugeExceededCache.set(boxId + "_sg", true);
         sgFill.style.background = "linear-gradient(to top, #d94a4a, #e06060)";
-        console.warn("[SIDEGAUGE-EXCEED]", boxId, "Starting box flash");
+        // Pulsing red glow on the vertical bar fill
+        if (!gaugeExceededTimers.get(boxId + "_sgfillglow")) {
+          try {
+            const fillAnim = sgFill.animate(
+              [{ boxShadow: "0 0 4px 2px rgba(217,74,74,0.4)" },
+                { boxShadow: "0 0 14px 6px rgba(217,74,74,0.9)" }],
+              { duration: 700, iterations: Infinity, direction: "alternate", easing: "ease-in-out" }
+            );
+            gaugeExceededTimers.set(boxId + "_sgfillglow", fillAnim);
+          } catch (e) {
+            sgFill.style.boxShadow = "0 0 14px 6px rgba(217,74,74,0.9)";
+          }
+        }
+        // Box flash: solid red border + pulsing red glow
         if (sgDivBox && !gaugeExceededTimers.get(boxId + "_sgflash")) {
-          const sgBaseBS = getComputedStyle(sgDivBox).boxShadow;
-          const sgBase = (sgBaseBS && sgBaseBS !== "none") ? sgBaseBS : "";
+          const redBorder = "0px 0px 1px 2px rgba(217,74,74,1)";
           try {
             const sgAnim = sgDivBox.animate(
-              [{ boxShadow: sgBase ? sgBase + ", 0 0 2px 1px rgba(217,74,74,0.3)" : "0 0 2px 1px rgba(217,74,74,0.3)" },
-                { boxShadow: sgBase ? sgBase + ", 0 0 16px 6px rgba(217,74,74,0.95)" : "0 0 16px 6px rgba(217,74,74,0.95)" }],
+              [{ boxShadow: redBorder + ", 0 0 2px 1px rgba(217,74,74,0.3)" },
+                { boxShadow: redBorder + ", 0 0 16px 6px rgba(217,74,74,0.95)" }],
               { duration: 700, iterations: Infinity, direction: "alternate", easing: "ease-in-out" }
             );
             gaugeExceededTimers.set(boxId + "_sgflash", sgAnim);
@@ -271,7 +281,9 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
             let sgFlashOn = false;
             const sgFid = setInterval(() => {
               sgFlashOn = !sgFlashOn;
-              sgDivBox.style.boxShadow = sgFlashOn ? (sgBase ? sgBase + ", " : "") + "0 0 16px 6px rgba(217,74,74,0.95)" : sgBase || "";
+              sgDivBox.style.boxShadow = sgFlashOn
+                ? redBorder + ", 0 0 16px 6px rgba(217,74,74,0.95)"
+                : redBorder;
             }, 500);
             gaugeExceededTimers.set(boxId + "_sgflash", { cancel: () => { clearInterval(sgFid); sgDivBox.style.boxShadow = ""; } });
           }
@@ -280,11 +292,19 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
         gaugeExceededTimers.delete(boxId + "_sgwarn");
       } else if (sgWasExceeded) {
         gaugeExceededCache.set(boxId + "_sg", false);
+        // Stop box flash, restore original border
         const sgAnimStop = gaugeExceededTimers.get(boxId + "_sgflash");
         if (sgAnimStop) sgAnimStop.cancel();
         gaugeExceededTimers.delete(boxId + "_sgflash");
+        if (sgDivBox) sgDivBox.style.boxShadow = "";
+        // Stop fill pulsing glow, switch to static warned glow for 2 minutes
+        const fillAnimStop = gaugeExceededTimers.get(boxId + "_sgfillglow");
+        if (fillAnimStop) fillAnimStop.cancel();
+        gaugeExceededTimers.delete(boxId + "_sgfillglow");
+        sgFill.style.boxShadow = "0 0 10px 4px rgba(217,150,74,0.7)";
         clearTimeout(gaugeExceededTimers.get(boxId + "_sgwarn"));
         const sgWid = setTimeout(() => {
+          sgFill.style.boxShadow = "";
           gaugeExceededTimers.delete(boxId + "_sgwarn");
         }, 120000);
         gaugeExceededTimers.set(boxId + "_sgwarn", sgWid);
