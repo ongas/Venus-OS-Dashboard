@@ -1,3 +1,4 @@
+console.warn('[VENUS-LIB] lib-venus.js v0.6.28 LOADED');
 export let pathControls = new Map();
 
 export let directionControls = new Map();
@@ -217,6 +218,7 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     if(device.graph) creatGraph(boxId, device, isDark, appendTo);
         
     if(device.gauge && device.gaugeMax) {
+      console.warn('[GAUGE] boxId=', boxId, 'gauge=', device.gauge, 'gaugeMax=', device.gaugeMax, 'value=', value);
       const gaugeMax = parseFloat(device.gaugeMax);
       const gaugeAbsVal = Math.abs(parseFloat(value));
       const gaugeVal = Math.min(gaugeAbsVal / gaugeMax * 100, 100);
