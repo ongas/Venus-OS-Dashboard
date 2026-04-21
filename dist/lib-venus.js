@@ -1,4 +1,4 @@
-console.warn('[VENUS-LIB] lib-venus.js v0.6.28 LOADED');
+console.warn('[VENUS-LIB] lib-venus.js v0.6.29 LOADED');
 export let pathControls = new Map();
 
 export let directionControls = new Map();
@@ -218,67 +218,10 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     if(device.graph) creatGraph(boxId, device, isDark, appendTo);
         
     if(device.gauge && device.gaugeMax) {
-      console.warn('[GAUGE] boxId=', boxId, 'gauge=', device.gauge, 'gaugeMax=', device.gaugeMax, 'value=', value);
       const gaugeMax = parseFloat(device.gaugeMax);
       const gaugeAbsVal = Math.abs(parseFloat(value));
       const gaugeVal = Math.min(gaugeAbsVal / gaugeMax * 100, 100);
       divGauge.style.height = gaugeVal + `%`;
-      
-      const isExceeded = gaugeAbsVal >= gaugeMax;
-      const wasExceeded = gaugeExceededCache.get(boxId) || false;
-      const divBox = divGauge.closest('.box');
-      
-      if (isExceeded) {
-        gaugeExceededCache.set(boxId, true);
-        // Gauge red glow via CSS class
-        divGauge.classList.add('exceeded');
-        divGauge.classList.remove('warned');
-        console.warn('[GAUGE-EXCEED]', boxId, 'val=', gaugeAbsVal, 'max=', gaugeMax, 'divBox=', divBox, 'hasFlashTimer=', gaugeExceededTimers.has(boxId + '_flash'));
-        // Box flash via Web Animations API (CSS @keyframes unreliable in HA context)
-        if (divBox && !gaugeExceededTimers.get(boxId + '_flash')) {
-          const baseBS = getComputedStyle(divBox).boxShadow;
-          const base = (baseBS && baseBS !== 'none') ? baseBS : '';
-          const dimShadow = base ? base + ', 0 0 2px 1px rgba(217, 74, 74, 0.3)' : '0 0 2px 1px rgba(217, 74, 74, 0.3)';
-          const brightShadow = base ? base + ', 0 0 16px 6px rgba(217, 74, 74, 0.95)' : '0 0 16px 6px rgba(217, 74, 74, 0.95)';
-          console.warn('[GAUGE-EXCEED] Starting animation on', divBox, 'dim=', dimShadow, 'bright=', brightShadow);
-          try {
-            const anim = divBox.animate(
-              [{ boxShadow: dimShadow }, { boxShadow: brightShadow }],
-              { duration: 700, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }
-            );
-            console.warn('[GAUGE-EXCEED] Animation created:', anim, 'playState=', anim.playState);
-            gaugeExceededTimers.set(boxId + '_flash', anim);
-          } catch (err) {
-            console.error('[GAUGE-EXCEED] Animation FAILED:', err);
-            // Fallback: setInterval with inline box-shadow
-            let flashOn = false;
-            const fid = setInterval(() => {
-              flashOn = !flashOn;
-              divBox.style.boxShadow = flashOn
-                ? (base ? base + ', ' : '') + '0 0 16px 6px rgba(217, 74, 74, 0.95)'
-                : base || '';
-            }, 500);
-            gaugeExceededTimers.set(boxId + '_flash', { cancel: () => { clearInterval(fid); divBox.style.boxShadow = ''; } });
-          }
-        }
-        clearTimeout(gaugeExceededTimers.get(boxId + '_warn'));
-        gaugeExceededTimers.delete(boxId + '_warn');
-      } else if (wasExceeded) {
-        gaugeExceededCache.set(boxId, false);
-        // Stop box flash
-        const anim = gaugeExceededTimers.get(boxId + '_flash');
-        if (anim) anim.cancel();
-        gaugeExceededTimers.delete(boxId + '_flash');
-        // Gauge warned glow — persists 2 minutes after returning to safe values
-        divGauge.classList.remove('exceeded');
-        divGauge.classList.add('warned');
-        clearTimeout(gaugeExceededTimers.get(boxId + '_warn'));
-        const wid = setTimeout(() => {
-          divGauge.classList.remove('warned');
-          gaugeExceededTimers.delete(boxId + '_warn');
-        }, 120000);
-        gaugeExceededTimers.set(boxId + '_warn', wid);
-      }
     } else {
       divGauge.style.height = `0px`;
     }
@@ -302,6 +245,50 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
         else sgFill.style.background = 'linear-gradient(to top, #4a8cc4, #5a9fd4)';
       }
       divSideGauge.style.display = '';
+
+      // sideGauge exceeded detection
+      const sgAbsValue = Math.abs(sgValue);
+      const sgIsExceeded = sgAbsValue > sgMax;
+      const sgWasExceeded = gaugeExceededCache.get(boxId + "_sg") || false;
+      const sgDivBox = divSideGauge.closest(".box");
+      console.warn("[SIDEGAUGE] boxId=", boxId, "val=", sgAbsValue, "max=", sgMax, "exceeded=", sgIsExceeded);
+
+      if (sgIsExceeded) {
+        gaugeExceededCache.set(boxId + "_sg", true);
+        sgFill.style.background = "linear-gradient(to top, #d94a4a, #e06060)";
+        console.warn("[SIDEGAUGE-EXCEED]", boxId, "Starting box flash");
+        if (sgDivBox && !gaugeExceededTimers.get(boxId + "_sgflash")) {
+          const sgBaseBS = getComputedStyle(sgDivBox).boxShadow;
+          const sgBase = (sgBaseBS && sgBaseBS !== "none") ? sgBaseBS : "";
+          try {
+            const sgAnim = sgDivBox.animate(
+              [{ boxShadow: sgBase ? sgBase + ", 0 0 2px 1px rgba(217,74,74,0.3)" : "0 0 2px 1px rgba(217,74,74,0.3)" },
+                { boxShadow: sgBase ? sgBase + ", 0 0 16px 6px rgba(217,74,74,0.95)" : "0 0 16px 6px rgba(217,74,74,0.95)" }],
+              { duration: 700, iterations: Infinity, direction: "alternate", easing: "ease-in-out" }
+            );
+            gaugeExceededTimers.set(boxId + "_sgflash", sgAnim);
+          } catch (sgErr) {
+            let sgFlashOn = false;
+            const sgFid = setInterval(() => {
+              sgFlashOn = !sgFlashOn;
+              sgDivBox.style.boxShadow = sgFlashOn ? (sgBase ? sgBase + ", " : "") + "0 0 16px 6px rgba(217,74,74,0.95)" : sgBase || "";
+            }, 500);
+            gaugeExceededTimers.set(boxId + "_sgflash", { cancel: () => { clearInterval(sgFid); sgDivBox.style.boxShadow = ""; } });
+          }
+        }
+        clearTimeout(gaugeExceededTimers.get(boxId + "_sgwarn"));
+        gaugeExceededTimers.delete(boxId + "_sgwarn");
+      } else if (sgWasExceeded) {
+        gaugeExceededCache.set(boxId + "_sg", false);
+        const sgAnimStop = gaugeExceededTimers.get(boxId + "_sgflash");
+        if (sgAnimStop) sgAnimStop.cancel();
+        gaugeExceededTimers.delete(boxId + "_sgflash");
+        clearTimeout(gaugeExceededTimers.get(boxId + "_sgwarn"));
+        const sgWid = setTimeout(() => {
+          gaugeExceededTimers.delete(boxId + "_sgwarn");
+        }, 120000);
+        gaugeExceededTimers.set(boxId + "_sgwarn", sgWid);
+      }
     } else if(divSideGauge) {
       divSideGauge.style.display = 'none';
     }
