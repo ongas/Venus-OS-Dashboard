@@ -739,7 +739,7 @@ function creatLine(anchorId1, anchorId2, direction_init, isDarkTheme, appendTo, 
   // If numBalls is 0 (auto), calculate from path length; otherwise use the override
   const pathLength = path.getTotalLength();
   const ELECTRON_INTERVAL = 34;  // pixels between electrons (matches Victron gui-v2)
-  const effectiveBalls = numBalls > 0 ? numBalls : Math.max(1, Math.floor(pathLength / ELECTRON_INTERVAL));
+  const effectiveBalls = numBalls > 0 ? numBalls : Math.max(1, Math.ceil(pathLength / ELECTRON_INTERVAL));
   
   // Create the dots with gradient (evenly spaced dots)
   const circles = [];
