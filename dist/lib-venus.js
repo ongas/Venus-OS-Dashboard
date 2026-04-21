@@ -19,6 +19,12 @@ let boxStateCache = new Map();
 let boxWidthCache = new Map();
 let gaugeExceededCache = new Map();
 let gaugeExceededTimers = new Map();
+let maxPowerRange = 5000;  // dashboard-wide max power for speed scaling (configurable)
+
+export function setMaxPower(value) {
+  const v = parseFloat(value);
+  if (v > 0) maxPowerRange = v;
+}
 
 /************************************************/
 /* function to render the card skeleton:          */
@@ -814,7 +820,6 @@ function animateBallAlongPath(anchorId1, path, circles) {
   // Throughput-based velocity: scales with power magnitude
   const MIN_VELOCITY = 8;    // px/sec at low power
   const MAX_VELOCITY = 45;   // px/sec at full power
-  const POWER_RANGE = 5000;  // watts for full speed (scales linearly)
   let velocity = 15;         // initial default
   let duration = pathLength / velocity * 1000;
   let startTime;
@@ -826,7 +831,7 @@ function animateBallAlongPath(anchorId1, path, circles) {
   
   function setSpeed(power) {
     const absPower = Math.abs(power);
-    const t = Math.min(absPower / POWER_RANGE, 1);  // 0..1 normalized
+    const t = Math.min(absPower / maxPowerRange, 1);  // 0..1 normalized
     velocity = MIN_VELOCITY + t * (MAX_VELOCITY - MIN_VELOCITY);
     const newDuration = pathLength / velocity * 1000;
     // Adjust startTime so animation doesn't jump when speed changes

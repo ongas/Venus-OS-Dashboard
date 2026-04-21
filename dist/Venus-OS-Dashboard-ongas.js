@@ -16,11 +16,11 @@ console.info(
   "color: white; font-weight: bold; background: grey"
 );
 
-import './editor.js?v=0.6.42';
-import * as libVenus from './lib-venus.js?v=0.6.42';
+import './editor.js?v=0.6.43';
+import * as libVenus from './lib-venus.js?v=0.6.43';
 
-import { cssDataDark } from './css-dark.js?v=0.6.42';
-import { cssDataLight } from './css-light.js?v=0.6.42';
+import { cssDataDark } from './css-dark.js?v=0.6.43';
+import { cssDataLight } from './css-light.js?v=0.6.43';
 
 class venusOsDashboardCard extends HTMLElement {
 
@@ -135,6 +135,9 @@ class venusOsDashboardCard extends HTMLElement {
     // retrieve card parameters
     const devices = this.config.devices || [];
     const styles = this.config.styles || "";
+
+    // set dashboard-wide max power for animation speed scaling
+    if (this.config.maxPower) libVenus.setMaxPower(this.config.maxPower);
 
     // fill boxes with the given parameters
     libVenus.fillBox(this.config, styles, venusOsDashboardCard.isDark, hass, this.content);
