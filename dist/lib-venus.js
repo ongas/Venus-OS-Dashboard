@@ -691,7 +691,7 @@ function creatLine(anchorId1, anchorId2, direction_init, isDarkTheme, appendTo) 
       const midX = (coords1.x + coords2.x) / 2;
       const halfW = Math.abs(midX - coords1.x);
       const halfH = Math.abs(coords2.y - coords1.y) / 2;
-      const r = Math.min(20, halfW, halfH);
+      const r = Math.min(60, halfW, halfH);
       const dx = coords2.x > coords1.x ? 1 : -1;
       const dy = coords2.y > coords1.y ? 1 : -1;
       pathData = `M${coords1.x},${coords1.y} L${midX - dx*r},${coords1.y} Q${midX},${coords1.y} ${midX},${coords1.y + dy*r} L${midX},${coords2.y - dy*r} Q${midX},${coords2.y} ${midX + dx*r},${coords2.y} L${coords2.x},${coords2.y}`;
@@ -706,7 +706,7 @@ function creatLine(anchorId1, anchorId2, direction_init, isDarkTheme, appendTo) 
       const midY = (coords1.y + coords2.y) / 2;
       const halfH = Math.abs(midY - coords1.y);
       const halfW = Math.abs(coords2.x - coords1.x) / 2;
-      const r = Math.min(20, halfH, halfW);
+      const r = Math.min(60, halfH, halfW);
       const dy = coords2.y > coords1.y ? 1 : -1;
       const dx = coords2.x > coords1.x ? 1 : -1;
       pathData = `M${coords1.x},${coords1.y} L${coords1.x},${midY - dy*r} Q${coords1.x},${midY} ${coords1.x + dx*r},${midY} L${coords2.x - dx*r},${midY} Q${coords2.x},${midY} ${coords2.x},${midY + dy*r} L${coords2.x},${coords2.y}`;
