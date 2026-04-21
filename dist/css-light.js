@@ -55,7 +55,7 @@ export function cssDataLight() {
             border-radius: 5px;
             box-shadow: 0px 0px 1px 2px var(--box-shadow-color);  /* Utilisation de la variable pour la couleur de l'ombre */
             height: 100%;
-            max-height: 40%;
+            max-height: 35%;
             margin: 5px;
             display: flex;
             justify-content: center;
