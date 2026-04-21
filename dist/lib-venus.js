@@ -557,6 +557,16 @@ export function checkReSize(devices, isDarkTheme, appendTo) {
       const dashboard = appendTo.querySelector("#dashboard");
         
       if (dashboard) {
+
+        // Stop old animation loops before clearing DOM
+        const recreateLines = () => {
+          pathControls.forEach((controls) => { if (controls.stop) controls.stop(); });
+          pathControls.clear();
+          directionControls.clear();
+          circContainer.innerHTML = "";
+          pathContainer.innerHTML = "";
+          addLine(devices, isDarkTheme, appendTo);
+        };
                     
         // check if the main Home Assistant window is inert (or if the card config window is open)
         const homeAssistant = window.document.querySelector('home-assistant');
@@ -566,17 +576,13 @@ export function checkReSize(devices, isDarkTheme, appendTo) {
         // different cases...
         if (mustRedrawLine) { // following a YAML update
                         
-          circContainer.innerHTML = "";
-          pathContainer.innerHTML = "";
-          addLine(devices, isDarkTheme, appendTo);
+          recreateLines();
                         
         } else if(hasInert && !editorOpen) { // premiere boucle a l'ouverture de l'editeur
 
           editorOpen = true;
                         
-          circContainer.innerHTML = "";
-          pathContainer.innerHTML = "";
-          addLine(devices, isDarkTheme, appendTo);
+          recreateLines();
                         
         } else if (hasInert && editorOpen) { // subsequent loops after first editor open... no more updates
                         
@@ -584,15 +590,11 @@ export function checkReSize(devices, isDarkTheme, appendTo) {
                         
           editorOpen = false;
 
-          circContainer.innerHTML = "";
-          pathContainer.innerHTML = "";
-          addLine(devices, isDarkTheme, appendTo);
+          recreateLines();
                         
         } else {
 
-          circContainer.innerHTML = "";
-          pathContainer.innerHTML = "";
-          addLine(devices, isDarkTheme, appendTo);
+          recreateLines();
                         
         }
                 
@@ -940,7 +942,6 @@ export function clearAllIntervals() {
   // Stop all running tasks
   intervals.forEach((intervalId) => {
     clearInterval(intervalId);
-    //console.log(`Task for entity "${id}" stopped.`);
   });
   intervals.clear();
   // Stop all animation RAF loops
@@ -949,6 +950,7 @@ export function clearAllIntervals() {
   });
   pathControls.clear();
   directionControls.clear();
+  dashboardOldWidth = undefined;
   boxContentCache.clear();
   boxStateCache.clear();
   boxWidthCache.clear();
