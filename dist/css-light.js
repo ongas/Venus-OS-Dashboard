@@ -44,6 +44,10 @@ export function cssDataLight() {
             width: 34%;
         }
 
+        .column-2 .box {
+            max-height: 35%;
+        }
+
         .column-3 {
             width: 25%;
         }
