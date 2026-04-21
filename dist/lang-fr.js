@@ -9,7 +9,8 @@ export default {
     in_header: "dans l'en-tête",
     in_devices: "dans les Devices",
     in_footer: "dans le pied de page",
-    font_size: "Taille de la police"
+    font_size: "Taille de la police",
+    max_power: "Puissance max du système (W) — active la vitesse d'animation proportionnelle :"
   },
   subtabRender: {
     header_title: "Configuration de l'entête",

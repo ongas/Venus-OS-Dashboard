@@ -19,7 +19,7 @@ let boxStateCache = new Map();
 let boxWidthCache = new Map();
 let gaugeExceededCache = new Map();
 let gaugeExceededTimers = new Map();
-let maxPowerRange = 5000;  // dashboard-wide max power for speed scaling (configurable)
+let maxPowerRange = 0;  // dashboard-wide max power for speed scaling (0 = not configured, constant speed)
 
 export function setMaxPower(value) {
   const v = parseFloat(value);
@@ -817,10 +817,11 @@ function animateBallAlongPath(anchorId1, path, circles) {
   
   const pathLength = path.getTotalLength();
   
-  // Throughput-based velocity: scales with power magnitude
-  const MIN_VELOCITY = 8;    // px/sec at low power
-  const MAX_VELOCITY = 45;   // px/sec at full power
-  let velocity = 15;         // initial default
+  // Throughput-based velocity: scales with power magnitude when maxPower is configured
+  const CONSTANT_VELOCITY = 20;  // px/sec when maxPower not configured
+  const MIN_VELOCITY = 8;        // px/sec at low power
+  const MAX_VELOCITY = 45;       // px/sec at full power
+  let velocity = CONSTANT_VELOCITY;
   let duration = pathLength / velocity * 1000;
   let startTime;
   
@@ -830,6 +831,7 @@ function animateBallAlongPath(anchorId1, path, circles) {
   }
   
   function setSpeed(power) {
+    if (maxPowerRange <= 0) return;  // no maxPower configured — keep constant velocity
     const absPower = Math.abs(power);
     const t = Math.min(absPower / maxPowerRange, 1);  // 0..1 normalized
     velocity = MIN_VELOCITY + t * (MAX_VELOCITY - MIN_VELOCITY);

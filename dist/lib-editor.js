@@ -41,11 +41,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.6.43`);
+    const response = await import(`./lang-${lang}.js?v=0.6.45`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.6.43`);
+    const response = await import(`./lang-en.js?v=0.6.45`);
     translations = response.default;
   }
 }
@@ -147,6 +147,28 @@ export function tab1Render(appendTo) {
   devicesRow.appendChild(devicesLabel);
   devicesRow.appendChild(devicesRowContainer);
   editorDiv.appendChild(devicesRow);
+    
+  // Max power for animation speed scaling
+  const maxPowerRow = document.createElement('div');
+  maxPowerRow.classList.add('col');
+  const maxPowerLabel = document.createElement('div');
+  maxPowerLabel.classList.add('left');
+  maxPowerLabel.textContent = t("tab1Render", "max_power");
+  const maxPowerInputContainer = document.createElement('div');
+  maxPowerInputContainer.classList.add('row');
+  const maxPowerField = document.createElement('ha-textfield');
+  maxPowerField.classList.add('cell');
+  maxPowerField.setAttribute('id', 'maxPower');
+  maxPowerField.setAttribute('data-path', 'maxPower');
+  maxPowerField.setAttribute('label', 'Watts');
+  maxPowerField.setAttribute('value', appendTo._config.maxPower ?? '');
+  maxPowerField.setAttribute('type', 'number');
+  maxPowerField.setAttribute('min', '100');
+  maxPowerField.setAttribute('step', '100');
+  maxPowerInputContainer.appendChild(maxPowerField);
+  maxPowerRow.appendChild(maxPowerLabel);
+  maxPowerRow.appendChild(maxPowerInputContainer);
+  editorDiv.appendChild(maxPowerRow);
     
   // Taille de la font dans les zones des "Devices"
   const fontSizeRow = document.createElement('div');

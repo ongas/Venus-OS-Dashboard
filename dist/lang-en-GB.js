@@ -9,7 +9,8 @@ export default {
     in_header: "in header",
     in_devices: "in devices",
     in_footer: "in footer",
-    font_size: "Font size"
+    font_size: "Font size",
+    max_power: "Max system power (W) — enables throughput-based animation speed:"
   },
   subtabRender: {
     header_title: "Header configuration",
