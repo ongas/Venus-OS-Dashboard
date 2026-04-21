@@ -638,7 +638,7 @@ function addLine(devices, isDarkTheme, appendTo) {
                 
         if(link == "nolink") continue;
                 
-        const inv = link.inv === true ? -1 : 1;          // By default, "inv" is 1 if not defined
+        const inv = (link.inv === true || link.inv === "true") ? -1 : 1;  // By default, "inv" is 1 if not defined
                         
         // Display link information
         if (link.start && link.end) creatLine(`${boxId}_${link.start}`, link.end, inv, isDarkTheme, appendTo);
@@ -677,8 +677,9 @@ function creatLine(anchorId1, anchorId2, direction_init, isDarkTheme, appendTo) 
   }
   
   let pathData = "";
+  let swapped = false;
   
-  if (coords1.x === coords2.x || coords1.y === coords2.y) {
+  if (Math.abs(coords1.x - coords2.x) < 2 || Math.abs(coords1.y - coords2.y) < 2) {
     pathData = `M ${coords1.x} ${coords1.y} L ${coords2.x} ${coords2.y}`;
   } else {
   
@@ -686,12 +687,17 @@ function creatLine(anchorId1, anchorId2, direction_init, isDarkTheme, appendTo) 
     const anchor2isH = anchorId2.includes("L") || anchorId2.includes("R");
 
     if (anchor1isH && anchor2isH) {
-      const midX = (coords1.x + coords2.x) / 2;
-      pathData = `M${coords1.x},${coords1.y} C${midX},${coords1.y} ${midX},${coords2.y} ${coords2.x},${coords2.y}`;
+      const gap = Math.abs(coords2.x - coords1.x);
+      const stub = Math.min(30, gap * 0.15);
+      const signX = coords2.x > coords1.x ? 1 : -1;
+      const cp1x = coords1.x + signX * stub;
+      const cp2x = coords2.x - signX * stub;
+      pathData = `M${coords1.x},${coords1.y} C${cp1x},${coords1.y} ${cp2x},${coords2.y} ${coords2.x},${coords2.y}`;
     } else {
       if (anchor1isH) {
         coords1 = getAnchorCoordinates(anchorId2, appendTo);
         coords2 = getAnchorCoordinates(anchorId1, appendTo);
+        swapped = true;
       }
 
       pathData = `
@@ -740,7 +746,8 @@ function creatLine(anchorId1, anchorId2, direction_init, isDarkTheme, appendTo) 
   pathControls.set(anchorId1, controls);
   
   // add the original path direction to a map
-  directionControls.set(anchorId1, direction_init);
+  // When coords were swapped (H→V link), negate direction to compensate for reversed path
+  directionControls.set(anchorId1, swapped ? -direction_init : direction_init);
 }
 
 /*********************************************************/
@@ -809,9 +816,7 @@ function animateBallAlongPath(anchorId1, path, circles, appendTo) {
     const elapsed = time - startTime;
     var progress = (elapsed % duration) / duration;
     
-    if (direction == -1) {
-      progress = 1 - progress;
-    } if (direction == 0) {
+    if (direction == 0) {
       progress = 0; 
     }
     
@@ -822,11 +827,11 @@ function animateBallAlongPath(anchorId1, path, circles, appendTo) {
       } else {
         circle.setAttribute("opacity", "1");
         const offset = parseFloat(circle.getAttribute("data-offset"));
-        let ballProgress = (progress + offset) % 1;
-        
+        let ballProgress;
         if (direction == -1) {
-          ballProgress = (1 - progress - offset) % 1;
-          if (ballProgress < 0) ballProgress += 1;
+          ballProgress = (1 - progress + offset) % 1;
+        } else {
+          ballProgress = (progress + offset) % 1;
         }
         
         const point = path.getPointAtLength(ballProgress * pathLength);
