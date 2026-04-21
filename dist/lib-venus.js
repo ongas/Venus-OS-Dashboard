@@ -811,14 +811,31 @@ function animateBallAlongPath(anchorId1, path, circles) {
   
   const pathLength = path.getTotalLength();
   
-  // Constant velocity animation (matches Victron gui-v2: 30px/sec)
-  const ELECTRON_VELOCITY = 30;  // pixels per second
-  const duration = pathLength / ELECTRON_VELOCITY * 1000;
+  // Throughput-based velocity: scales with power magnitude
+  const MIN_VELOCITY = 15;   // px/sec at low power
+  const MAX_VELOCITY = 90;   // px/sec at full power
+  const POWER_RANGE = 5000;  // watts for full speed (scales linearly)
+  let velocity = 30;         // initial default
+  let duration = pathLength / velocity * 1000;
   let startTime;
   
   function reverseDirection(cmd) {
     const directionInit = directionControls.get(anchorId1);
     direction = directionInit*cmd;
+  }
+  
+  function setSpeed(power) {
+    const absPower = Math.abs(power);
+    const t = Math.min(absPower / POWER_RANGE, 1);  // 0..1 normalized
+    velocity = MIN_VELOCITY + t * (MAX_VELOCITY - MIN_VELOCITY);
+    const newDuration = pathLength / velocity * 1000;
+    // Adjust startTime so animation doesn't jump when speed changes
+    if (startTime && duration > 0) {
+      const now = performance.now();
+      const progressNow = ((now - startTime) % duration) / duration;
+      startTime = now - progressNow * newDuration;
+    }
+    duration = newDuration;
   }
   
   function moveBall(time) {
@@ -859,6 +876,7 @@ function animateBallAlongPath(anchorId1, path, circles) {
   
   return {
     reverse: reverseDirection,
+    setSpeed: setSpeed,
     stop: function() { running = false; },
   };
 }
@@ -889,10 +907,15 @@ export function checkForReverse(devices, hass) {
         const pathControl = pathControls.get(`${boxId}_${link.start}`);
                     
         if (pathControl && typeof pathControl.reverse === "function") {
-          if(valueLinkEnt < -0.5) pathControls.get(`${boxId}_${link.start}`).reverse(-1); 
-          else if(valueLinkEnt > 0.5) pathControls.get(`${boxId}_${link.start}`).reverse(1); 
+          const powerValue = parseFloat(valueLinkEnt) || 0;
+          if(powerValue < -0.5) pathControls.get(`${boxId}_${link.start}`).reverse(-1); 
+          else if(powerValue > 0.5) pathControls.get(`${boxId}_${link.start}`).reverse(1); 
           else pathControls.get(`${boxId}_${link.start}`).reverse(0); 
-        } 
+          // Scale animation speed based on power throughput
+          if (typeof pathControl.setSpeed === "function") {
+            pathControl.setSpeed(powerValue);
+          }
+        }
       }
     }
   }
