@@ -44,10 +44,6 @@ export function cssDataDark() {
             width: 34%;
         }
 
-        .column-2 .box {
-            max-height: 35%;
-        }
-
         .column-3 {
             width: 25%;
         }
@@ -59,7 +55,7 @@ export function cssDataDark() {
             border-radius: 5px;
             box-shadow: 0px 0px 1px 2px var(--box-shadow-color);  /* Utilisation de la variable pour la couleur de l'ombre */
             height: 100%;
-            max-height: 45%;
+            max-height: 35%;
             margin: 5px;
             display: flex;
             justify-content: center;
