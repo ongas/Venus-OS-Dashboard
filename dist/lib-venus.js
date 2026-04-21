@@ -812,10 +812,10 @@ function animateBallAlongPath(anchorId1, path, circles) {
   const pathLength = path.getTotalLength();
   
   // Throughput-based velocity: scales with power magnitude
-  const MIN_VELOCITY = 15;   // px/sec at low power
-  const MAX_VELOCITY = 90;   // px/sec at full power
+  const MIN_VELOCITY = 8;    // px/sec at low power
+  const MAX_VELOCITY = 45;   // px/sec at full power
   const POWER_RANGE = 5000;  // watts for full speed (scales linearly)
-  let velocity = 30;         // initial default
+  let velocity = 15;         // initial default
   let duration = pathLength / velocity * 1000;
   let startTime;
   
