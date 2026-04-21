@@ -641,7 +641,7 @@ function addLine(devices, isDarkTheme, appendTo) {
         if(link == "nolink") continue;
                 
         const inv = (link.inv === true || link.inv === "true") ? -1 : 1;  // By default, "inv" is 1 if not defined
-        const balls = parseInt(link.balls) || 4;
+        const balls = link.balls ? parseInt(link.balls) : 0;  // 0 = auto (gui-v2 style)
                         
         // Display link information
         if (link.start && link.end) creatLine(`${boxId}_${link.start}`, link.end, inv, isDarkTheme, appendTo, balls);
@@ -729,15 +729,21 @@ function creatLine(anchorId1, anchorId2, direction_init, isDarkTheme, appendTo, 
   path.setAttribute("fill", "none");
   path.setAttribute("stroke-width", "2");
   
+  // Auto-calculate ball count from path length (gui-v2 style: one electron per interval)
+  // If numBalls is 0 (auto), calculate from path length; otherwise use the override
+  const pathLength = path.getTotalLength();
+  const ELECTRON_INTERVAL = 34;  // pixels between electrons (matches Victron gui-v2)
+  const effectiveBalls = numBalls > 0 ? numBalls : Math.max(1, Math.floor(pathLength / ELECTRON_INTERVAL));
+  
   // Create the dots with gradient (evenly spaced dots)
   const circles = [];
-  for (let i = 0; i < numBalls; i++) {
+  for (let i = 0; i < effectiveBalls; i++) {
     const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     circle.setAttribute("class", "ball");
     circle.setAttribute("cx", coords1.x);
     circle.setAttribute("cy", coords1.y);
     circle.setAttribute("r", "4");
-    circle.setAttribute("data-offset", String(i / numBalls));
+    circle.setAttribute("data-offset", String(i / effectiveBalls));
     if(isDarkTheme) circle.setAttribute("fill", "url(#gradientDark)");
     else circle.setAttribute("fill", "url(#gradientLight)");
     circles.push(circle);
@@ -748,7 +754,7 @@ function creatLine(anchorId1, anchorId2, direction_init, isDarkTheme, appendTo, 
   pathContainer.appendChild(path);
   
   // Animate the dots along the path
-  const controls = animateBallAlongPath(anchorId1, path, circles, appendTo);
+  const controls = animateBallAlongPath(anchorId1, path, circles);
   
   // add the "reverse" pointer to a map for later use
   pathControls.set(anchorId1, controls);
@@ -798,18 +804,16 @@ function getAnchorCoordinates(anchorId, appendTo) {
 /* the circle, the path for circle movement, and the circle to       */
 /* move                                                              */
 /******************************************************************/
-function animateBallAlongPath(anchorId1, path, circles, appendTo) {
+function animateBallAlongPath(anchorId1, path, circles) {
   
   let direction = directionControls.get(anchorId1);
   let running = true;
   
   const pathLength = path.getTotalLength();
   
-  const box = appendTo.querySelector(`#dashboard`);
-  const boxWidth = box.offsetWidth;
-
-  const speed = boxWidth/40;
-  const duration = pathLength / speed * 1000;
+  // Constant velocity animation (matches Victron gui-v2: 30px/sec)
+  const ELECTRON_VELOCITY = 30;  // pixels per second
+  const duration = pathLength / ELECTRON_VELOCITY * 1000;
   let startTime;
   
   function reverseDirection(cmd) {
