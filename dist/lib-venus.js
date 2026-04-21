@@ -687,23 +687,29 @@ function creatLine(anchorId1, anchorId2, direction_init, isDarkTheme, appendTo) 
     const anchor2isH = anchorId2.includes("L") || anchorId2.includes("R");
 
     if (anchor1isH && anchor2isH) {
-      const gap = Math.abs(coords2.x - coords1.x);
-      const stub = Math.min(30, gap * 0.15);
-      const signX = coords2.x > coords1.x ? 1 : -1;
-      const cp1x = coords1.x + signX * stub;
-      const cp2x = coords2.x - signX * stub;
-      pathData = `M${coords1.x},${coords1.y} C${cp1x},${coords1.y} ${cp2x},${coords2.y} ${coords2.x},${coords2.y}`;
+      // H→H: staircase path — horizontal stub, vertical drop, horizontal stub
+      const midX = (coords1.x + coords2.x) / 2;
+      const halfW = Math.abs(midX - coords1.x);
+      const halfH = Math.abs(coords2.y - coords1.y) / 2;
+      const r = Math.min(10, halfW, halfH);
+      const dx = coords2.x > coords1.x ? 1 : -1;
+      const dy = coords2.y > coords1.y ? 1 : -1;
+      pathData = `M${coords1.x},${coords1.y} L${midX - dx*r},${coords1.y} Q${midX},${coords1.y} ${midX},${coords1.y + dy*r} L${midX},${coords2.y - dy*r} Q${midX},${coords2.y} ${midX + dx*r},${coords2.y} L${coords2.x},${coords2.y}`;
     } else {
+      // V→H or V→V: staircase path — vertical stub, horizontal run, vertical stub
       if (anchor1isH) {
         coords1 = getAnchorCoordinates(anchorId2, appendTo);
         coords2 = getAnchorCoordinates(anchorId1, appendTo);
         swapped = true;
       }
 
-      pathData = `
-          M ${coords1.x} ${coords1.y} 
-          C ${coords1.x} ${coords2.y}, ${coords1.x} ${coords2.y}, ${coords2.x} ${coords2.y}
-        `;
+      const midY = (coords1.y + coords2.y) / 2;
+      const halfH = Math.abs(midY - coords1.y);
+      const halfW = Math.abs(coords2.x - coords1.x) / 2;
+      const r = Math.min(10, halfH, halfW);
+      const dy = coords2.y > coords1.y ? 1 : -1;
+      const dx = coords2.x > coords1.x ? 1 : -1;
+      pathData = `M${coords1.x},${coords1.y} L${coords1.x},${midY - dy*r} Q${coords1.x},${midY} ${coords1.x + dx*r},${midY} L${coords2.x - dx*r},${midY} Q${coords2.x},${midY} ${coords2.x},${midY + dy*r} L${coords2.x},${coords2.y}`;
     }
   }
     
