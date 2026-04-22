@@ -304,7 +304,7 @@ export function cssDataDark() {
 			0% {
 				bottom: -80px;
 			}
-			60%, 99.99% {
+			59%, 99.99% {
 				bottom: 100%;
 			}
 			100% {
@@ -348,7 +348,7 @@ export function cssDataDark() {
 				rgba(255, 255, 255, 0.15) 30%,
 				rgba(255, 255, 255, 0) 100%
 			);
-			animation: batteryChargingWave 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+			animation: batteryChargingWave 2.2s cubic-bezier(0.25, 0.5, 0.75, 1) infinite;
 		}
 
 		.box:not(.charging) .chargingAnimationClip {
