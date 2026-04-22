@@ -309,6 +309,12 @@ export function cssDataDark() {
 			}
 		}
 
+		@keyframes batteryChargingPause {
+			0%, 100% {
+				transform: translateY(-100%);
+			}
+		}
+
 		.gauge {
 			position: absolute;
 			left: 0px;
@@ -345,8 +351,9 @@ export function cssDataDark() {
 				rgba(255, 255, 255, 0.15) 30%,
 				rgba(255, 255, 255, 0) 100%
 			);
-			animation: batteryChargingWave 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
-			animation-delay: 0.5s;
+			animation: batteryChargingWave 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), batteryChargingPause 0.8s 1.2s;
+			animation-iteration-count: infinite;
+			animation-delay: 0s, 1.2s;
 		}
 
 		.box:not(.charging) .chargingAnimationClip {
