@@ -318,6 +318,46 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     } else if(divSideGauge) {
       divSideGauge.style.display = 'none';
     }
+
+    // Battery charging animation - detect if battery is charging
+    const divBox = appendTo.querySelector(`#dashboard > #column-${boxId[0]} > #box_${boxId}`);
+    if (divBox) {
+      let isCharging = false;
+      
+      // Check if iconEntity contains "charging" (e.g., "battery-charging-70")
+      if (device.iconEntity) {
+        const iconState = hass.states[device.iconEntity];
+        if (iconState && iconState.state && iconState.state.includes('charging')) {
+          isCharging = true;
+        }
+      }
+      
+      // Also check device.entity for "charging" in icon attribute
+      if (!isCharging && device.entity) {
+        const entityState = hass.states[device.entity];
+        if (entityState && entityState.attributes && entityState.attributes.icon && entityState.attributes.icon.includes('charging')) {
+          isCharging = true;
+        }
+      }
+      
+      // Check for explicit charging mode in attributes (e.g., for Victron devices)
+      if (!isCharging && device.entity) {
+        const entityState = hass.states[device.entity];
+        if (entityState) {
+          const mode = entityState.attributes?.mode || entityState.attributes?.state || '';
+          if (mode.toLowerCase().includes('charging')) {
+            isCharging = true;
+          }
+        }
+      }
+      
+      // Apply or remove charging class
+      if (isCharging) {
+        divBox.classList.add('charging');
+      } else {
+        divBox.classList.remove('charging');
+      }
+    }
             
     if(styles.header != "") {
       if(styles.header == "auto") {

@@ -298,6 +298,49 @@ export function cssDataLight() {
 			width: 30%;
 			gap: 5%;
 		}
+
+		/* Battery charging animation - exact replica of gui-v2 */
+		@keyframes batteryChargingAnimation {
+			0% {
+				transform: translateY(0);
+			}
+			100% {
+				transform: translateY(100%);
+			}
+		}
+
+		.box.charging::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			z-index: 2;
+			pointer-events: none;
+			overflow: hidden;
+			border-radius: 5px;
+		}
+
+		.box.charging::after {
+			content: '';
+			position: absolute;
+			left: 0;
+			right: 0;
+			width: 100%;
+			height: 80px;
+			background: linear-gradient(
+				to bottom,
+				rgba(255, 255, 255, 0.3) 0%,
+				rgba(255, 255, 255, 0.15) 30%,
+				rgba(255, 255, 255) 100%
+			);
+			animation: batteryChargingAnimation 2s linear infinite;
+			animation-delay: 0.5s;
+			z-index: 2;
+			pointer-events: none;
+			top: -80px;
+		}
 		
   `
   return css;
