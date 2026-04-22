@@ -305,7 +305,7 @@ export function cssDataLight() {
 				transform: translateY(0);
 			}
 			100% {
-				transform: translateY(calc(100% + 80px));
+				transform: translateY(-100%);
 			}
 		}
 

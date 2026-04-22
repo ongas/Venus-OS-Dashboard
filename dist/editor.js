@@ -1,7 +1,7 @@
 
-import {css} from './css-editor.js?v=0.6.52';
+import {css} from './css-editor.js?v=0.6.53';
 
-import * as libEditor from './lib-editor.js?v=0.6.52';
+import * as libEditor from './lib-editor.js?v=0.6.53';
 
 class venusOsDashBoardEditor extends HTMLElement {
   constructor() {
