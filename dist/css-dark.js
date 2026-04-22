@@ -300,33 +300,24 @@ export function cssDataDark() {
 		}
 
 		/* Battery charging animation - exact replica of gui-v2 */
-		@keyframes batteryChargingAnimation {
+		@keyframes batteryChargingWave {
 			0% {
 				transform: translateY(0);
 			}
 			100% {
-				transform: translateY(100%);
+				transform: translateY(calc(100% + 80px));
 			}
 		}
 
-		.box.charging::before {
-			content: '';
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			z-index: 2;
-			pointer-events: none;
+		.box.charging {
 			overflow: hidden;
-			border-radius: 5px;
 		}
 
 		.box.charging::after {
 			content: '';
 			position: absolute;
 			left: 0;
-			right: 0;
+			bottom: 0;
 			width: 100%;
 			height: 80px;
 			background: linear-gradient(
@@ -335,11 +326,10 @@ export function cssDataDark() {
 				rgba(255, 255, 255, 0.15) 30%,
 				rgba(255, 255, 255, 0) 100%
 			);
-			animation: batteryChargingAnimation 2s linear infinite;
-			animation-delay: 0.5s;
-			z-index: 2;
+			z-index: 3;
 			pointer-events: none;
-			top: -80px;
+			animation: batteryChargingWave 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+			animation-delay: 0.5s;
 		}
 		
   `
