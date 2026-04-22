@@ -227,6 +227,15 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
       const gaugeAbsVal = Math.abs(parseFloat(value));
       const gaugeVal = Math.min(gaugeAbsVal / gaugeMax * 100, 100);
       divGauge.style.height = gaugeVal + `%`;
+      
+      // Update animation container height to match gauge
+      let animContainer = divGauge.querySelector('.chargingAnimationClip');
+      if (!animContainer) {
+        animContainer = document.createElement('div');
+        animContainer.className = 'chargingAnimationClip';
+        divGauge.appendChild(animContainer);
+      }
+      animContainer.style.height = '100%';
     } else {
       divGauge.style.height = `0px`;
     }

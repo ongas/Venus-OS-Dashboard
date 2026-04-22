@@ -309,11 +309,30 @@ export function cssDataLight() {
 			}
 		}
 
-		.box.charging {
+		.gauge {
+			position: absolute;
+			left: 0px;
+			bottom: 0px;
+			width: 100%;
+			background: linear-gradient(to bottom, #5a9fd4, #4a8cc4);
+			opacity: 0.8;
+			z-index: 1;
+			border-radius: 0 0 5px 5px;
 			overflow: hidden;
 		}
 
-		.box.charging::after {
+		.chargingAnimationClip {
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			z-index: 2;
+			pointer-events: none;
+		}
+
+		.chargingAnimationClip::before {
 			content: '';
 			position: absolute;
 			left: 0;
@@ -326,10 +345,12 @@ export function cssDataLight() {
 				rgba(255, 255, 255, 0.15) 30%,
 				rgba(255, 255, 255, 0) 100%
 			);
-			z-index: 3;
-			pointer-events: none;
 			animation: batteryChargingWave 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
 			animation-delay: 0.5s;
+		}
+
+		.box:not(.charging) .chargingAnimationClip {
+			display: none;
 		}
 		
   `

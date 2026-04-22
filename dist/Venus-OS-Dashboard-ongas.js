@@ -16,11 +16,11 @@ console.info(
   "color: white; font-weight: bold; background: grey"
 );
 
-import './editor.js?v=0.6.53';
-import * as libVenus from './lib-venus.js?v=0.6.53';
+import './editor.js?v=0.6.54';
+import * as libVenus from './lib-venus.js?v=0.6.54';
 
-import { cssDataDark } from './css-dark.js?v=0.6.53';
-import { cssDataLight } from './css-light.js?v=0.6.53';
+import { cssDataDark } from './css-dark.js?v=0.6.54';
+import { cssDataLight } from './css-light.js?v=0.6.54';
 
 class venusOsDashboardCard extends HTMLElement {
 
