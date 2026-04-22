@@ -307,8 +307,11 @@ export function cssDataDark() {
 			60% {
 				transform: translateY(-100%);
 			}
-			100% {
+			99.99% {
 				transform: translateY(-100%);
+			}
+			100% {
+				transform: translateY(0);
 			}
 		}
 
