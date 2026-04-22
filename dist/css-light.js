@@ -302,16 +302,13 @@ export function cssDataLight() {
 		/* Battery charging animation - exact replica of gui-v2 */
 		@keyframes batteryChargingWave {
 			0% {
-				transform: translateY(0);
+				bottom: -80px;
 			}
-			60% {
-				transform: translateY(-100%);
-			}
-			99.99% {
-				transform: translateY(-100%);
+			60%, 99.99% {
+				bottom: 100%;
 			}
 			100% {
-				transform: translateY(0);
+				bottom: -80px;
 			}
 		}
 
@@ -342,7 +339,7 @@ export function cssDataLight() {
 			content: '';
 			position: absolute;
 			left: 0;
-			bottom: 0;
+			bottom: -80px;
 			width: 100%;
 			height: 80px;
 			background: linear-gradient(
