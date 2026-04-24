@@ -41,11 +41,11 @@ export async function loadTranslations(appendTo) {
   }
 
   try {
-    const response = await import(`./lang-${lang}.js?v=0.6.62`);
+    const response = await import(`./lang-${lang}.js?v=0.6.63`);
     translations = response.default;
   } catch (error) {
     console.error("Erreur de chargement de la langue :", error);
-    const response = await import(`./lang-en.js?v=0.6.62`);
+    const response = await import(`./lang-en.js?v=0.6.63`);
     translations = response.default;
   }
 }
@@ -169,6 +169,26 @@ export function tab1Render(appendTo) {
   maxPowerRow.appendChild(maxPowerLabel);
   maxPowerRow.appendChild(maxPowerInputContainer);
   editorDiv.appendChild(maxPowerRow);
+  
+  // Capitalize text values
+  const capRow = document.createElement('div');
+  capRow.classList.add('col');
+  const capLabel = document.createElement('div');
+  capLabel.classList.add('left');
+  capLabel.textContent = 'Capitalize text values';
+  const capInputContainer = document.createElement('div');
+  capInputContainer.classList.add('row');
+  const capSwitchContainer = document.createElement('div');
+  capSwitchContainer.classList.add('cell', 'right');
+  const capSwitch = document.createElement('ha-switch');
+  capSwitch.setAttribute('data-path', 'capitalize');
+  capSwitch.setAttribute('data-default-on', 'true');
+  if (appendTo._config.capitalize !== false) capSwitch.setAttribute('checked', '');
+  capSwitchContainer.appendChild(capSwitch);
+  capInputContainer.appendChild(capSwitchContainer);
+  capRow.appendChild(capLabel);
+  capRow.appendChild(capInputContainer);
+  editorDiv.appendChild(capRow);
     
   // Taille de la font dans les zones des "Devices"
   const fontSizeRow = document.createElement('div');
@@ -839,7 +859,8 @@ export function attachLinkInputs(appendTo) {
     // Create a new event handler
     const handleChange = (e) => {
       const key = toggle.dataset.path;
-      const value = e.target.checked ? true : null; // `true` if enabled, `null` for deletion
+      const defaultOn = toggle.dataset.defaultOn === 'true';
+      const value = e.target.checked ? (defaultOn ? null : true) : (defaultOn ? false : null);
             
       if (key) {
         appendTo._config = updateConfigRecursively(appendTo._config, key, value, true); // Delete if disabled
@@ -980,7 +1001,8 @@ export function attachInputs(appendTo) {
     // Create a new event handler
     const handleChange = (e) => {
       const key = toggle.dataset.path;
-      const value = e.target.checked ? true : null; // `true` if enabled, `null` for deletion
+      const defaultOn = toggle.dataset.defaultOn === 'true';
+      const value = e.target.checked ? (defaultOn ? null : true) : (defaultOn ? false : null);
       const group = toggle.dataset.group;
       const isChecked = e.target.checked;
             

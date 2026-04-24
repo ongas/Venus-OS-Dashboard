@@ -299,6 +299,13 @@ export function cssDataLight() {
 			gap: 5%;
 		}
 
+		.capitalize-values .boxSensor1,
+		.capitalize-values .boxSensor2,
+		.capitalize-values .headerEntity,
+		.capitalize-values .footerCell {
+			text-transform: capitalize;
+		}
+
 		/* Battery charging animation - exact replica of gui-v2 */
 		@keyframes batteryChargingWave {
 			0% {

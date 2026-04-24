@@ -183,6 +183,13 @@ function creatAnchors(colNbrs, boxNbrs, numAnchors, type, appendTo) {
 export function fillBox(config, styles, isDark, hass, appendTo) {
     
   const devices = config.devices || [];
+  
+  // Toggle capitalize CSS class on dashboard container
+  const dashboard = appendTo.querySelector('#dashboard');
+  if (dashboard) {
+    if (config.capitalize !== false) dashboard.classList.add('capitalize-values');
+    else dashboard.classList.remove('capitalize-values');
+  }
     
   for (const boxId in devices) {
         
