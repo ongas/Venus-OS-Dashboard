@@ -210,6 +210,8 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     let state = hass.states[device.entity];
     let value = state ? state.state : 'N/C';
     let unit = state && state.attributes.unit_of_measurement ? state.attributes.unit_of_measurement : '';
+    // Drop unnecessary decimals for whole numbers (e.g., "100.0" -> "100")
+    if (value !== 'N/C') { const n = parseFloat(value); if (!isNaN(n) && n === Math.floor(n)) value = String(Math.round(n)); }
             
 
     let addHeaderEntity = "";
@@ -446,7 +448,8 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
 
     if(device.headerEntity) {
       const stateHeaderEnt = hass.states[device.headerEntity];
-      const valueHeaderEnt = stateHeaderEnt ? stateHeaderEnt.state : '';
+      let valueHeaderEnt = stateHeaderEnt ? stateHeaderEnt.state : '';
+      { const n = parseFloat(valueHeaderEnt); if (!isNaN(n) && n === Math.floor(n)) valueHeaderEnt = String(Math.round(n)); }
       const unitvalueHeaderEnt = stateHeaderEnt && stateHeaderEnt.attributes.unit_of_measurement ? stateHeaderEnt.attributes.unit_of_measurement : '';
                 
       addHeaderEntity = `
@@ -456,7 +459,8 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
         
     if(device.entity2) {
       const stateEntity2 = hass.states[device.entity2];
-      const valueEntity2 = stateEntity2 ? stateEntity2.state : '';
+      let valueEntity2 = stateEntity2 ? stateEntity2.state : '';
+      { const n = parseFloat(valueEntity2); if (!isNaN(n) && n === Math.floor(n)) valueEntity2 = String(Math.round(n)); }
       const unitvalueEntity2 = stateEntity2 && stateEntity2.attributes.unit_of_measurement ? stateEntity2.attributes.unit_of_measurement : '';
                 
       addEntity2 = `
@@ -467,15 +471,18 @@ export function fillBox(config, styles, isDark, hass, appendTo) {
     if(device.footerEntity1) {
                 
       const stateFooterEnt1 = hass.states[device.footerEntity1];
-      const valueFooterEnt1 = stateFooterEnt1 ? stateFooterEnt1.state : '';
+      let valueFooterEnt1 = stateFooterEnt1 ? stateFooterEnt1.state : '';
+      { const n = parseFloat(valueFooterEnt1); if (!isNaN(n) && n === Math.floor(n)) valueFooterEnt1 = String(Math.round(n)); }
       const unitvalueFooterEnt1 = stateFooterEnt1 && stateFooterEnt1.attributes.unit_of_measurement ? stateFooterEnt1.attributes.unit_of_measurement : '';
                 
       const stateFooterEnt2 = hass.states[device.footerEntity2];
-      const valueFooterEnt2 = stateFooterEnt2 ? stateFooterEnt2.state : '';
+      let valueFooterEnt2 = stateFooterEnt2 ? stateFooterEnt2.state : '';
+      { const n = parseFloat(valueFooterEnt2); if (!isNaN(n) && n === Math.floor(n)) valueFooterEnt2 = String(Math.round(n)); }
       const unitvalueFooterEnt2 = stateFooterEnt2 && stateFooterEnt2.attributes.unit_of_measurement ? stateFooterEnt2.attributes.unit_of_measurement : '';
                 
       const stateFooterEnt3 = hass.states[device.footerEntity3];
-      const valueFooterEnt3 = stateFooterEnt3 ? stateFooterEnt3.state : '';
+      let valueFooterEnt3 = stateFooterEnt3 ? stateFooterEnt3.state : '';
+      { const n = parseFloat(valueFooterEnt3); if (!isNaN(n) && n === Math.floor(n)) valueFooterEnt3 = String(Math.round(n)); }
       const unitvalueFooterEnt3 = stateFooterEnt3 && stateFooterEnt3.attributes.unit_of_measurement ? stateFooterEnt3.attributes.unit_of_measurement : '';
             
       addFooter = `
