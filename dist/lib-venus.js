@@ -869,7 +869,7 @@ function animateBallAlongPath(anchorId1, path, circles) {
   // Throughput-based velocity: scales with power magnitude when maxPower is configured
   const CONSTANT_VELOCITY = 40;  // px/sec when maxPower not configured
   const MIN_VELOCITY = 8;        // px/sec at low power
-  const MAX_VELOCITY = 45;       // px/sec at full power
+  const MAX_VELOCITY = 90;       // px/sec at full power
   let velocity = CONSTANT_VELOCITY;
   let duration = pathLength / velocity * 1000;
   let startTime;
@@ -883,7 +883,8 @@ function animateBallAlongPath(anchorId1, path, circles) {
     if (maxPowerRange <= 0) return;  // no maxPower configured — keep constant velocity
     const absPower = Math.abs(power);
     const t = Math.min(absPower / maxPowerRange, 1);  // 0..1 normalized
-    velocity = MIN_VELOCITY + t * (MAX_VELOCITY - MIN_VELOCITY);
+    const curved = t * t;  // quadratic curve: speed ramps up faster near max power
+    velocity = MIN_VELOCITY + curved * (MAX_VELOCITY - MIN_VELOCITY);
     const newDuration = pathLength / velocity * 1000;
     // Adjust startTime so animation doesn't jump when speed changes
     if (startTime && duration > 0) {
