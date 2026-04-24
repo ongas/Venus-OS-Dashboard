@@ -883,7 +883,7 @@ function animateBallAlongPath(anchorId1, path, circles) {
     if (maxPowerRange <= 0) return;  // no maxPower configured — keep constant velocity
     const absPower = Math.abs(power);
     const t = Math.min(absPower / maxPowerRange, 1);  // 0..1 normalized
-    const curved = t * t;  // quadratic curve: speed ramps up faster near max power
+    const curved = Math.pow(t, 1.5);  // power curve: faster than linear everywhere, emphasizes high power
     velocity = MIN_VELOCITY + curved * (MAX_VELOCITY - MIN_VELOCITY);
     const newDuration = pathLength / velocity * 1000;
     // Adjust startTime so animation doesn't jump when speed changes
